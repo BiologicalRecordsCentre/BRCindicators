@@ -11,7 +11,7 @@ This document shows how to use the indicator pipeline to create biodiversity ind
 
 The functions in BRCindicators work with yearly estimates of species abundance or occurrence and aggregate them into an scaled indicator value with bootstrapped confidence intervals 
 
-This package has the input to read in the output of occupancy models created in the R package sparta, a package for estimating species trends from occurrence data. This package can be installed [from Github](https://github.com/BiologicalRecordsCentre/sparta) and details of how to use the package are given in [the package vignette](https://github.com/BiologicalRecordsCentre/sparta/raw/master/vignette/sparta_vignette.pdf). There is no need to use sparta to create your yearly species estimates as BRCindicators can also work with other data. 
+This package has the ability to read in the output of occupancy models created in the R package sparta, a package for estimating species trends from occurrence data. This package can be installed [from Github](https://github.com/BiologicalRecordsCentre/sparta) and details of how to use the package are given in [the package vignette](https://github.com/BiologicalRecordsCentre/sparta/raw/master/vignette/sparta_vignette.pdf). There is no need to use sparta to create your yearly species estimates as BRCindicators can also work with other data. 
 
 To create an indicator we first need to have species trends, let's create some using the sparta R package.
 
@@ -201,24 +201,24 @@ plot_indicator(indicator = rescaled_trends[,'indicator'],
 
 ## Creating a custom pipeline function
 
-We have demonstrated how you might run the indicator functions one at a time now however in a 'pipeline we want data to flow through seamlessly. Additionally there are a number of parameters in the functions that we have not shown you that you might find useful. Here is an example of how you can create your own pipeline function. Our function will wrap around the functions described above, setting the parameters to meet our needs. Once we have done this it will allow use to execute our pipeline in one line.
+We have demonstrated how you might run the indicator functions one at a time, however in a 'pipeline' we want data to flow through seamlessly. Additionally there are a number of parameters in the functions that we have not shown you that you might find useful. Here is an example of how you can create your own pipeline function. Our function will wrap around the functions described above, setting the parameters to meet our needs. Once we have done this it will allow use to execute our pipeline in one line.
 
 ```{r,cache=TRUE}
 # I call my function 'run_pipeline' and the only arguement it
 # takes is the directory of sparta's output
 run_pipeline <- function(input_dir){
 
-  ## Create the trends summary
+  # Create the trends summary
   trends_summary <- summarise_occDet(input_dir = input_dir)
 
-  ## Rescale the values and get the indicator values
+  # Rescale the values and get the indicator values
   # Here I set the index to 1 and change the value limits
   rescaled_trends <- rescale_species(Data = trends_summary,
                                      index = 1,
                                      max = 100,
                                      min = 0.001)
   
-  ## Bootstrap the indicator to get CIs
+  # Bootstrap the indicator to get CIs
   scaled_species <- rescaled_trends[,!colnames(rescaled_trends) %in% c('year', 'indicator')]
   # This time I set the iterations to twice the default and 
   # use custom confidence intervals
