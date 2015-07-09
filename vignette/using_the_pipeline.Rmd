@@ -1,7 +1,7 @@
 ---
 title: "Using the Pipeline"
 author: "Tom August"
-date: "23 June 2015"
+date: "9 July 2015"
 output: pdf_document
 ---
 
@@ -188,6 +188,28 @@ indicator_CIs <- bootstrap_indicator(Data = scaled_species)
 head(indicator_CIs)
 ```
 
+## Creating a smoothed indicator
+
+It is sometimes desirable to create a smoothed indicator value from the raw values. This can be achieved by fitting a GAM (general additive model) to the indicator using a spline. This spline is a smoothed curve that goes through the raw values for the indicator and is fitted using the function 'gam' in the 'mgcv' R package.
+
+```{r,cache=TRUE}
+# The smoothing function takes the indicator values
+smoothed_indicator <- GAM_smoothing(rescaled_trends[,'indicator'])
+
+# In this example there is little support for a non-linear trend and 
+# so the line almost linear
+plot(x = rescaled_trends[,'year'], y = rescaled_trends[,'indicator'])
+lines(x = rescaled_trends[,'year'], y = smoothed_indicator, col = 'red')
+
+# But if our indicator did support a non-linear trend it might look 
+# like this
+eg_indicator <- jitter(sort(rnorm(50)), amount = 0.5)
+eg_smoothed <- GAM_smoothing(eg_indicator)
+plot(x = 1:50, y = eg_indicator)
+lines(x = 1:50, y = eg_smoothed, col = 'red')
+```
+
+Where there is little support for a non-linear trend a GAM smoothed line will tend towards linear. Where there is good support for a non-linear trend the smoothed line will become more 'bendy'.
 
 ## Plotting the indicator
 
@@ -196,8 +218,11 @@ We now have our indicator and the confidence intervals around it. The next step 
 ```{r, cache = TRUE}
 # Plot our indicator.
 plot_indicator(indicator = rescaled_trends[,'indicator'],
+               smoothed_line = smoothed_indicator,
                CIs = indicator_CIs)
 ```
+
+In this plot you can see the high upper confidence interval in years 2-4, this is due to the artificially high values we gave to species 'c'.
 
 ## Creating a custom pipeline function
 
@@ -208,6 +233,9 @@ We have demonstrated how you might run the indicator functions one at a time, ho
 # takes is the directory of sparta's output
 run_pipeline <- function(input_dir){
 
+  require(sparta)
+  require(BRCindicators)
+  
   # Create the trends summary
   trends_summary <- summarise_occDet(input_dir = input_dir)
 
@@ -226,27 +254,26 @@ run_pipeline <- function(input_dir){
                                        CI_limits = c(0.25, 0.75),
                                        iterations = 20000)
   
-  # Save a plot
-  # This time I specify the years and index value
-  jpeg(filename = file.path(input_dir, 'myPlot.jpg'),
-       width = 600, height = 400)
-    plot_indicator(indicator = rescaled_trends[,'indicator'],
-                   year = rescaled_trends[,'year'],
-                   index = 1,
-                   CIs = indicator_CIs)
-  dev.off()
+  # Get the smoothed indicator line
+  smoothed_indicator <- GAM_smoothing(rescaled_trends[,'indicator'])
   
-  # Show the plot aswell
+  # This time I specify the years and index value
   plot_indicator(indicator = rescaled_trends[,'indicator'],
                  year = rescaled_trends[,'year'],
                  index = 1,
-                 CIs = indicator_CIs)
-}
+                 CIs = indicator_CIs,
+                 smoothed_line = smoothed_indicator)
+  
+  ## I'll return all my data  
+  return(cbind(smoothed_indicator, indicator_CIs, as.data.frame(trends_summary)))
+ }
 ```
 
 Once we have created this function we can run this pipeline on a directory in one line, or put it in a loop to run across many directories. 
 
 ```{r,}
 # Now we can run the pipeline in one line, like a boss
-run_pipeline(input_dir = '~/Testing_indicator_pipe')
+indicator_data <- run_pipeline(input_dir = '~/Testing_indicator_pipe')
+
+head(indicator_data)
 ```

@@ -8,9 +8,8 @@ bootstrap_indicator(Data, iterations = 10000, CI_limits = c(0.025, 0.975),
   verbose = TRUE)
 }
 \arguments{
-\item{Data}{A matrix, the first column gives the year, subsequent named
-columns give the species and the named column 'indicator' gives
-the indicator value.}
+\item{Data}{A matrix where each named column give the species' values
+for each year in rows.}
 
 \item{iterations}{The number of bootstrap iterations to use.}
 

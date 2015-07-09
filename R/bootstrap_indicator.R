@@ -3,9 +3,8 @@
 #' This function takes in a dataframe of multi-species data that have been scaled
 #' and adds confidence intervals to the indicator value.
 #' 
-#' @param Data A matrix, the first column gives the year, subsequent named
-#'        columns give the species and the named column 'indicator' gives
-#'        the indicator value.
+#' @param Data A matrix where each named column give the species' values
+#'        for each year in rows.
 #' @param iterations The number of bootstrap iterations to use.
 #' @param CI_limits The confidence limits to return as a vector of two
 #'        numbers. This default to c(0.025, 0.975) the 95 percent conficence intervals.
