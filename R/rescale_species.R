@@ -20,7 +20,7 @@
 
 rescale_species <-  function(Data, index = 100, max = 10000,
                              min = 1){
-  geomean <- function(x) exp(mean(log(x), na.rm=T))
+  geomean <- function(x) exp(mean(log(x), na.rm = T))
   
   # Get the multipliers neede to achieved the index value
   multipliers <- index / Data[1,2:ncol(Data)] 
@@ -77,7 +77,7 @@ rescale_species <-  function(Data, index = 100, max = 10000,
       indicator_scaled[,NAtop[i]] <- d
       
       # Recalculate the geomean before the next species
-      indicator_scaled[,'geomean'] <- apply(X = indicator_scaled[,!colnames(indicator_scaled) %in% 'geoMean'], MARGIN = 1, FUN = geomean)
+      indicator_scaled[,'geomean'] <- apply(X = indicator_scaled[,!colnames(indicator_scaled) %in% 'geomean'], MARGIN = 1, FUN = geomean)
       
     }
   }

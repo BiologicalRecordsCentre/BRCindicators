@@ -166,7 +166,7 @@ Now lets run this through the re-scaling function.
 # Let's run this data through our scaling function (all defaults used)
 rescaled_trends <- rescale_species(Data = trends_summary)
 
-# Here is the result
+# Here's the result
 head(rescaled_trends[,c('year', 'indicator', 'a', 'b', 'c', 'd')])
 tail(rescaled_trends[,c('year', 'indicator', 'a', 'b', 'c', 'd')])
 ```
