@@ -5,7 +5,7 @@
 #' for species that have no data at the beginning of the period or those that
 #' have no data at teh end of the period.
 #' 
-#' @param Data A matrix, the first column gives the year, subsequent named
+#' @param Data A matrix, the first column, named year, gives the year. Subsequent named
 #'        columns give the species. Values in the table are the yearly values
 #'        to be rescaled.
 #' @param index The index value for the first year, defaults to 100.
