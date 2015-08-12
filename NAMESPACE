@@ -3,6 +3,7 @@
 export(GAM_smoothing)
 export(bootstrap_indicator)
 export(plot_indicator)
+export(rescale_posterior)
 export(rescale_species)
 export(summarise_occDet)
 import(ggplot2)

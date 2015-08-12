@@ -19,7 +19,10 @@ plot_indicator <-  function(indicator, CIs, year = 1:length(indicator), index = 
   
     combo <- as.data.frame(cbind(year, indicator, CIs))
     colnames(combo) <- c('year','indicator','lower','upper')
-    if(length(indicator) != length(smoothed_line)) stop('indicator and smoothed_line must be the same length')
+    
+    if(!is.null(smoothed_line)){
+      if(length(indicator) != length(smoothed_line)) stop('indicator and smoothed_line must be the same length')
+    }
     
     if(!is.null(smoothed_line)){
       combo$smoothed <- smoothed_line
@@ -44,5 +47,5 @@ plot_indicator <-  function(indicator, CIs, year = 1:length(indicator), index = 
     
     print(plot)
     
-    return(NULL)
+    #return(NULL)
 }

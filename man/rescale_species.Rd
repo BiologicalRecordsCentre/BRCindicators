@@ -7,7 +7,7 @@
 rescale_species(Data, index = 100, max = 10000, min = 1)
 }
 \arguments{
-\item{Data}{A matrix, the first column gives the year, subsequent named
+\item{Data}{A matrix, the first column, named year, gives the year. Subsequent named
 columns give the species. Values in the table are the yearly values
 to be rescaled.}
 
