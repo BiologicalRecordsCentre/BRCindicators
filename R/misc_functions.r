@@ -59,8 +59,8 @@ list_geomean <- function(data_list, year, ignore_species = NULL,
   
   year_mean <- geomean(all_values)
   attr(year_mean, 'n_species') <- count
-  attr(year_mean, 'CI_min') <- quantile(x = all_values, probs = CI_min)
-  attr(year_mean, 'CI_max') <- quantile(x = all_values, probs = CI_max)
+#   attr(year_mean, 'CI_min') <- quantile(x = all_values, probs = CI_min)
+#   attr(year_mean, 'CI_max') <- quantile(x = all_values, probs = CI_max)
   
   return(year_mean)
   
@@ -108,5 +108,61 @@ cap_index <- function(data_list, max = 10000, min = 1){
   }
   
   return(data_list)
+  
+}
+
+# A function to bootstrap across a rescaled list to get confidence intervals
+bootstrap_posteriors <- function(rescaled_list, iterations = 10000, years){
+  
+  pb <- txtProgressBar()
+  cat(paste('Bootstrapping -', iterations, 'iterations', '\n'))
+  
+  rep <- function(rescaled_list, progress, years){
+    
+    setTxtProgressBar(pb, progress)
+    
+    sampled <- sample(rescaled_list, length(rescaled_list), replace = TRUE)
+    
+    return(sapply(years, FUN = function(x) list_geomean(sampled, year = x)))
+    
+  }
+  
+  bootstraps <- sapply(seq(from = 0, to = 1, length.out = iterations),
+                       FUN = function(x) rep(rescaled_list, x, years))
+  bootstrap_CIs <- t(apply(bootstraps, 1, quantile, probs = c(0.025, 0.975)))
+  
+  colnames(bootstrap_CIs) <- paste('bootstrap', colnames(bootstrap_CIs), sep = '_')
+  
+  return(bootstrap_CIs)
+  
+}
+
+# A function to get the quantiles for each year
+list_quantiles <- function(rescaled_list, years, quantile_min = 0.025, quantile_max = 0.975){
+  
+  cat('\nCalculating quantiles...')
+  
+  yr_val <- function(year, rescaled_list){
+    
+    year_vals <- sapply(rescaled_list, FUN = function(x){
+          if(as.character(year) %in% row.names(x)){
+            return(x[as.character(year),])
+          } else {
+            return(NULL)
+          }
+        })
+    
+    qs <- quantile(unlist(year_vals), probs = c(quantile_min, quantile_max))
+    
+    return(qs)
+    
+  }
+  
+  qs_out <- t(sapply(years, FUN = function(x) yr_val(year = x, rescaled_list = rescaled_list)))
+  colnames(qs_out) <- paste('quantiles', colnames(qs_out), sep = '_')
+  
+  cat('done')
+  
+  return(qs_out)
   
 }

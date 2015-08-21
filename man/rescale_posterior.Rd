@@ -5,11 +5,12 @@
 \title{Rescale species values for indicator}
 \usage{
 rescale_posterior(input_dir, subset_table = NULL, index = 100,
-  max = 10000, min = 1, year_limit = 10, upperCI = 0.975,
-  lowerCI = 0.025, verbose = TRUE)
+  max = 10000, min = 1, year_limit = 10, bootstrap = TRUE,
+  iterations = 10, upperQuantile = 0.975, lowerQuantile = 0.025,
+  verbose = TRUE)
 }
 \arguments{
-\item{input_dir}{the loction of occupancy model output files}
+\item{input_dir}{the location of occupancy model output files}
 
 \item{subset_table}{dataframe with columns for years and rows for species.
 Column names must be character years and row names must match the file names
@@ -26,9 +27,13 @@ this will be set equal to \code{min}.}
 \item{year_limit}{The minimum length of 'good years' for a species to be
 included}
 
-\item{upperCI}{The upper confidence interval to use (as a probability)}
+\item{bootstrap}{logical indicating if bootstrapping is to be done}
 
-\item{lowerCI}{The lower confidence interval to use (as a probability)}
+\item{iterations}{If CI is 'bootstrap', the number of iterations to use}
+
+\item{upperQuantile}{The upper confidence interval to use (as a probability)}
+
+\item{lowerQuantile}{The lower confidence interval to use (as a probability)}
 
 \item{verbose}{If TRUE progress is written to console}
 }
@@ -36,9 +41,17 @@ included}
 A list with two elements, a summary and the rescaled data
 }
 \description{
-This function takes in a dataframe of multi-species data and rescales them
-so that the value in the starting year is the same. This function accounts
-for species that have no data at the beginning of the period or those that
-have no data at teh end of the period.
+This function takes in the output from a sparta occupancy model and rescales
+the posteriers so that them gemean for each species is the same in the first
+year This function accounts for species that have no data at the beginning
+of the period, by bringing them in at the geomean, and those that have no
+data at the end of the period, by applying a multiplier to the result of the
+species data.
+}
+\details{
+There are two options for calculating confidence intervals; the first is
+to use the 95% quantiles, this shows the range of values in the posterior, the second
+is to bootstrap across species when calculating the geomean, this shows the variation
+between species, whilst including the data from the posterior.
 }
 
