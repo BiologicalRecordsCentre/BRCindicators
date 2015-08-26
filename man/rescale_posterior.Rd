@@ -52,6 +52,9 @@ species data.
 There are two options for calculating confidence intervals; the first is
 to use the 95% quantiles, this shows the range of values in the posterior, the second
 is to bootstrap across species when calculating the geomean, this shows the variation
-between species, whilst including the data from the posterior.
+between species, whilst including the data from the posterior. The quantiles are
+always calculated, though the quantiles to calculate can be changed. Bootstrapping
+is done by default but can be turned off. Ideally 1000 + iterations should be used
+but this can take a long time.
 }
 

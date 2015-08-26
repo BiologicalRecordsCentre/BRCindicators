@@ -47,8 +47,8 @@ rescale_species <-  function(Data, index = 100, max = 10000,
   # These need to be sorted into the order in which they enter the dataset for
   # this method to work (else assigning geomean values goes wrong)
   firstYear <- function(x) min(which(!is.na(x)))
-  # These are now in the correct order
-  NAtop <- names(sort(apply(X = Data[,NAtop], MARGIN = 2, FUN = firstYear)))
+  # re-order if there is more than one
+  if(length(NAtop) > 1) NAtop <- names(sort(apply(X = Data[,NAtop], MARGIN = 2, FUN = firstYear)))
   
   if(length(NAtop) > 0){
     # Deal with ones at the beggining first
@@ -64,7 +64,7 @@ rescale_species <-  function(Data, index = 100, max = 10000,
       temp_gm <- indicator_scaled[first_year,'geomean']
       
       # Calculate multiplier needed
-      multi <- temp_gm / Data[,NAtop][first_year,i]
+      multi <- temp_gm / Data[first_year, NAtop[i]]
       
       # Apply this...
       d <- Data[,NAtop[i]]*multi

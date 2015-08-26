@@ -10,12 +10,13 @@
 #' @param year A numeric vector as long as \code{indicator} giving the years
 #' @param index Numeric, the index value, by default it is taken to be the 
 #'        first value of \code{indicator}
+#' @param main Title given to the plot
 #' @return The plot object is returned
 #' @import ggplot2
 #' @export
 
 plot_indicator <-  function(indicator, CIs, year = 1:length(indicator), index = indicator[1],
-                            smoothed_line = NULL){
+                            smoothed_line = NULL, main = ''){
   
     combo <- as.data.frame(cbind(year, indicator, CIs))
     colnames(combo) <- c('year','indicator','lower','upper')
@@ -36,7 +37,8 @@ plot_indicator <-  function(indicator, CIs, year = 1:length(indicator), index = 
       labs(x = "Year", y = "Scaled value") + 
       geom_point(aes(y = indicator), size = 3) +
       theme(text = element_text(size = 15)) +
-      geom_ribbon(data = combo, aes(ymin = lower, ymax = upper), alpha = 0.2)
+      geom_ribbon(data = combo, aes(ymin = lower, ymax = upper), alpha = 0.2) +
+      ggtitle(main)
     
     if(!is.null(smoothed_line)){
       

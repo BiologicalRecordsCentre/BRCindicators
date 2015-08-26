@@ -57,13 +57,13 @@ list_geomean <- function(data_list, year, ignore_species = NULL,
     }
   }
   
-  year_mean <- geomean(all_values)
-  attr(year_mean, 'n_species') <- count
-#   attr(year_mean, 'CI_min') <- quantile(x = all_values, probs = CI_min)
-#   attr(year_mean, 'CI_max') <- quantile(x = all_values, probs = CI_max)
-  
-  return(year_mean)
-  
+  if(!is.null(all_values)){
+    year_mean <- geomean(all_values)
+    attr(year_mean, 'n_species') <- count
+    return(year_mean)
+  } else {
+    return(NA)    
+  }
 }
 
 # Create a function to apply multiplier to years after a species leaves
@@ -129,7 +129,7 @@ bootstrap_posteriors <- function(rescaled_list, iterations = 10000, years){
   
   bootstraps <- sapply(seq(from = 0, to = 1, length.out = iterations),
                        FUN = function(x) rep(rescaled_list, x, years))
-  bootstrap_CIs <- t(apply(bootstraps, 1, quantile, probs = c(0.025, 0.975)))
+  bootstrap_CIs <- t(apply(bootstraps, 1, quantile, probs = c(0.025, 0.975), na.rm = TRUE))
   
   colnames(bootstrap_CIs) <- paste('bootstrap', colnames(bootstrap_CIs), sep = '_')
   
@@ -152,7 +152,7 @@ list_quantiles <- function(rescaled_list, years, quantile_min = 0.025, quantile_
           }
         })
     
-    qs <- quantile(unlist(year_vals), probs = c(quantile_min, quantile_max))
+    qs <- quantile(unlist(year_vals), probs = c(quantile_min, quantile_max), na.rm = TRUE)
     
     return(qs)
     
@@ -161,7 +161,7 @@ list_quantiles <- function(rescaled_list, years, quantile_min = 0.025, quantile_
   qs_out <- t(sapply(years, FUN = function(x) yr_val(year = x, rescaled_list = rescaled_list)))
   colnames(qs_out) <- paste('quantiles', colnames(qs_out), sep = '_')
   
-  cat('done')
+  cat('done\n')
   
   return(qs_out)
   

@@ -5,7 +5,7 @@
 \title{Plot indicator}
 \usage{
 plot_indicator(indicator, CIs, year = 1:length(indicator),
-  index = indicator[1], smoothed_line = NULL)
+  index = indicator[1], smoothed_line = NULL, main = "")
 }
 \arguments{
 \item{indicator}{A numeric vector, one value for each year}
@@ -20,6 +20,8 @@ first value of \code{indicator}}
 
 \item{smoothed_line}{A numeric vector giving the smoothed values to plot
 see \code{\link{GAM_smoothing}}}
+
+\item{main}{Title given to the plot}
 }
 \value{
 The plot object is returned
