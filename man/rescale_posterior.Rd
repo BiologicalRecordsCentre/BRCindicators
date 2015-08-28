@@ -5,9 +5,8 @@
 \title{Rescale species values for indicator}
 \usage{
 rescale_posterior(input_dir, subset_table = NULL, index = 100,
-  max = 10000, min = 1, year_limit = 10, bootstrap = TRUE,
-  iterations = 10, upperQuantile = 0.975, lowerQuantile = 0.025,
-  verbose = TRUE)
+  max = 10000, min = 1, year_limit = 10, upperQuantile = 0.975,
+  lowerQuantile = 0.025, verbose = TRUE)
 }
 \arguments{
 \item{input_dir}{the location of occupancy model output files}
@@ -27,10 +26,6 @@ this will be set equal to \code{min}.}
 \item{year_limit}{The minimum length of 'good years' for a species to be
 included}
 
-\item{bootstrap}{logical indicating if bootstrapping is to be done}
-
-\item{iterations}{If CI is 'bootstrap', the number of iterations to use}
-
 \item{upperQuantile}{The upper confidence interval to use (as a probability)}
 
 \item{lowerQuantile}{The lower confidence interval to use (as a probability)}
@@ -38,12 +33,13 @@ included}
 \item{verbose}{If TRUE progress is written to console}
 }
 \value{
-A list with two elements, a summary and the rescaled data
+A list with two elements, a summary (data.frame) and the rescaled data
+(list)
 }
 \description{
 This function takes in the output from a sparta occupancy model and rescales
-the posteriers so that them gemean for each species is the same in the first
-year This function accounts for species that have no data at the beginning
+the posteriers so that the gemean for each species is the same in the first
+year. This function accounts for species that have no data at the beginning
 of the period, by bringing them in at the geomean, and those that have no
 data at the end of the period, by applying a multiplier to the result of the
 species data.
@@ -51,10 +47,8 @@ species data.
 \details{
 There are two options for calculating confidence intervals; the first is
 to use the 95% quantiles, this shows the range of values in the posterior, the second
-is to bootstrap across species when calculating the geomean, this shows the variation
-between species, whilst including the data from the posterior. The quantiles are
-always calculated, though the quantiles to calculate can be changed. Bootstrapping
-is done by default but can be turned off. Ideally 1000 + iterations should be used
-but this can take a long time.
+is to calculate the indicator line for each iteration (given in the posterior data)
+and then to present the 97.5 and 2.5 quantiles of these lines. Both are returned
+in the summary table.
 }
 

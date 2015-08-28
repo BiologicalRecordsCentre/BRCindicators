@@ -1,19 +1,17 @@
 #' Rescale species values for indicator
 #' 
 #' @description  This function takes in the output from a sparta occupancy model and rescales
-#' the posteriers so that them gemean for each species is the same in the first
-#' year This function accounts for species that have no data at the beginning
+#' the posteriers so that the gemean for each species is the same in the first
+#' year. This function accounts for species that have no data at the beginning
 #' of the period, by bringing them in at the geomean, and those that have no
 #' data at the end of the period, by applying a multiplier to the result of the
 #' species data.
 #' 
 #' @details There are two options for calculating confidence intervals; the first is
 #' to use the 95% quantiles, this shows the range of values in the posterior, the second
-#' is to bootstrap across species when calculating the geomean, this shows the variation
-#' between species, whilst including the data from the posterior. The quantiles are
-#' always calculated, though the quantiles to calculate can be changed. Bootstrapping
-#' is done by default but can be turned off. Ideally 1000 + iterations should be used
-#' but this can take a long time.
+#' is to calculate the indicator line for each iteration (given in the posterior data)
+#' and then to present the 97.5 and 2.5 quantiles of these lines. Both are returned
+#' in the summary table. 
 #' 
 #' @param input_dir the location of occupancy model output files
 #' @param subset_table dataframe with columns for years and rows for species. 
@@ -26,18 +24,20 @@
 #'        this will be set equal to \code{min}.
 #' @param year_limit The minimum length of 'good years' for a species to be
 #'        included
-#' @param bootstrap logical indicating if bootstrapping is to be done
-#' @param iterations If CI is 'bootstrap', the number of iterations to use
+# @param bootstrap logical indicating if bootstrapping is to be done
+# @param iterations If CI is 'bootstrap', the number of iterations to use
 #' @param upperQuantile The upper confidence interval to use (as a probability)
 #' @param lowerQuantile The lower confidence interval to use (as a probability)
 #' @param verbose If TRUE progress is written to console
-#' @return A list with two elements, a summary and the rescaled data
+#' @return A list with two elements, a summary (data.frame) and the rescaled data
+#' (list)
 #' @export
 #' 
 rescale_posterior <-  function(input_dir, subset_table = NULL,
                                index = 100, max = 10000,
                                min = 1, year_limit = 10, 
-                               bootstrap = TRUE, iterations = 10,
+                               #bootstrap = FALSE,
+                               #iterations = 10,
                                upperQuantile = 0.975, lowerQuantile = 0.025,
                                verbose = TRUE){
   
@@ -65,7 +65,7 @@ rescale_posterior <-  function(input_dir, subset_table = NULL,
     
     list_summaries <- lapply(names(list_summaries), remove_bad_years,
                              subset_table = subset_table, list_summaries = list_summaries)
-    names(list_summaries) <- files
+    names(list_summaries) <- tolower(files)
     
   }
   
@@ -94,14 +94,14 @@ rescale_posterior <-  function(input_dir, subset_table = NULL,
   # Create summary output table
   summary_table <- data.frame(year = first_year:max(sp_periods[,2]),
                               indicator = NA, n_species = NA)
-  summary_start <- list_geomean(data_list = rescaled_list, year = first_year, CI_min = lowerCI,
-                                CI_max = upperCI)
+  summary_start <- list_geomean(data_list = rescaled_list, year = first_year)
   summary_table$indicator[summary_table$year == first_year] <- summary_start
   summary_table$n_species[summary_table$year == first_year] <- attr(summary_start, 'n_species')
   
   # Now go through each year in turn.
   # First identify any species that leave and apply multiplier to remaining years
   # Second identfy new species and bring them in at the geomean
+  if(verbose) cat('Rescaling...')
   for(i in (first_year + 1):max(sp_periods[,2])){
     
     # Find those species whose last years data was the year before
@@ -141,28 +141,28 @@ rescale_posterior <-  function(input_dir, subset_table = NULL,
     
     }
 
-    summary <- list_geomean(data_list = rescaled_list, year = i, CI_min = lowerCI,
-                            CI_max = upperCI)
+    summary <- list_geomean(data_list = rescaled_list, year = i)
     summary_table$indicator[summary_table$year == i] <- summary
     summary_table$n_species[summary_table$year == i] <- attr(summary, 'n_species')
     
   }
+  if(verbose) cat('done\n')
   
   # If we are bootstrapping create the CIs 
-  if(bootstrap){
-    
-    bootstrap_CIs <- bootstrap_posteriors(rescaled_list, iterations, years = first_year:max(sp_periods[,2]))
-    summary_table <- cbind(summary_table, bootstrap_CIs)
-      
-  }
+#   if(bootstrap){
+#     
+#     bootstrap_CIs <- bootstrap_posteriors(rescaled_list, iterations, years = first_year:max(sp_periods[,2]))
+#     summary_table <- cbind(summary_table, bootstrap_CIs)
+#       
+#   }
   
-  # Calculat the quantiles
-  quantiles <- list_quantiles(rescaled_list = rescaled_list,
-                              quantile_min = lowerQuantile,
-                              quantile_max = upperQuantile, 
-                              years = first_year:max(sp_periods[,2]))
+  # Calculate the quantiles
+  quantiles_CI <- list_quantiles_CI(rescaled_list = rescaled_list,
+                                    quantile_min = lowerQuantile,
+                                    quantile_max = upperQuantile, 
+                                    years = first_year:max(sp_periods[,2]))
   
-  summary_table <- cbind(summary_table, quantiles)
+  summary_table <- cbind(summary_table, quantiles_CI)
   
   return(list(summary = summary_table, data = rescaled_list))
   

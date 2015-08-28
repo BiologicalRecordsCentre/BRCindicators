@@ -34,8 +34,7 @@ remove_bad_years <-  function(species_name, subset_table, list_summaries){
 
 # Create a function that will calculate the geomean from the list
 # of species for a given year
-list_geomean <- function(data_list, year, ignore_species = NULL,
-                         CI_min = 0.025, CI_max = 0.975){
+list_geomean <- function(data_list, year, ignore_species = NULL){
   
   all_values <- NULL
   
@@ -52,7 +51,7 @@ list_geomean <- function(data_list, year, ignore_species = NULL,
   for(sp in species){
     # if the species has a value for this year add its data
     if(as.character(year) %in% row.names(data_list[[sp]])){
-      all_values <- c(all_values, data_list[[sp]][as.character(year),])
+      all_values <- c(all_values, median(data_list[[sp]][as.character(year),]))
       count <- count + 1
     }
   }
@@ -87,7 +86,7 @@ entering_multiplier <- function(data_list, gm){
   
   for(sp in names(data_list)){
     
-    multiplier <- gm / geomean(data_list[[sp]][1,])
+    multiplier <- gm / median(data_list[[sp]][1,])
     
     data_list[[sp]] <- data_list[[sp]] * multiplier
     
@@ -133,36 +132,64 @@ bootstrap_posteriors <- function(rescaled_list, iterations = 10000, years){
   
   colnames(bootstrap_CIs) <- paste('bootstrap', colnames(bootstrap_CIs), sep = '_')
   
+  cat('\n')
+  
   return(bootstrap_CIs)
   
 }
 
 # A function to get the quantiles for each year
-list_quantiles <- function(rescaled_list, years, quantile_min = 0.025, quantile_max = 0.975){
+list_quantiles_CI <- function(rescaled_list, years, quantile_min = 0.025, quantile_max = 0.975){
   
-  cat('\nCalculating quantiles...')
+  cat('Calculating quantiles and confidence intervals...')
   
   yr_val <- function(year, rescaled_list){
     
-    year_vals <- sapply(rescaled_list, FUN = function(x){
+    year_vals <- lapply(rescaled_list, FUN = function(x){
           if(as.character(year) %in% row.names(x)){
             return(x[as.character(year),])
           } else {
             return(NULL)
           }
         })
+
+    # Calculate the quantiles of all the posterior points from this year
+    data_quantiles <- quantile(unlist(year_vals), probs = c(quantile_min, quantile_max), na.rm = TRUE)
+    names(data_quantiles) <- paste('quantile',
+                                   gsub('%', '', names(data_quantiles)),
+                                   sep = '_')
     
-    qs <- quantile(unlist(year_vals), probs = c(quantile_min, quantile_max), na.rm = TRUE)
+    # rbind all the species from this year together, giving us a table, 
+    # each row a species, each column an interation
+    if(is.list(year_vals)){
+      
+      yr_iterations <- do.call(rbind, year_vals)
     
-    return(qs)
+    } else { #if only one species is present
+      
+      yr_iterations <- t(as.data.frame(year_vals))
+      
+    }
+    
+    # apply geomean across columns, giving one geomean for each iteration
+    yr_iteration_geomeans <- apply(X = yr_iterations, MARGIN = 2, FUN = geomean)
+
+    # take the 95% CIs from these geomeans
+    geomean_quantiles <- quantile(yr_iteration_geomeans, probs = c(0.025, 0.975), na.rm = TRUE)
+    names(geomean_quantiles) <- paste('geomean_CI',
+                                      gsub('%', '', names(geomean_quantiles)),
+                                      sep = '_')
+    # combine this data in a easy to handle format
+    range_data <- cbind(t(as.data.frame(geomean_quantiles)), t(as.data.frame(data_quantiles)))
+    row.names(range_data) <- year
+    return(range_data)
     
   }
   
-  qs_out <- t(sapply(years, FUN = function(x) yr_val(year = x, rescaled_list = rescaled_list)))
-  colnames(qs_out) <- paste('quantiles', colnames(qs_out), sep = '_')
+  range_summaries <- do.call(rbind, lapply(years, FUN = function(x) yr_val(year = x, rescaled_list = rescaled_list)))
   
   cat('done\n')
   
-  return(qs_out)
+  return(range_summaries)
   
 }
