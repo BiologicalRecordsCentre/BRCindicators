@@ -2,10 +2,12 @@
 
 export(GAM_smoothing)
 export(bootstrap_indicator)
+export(lambda_interpolation)
 export(plot_indicator)
 export(rescale_posterior)
 export(rescale_species)
 export(summarise_occDet)
 import(ggplot2)
 import(mgcv)
+importFrom(car,logit)
 importFrom(reshape2,dcast)

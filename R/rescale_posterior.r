@@ -57,14 +57,15 @@ rescale_posterior <-  function(input_dir, subset_table = NULL,
   names(list_summaries) <- tolower(files)
   if(verbose) cat('done\n')
   
-  # if we are useing a subset table get rid of all the data we dont need
-  colnames(subset_table) <- gsub('^X', '', colnames(subset_table))
-  row.names(subset_table) <- tolower(row.names(subset_table))
-
   if(!is.null(subset_table)){
+    
+    # if we are useing a subset table get rid of all the data we dont need
+    colnames(subset_table) <- gsub('^X', '', colnames(subset_table))
+    row.names(subset_table) <- tolower(row.names(subset_table))
     
     list_summaries <- lapply(names(list_summaries), remove_bad_years,
                              subset_table = subset_table, list_summaries = list_summaries)
+    
     names(list_summaries) <- tolower(files)
     
   }

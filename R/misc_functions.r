@@ -193,3 +193,108 @@ list_quantiles_CI <- function(rescaled_list, years, quantile_min = 0.025, quanti
   return(range_summaries)
   
 }
+
+
+remove_bad_species <- function(Occ, threshold_sd, threshold_yrs){
+  
+  # Calculate standard deviations
+  sds <- apply(Occ, c(1,2), sd) 
+  
+  # first define reliable estimates as those with standard deviations lower than the threshold
+  reliable <- sds < threshold_sd
+  
+  # convert the FALSE elements to NA (for the maths to work below)
+  reliable[!reliable] <- NA 
+  
+  # set the posteriors where sd >  0.2 to NA 
+  OccRel <- sapply(1:dim(Occ)[3], function(j) Occ[,,j] * reliable, simplify='array')
+  
+  # OccRel is now identical to Occ except that unreliable estimates have been changed to NA
+  # now strip out species with fewer reliable years than the desired number
+  OccRel <- OccRel[rowSums(reliable, na.rm=T) >= threshold_yrs,,]
+
+  return(OccRel)
+  
+}
+
+lambda_calc <- function(Occ, logOdds = TRUE){
+  
+  # first generate an empty array
+  LogLambda <- array(NA, dim = dim(Occ), dimnames = dimnames(Occ))
+  
+  #loop over every year-species combo
+  for(i in 1:dim(Occ)[1]){ 
+    
+    for(t in 2:dim(Occ)[2]){
+      
+      # which years in the past have reliable estimates
+      relyrs <- (!is.na(Occ[i,1:(t-1),1]))
+      
+      if(any(relyrs)){
+        
+        # find the most recent year with reliable estimates (mrry)    
+        mrry <- max(which(relyrs))
+        
+        # the compound interest over this period is given by the exponent of the difference in log odds between years
+        if(logOdds){
+          comp <- exp(Occ[i,t,] - Occ[i,mrry,]) # Odds ratio = proportional change in odds over the number of years
+        } else {
+          comp <- Occ[i,t,] / Occ[i,mrry,] # ratio
+        }
+        
+        # the interpolated annual lamdba is the Nth root of comp, where N is the number of years between adjacent reliable estimates
+        ann_change <- comp ^ (1/(t-mrry))
+        
+        # now interpolate all the years between mrry & t
+        # NB if the gap is 0 years (i.e. mrry = t-1 then there is no interpolation)
+        # if the gap is >0 years then the intervening years have already been set as NA
+        LogLambda[i,(mrry+1):t,] <- log(ann_change)
+        
+      } else {
+        
+        LogLambda[i,t,] <- NA
+        
+      }
+    }
+  }
+  
+  return(LogLambda)
+  
+}
+
+
+getData <- function(input){
+  
+  if(class(input) == 'character'){
+    # get files from the input directory
+    files <- list.files(path = paste(input), ignore.case = TRUE, pattern = '\\.rdata$') # list of the files to loop through
+    
+    # sense check these file names
+    if(length(files) == 0) stop('No .rdata files found in ', input)
+    if(length(files) < length(list.files(path = input))) warning('Not all files in ', input, ' are .rdata files, other file types have been ignored')
+    
+    cat('Loading data...')
+    # Use lapply to run this function on all files
+    org <- getwd()
+    setwd(input)
+    Occ <- sapply(files, read_posterior, simplify = 'array')
+    setwd(org)
+    cat('done\n')
+    
+    # reorder dimensions into a more logical order
+    # Species - Year - Iteration
+    Occ <- aperm(Occ, c(3,1,2))
+    
+    return(Occ)
+  
+  } else if(class(input) == "array"){
+    
+    return(input)
+    
+  } else {
+    
+    stop('Input should be either a file path or an array')
+    
+  }
+  
+}
