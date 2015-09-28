@@ -125,6 +125,15 @@ lambda_interpolation <-  function(input,
   # of one value per species, convert to a percentage change per year
   sp_pcpy <- 100 * (exp(spLogLamda) - 1)
   
-  return(list(summary = summary_table, data = Occ, ind_data = Indicator_data, species_change = sp_pcpy))
+  # Assign to cats
+  sp_cat <- cut(sp_pcpy, 
+                breaks = c(-Inf,-2.73,-1.14,1.16,2.81,Inf),
+                labels = c('strong decrease','decrease', 'no change', 'increase','strong increase'),
+                ordered = T)
+  
+  # build DD
+  sp_change <- data.frame(percent_change_year = sp_pcpy, category = sp_cat)
+  
+  return(list(summary = summary_table, data = Occ, ind_data = Indicator_data, species_change = sp_change))
   
 } 
