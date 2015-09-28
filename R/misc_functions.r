@@ -1,7 +1,7 @@
 geomean <- function(x) exp(mean(log(x), na.rm = T))
 
 # create a function to read in the data we want from these .rdata files
-read_posterior <- function(file){
+read_posterior <- function(file, sample_size = NULL){
   
   load(file)
   
@@ -11,6 +11,13 @@ read_posterior <- function(file){
   # Extract the values for each iteration
   iteration_values <- t(out$BUGSoutput$sims.list$psi.fs)
   
+  if(!is.null(sample_size)){
+    # Sample is needed
+    iteration_values <- iteration_values[, sample(ncol(iteration_values),
+                                                  size = sample_size,
+                                                  replace = FALSE)]
+  }
+   
   # Name the rows by year
   row.names(iteration_values) <- min_year:(min_year + nrow(iteration_values) - 1) 
   
@@ -213,6 +220,9 @@ remove_bad_species <- function(Occ, threshold_sd, threshold_yrs){
   # now strip out species with fewer reliable years than the desired number
   OccRel <- OccRel[rowSums(reliable, na.rm=T) >= threshold_yrs,,]
 
+  # Save the good years table - for the species that pass
+  # the thresholds - as an attribute of the data returned
+  attr(OccRel, 'good_years') <- reliable[rowSums(reliable, na.rm = T) >= threshold_yrs, ]
   return(OccRel)
   
 }
@@ -263,7 +273,10 @@ lambda_calc <- function(Occ, logOdds = TRUE){
 }
 
 
-getData <- function(input){
+getData <- function(input, sample_size = NULL){
+  
+  if(!is.null(sample_size)) if(!is.numeric(sample_size)) stop('sample_size must be numeric')
+  
   
   if(class(input) == 'character'){
     # get files from the input directory
@@ -277,17 +290,37 @@ getData <- function(input){
     # Use lapply to run this function on all files
     org <- getwd()
     setwd(input)
-    Occ <- sapply(files, read_posterior, simplify = 'array')
+    Occ <- sapply(files, read_posterior,
+                  simplify = 'array', sample_size = sample_size)
     setwd(org)
     cat('done\n')
     
-    # reorder dimensions into a more logical order
-    # Species - Year - Iteration
-    Occ <- aperm(Occ, c(3,1,2))
+    # This does not come back as an array if the individual species
+    # results do not have the same dimensions, this happens when the 
+    # data come from different runs of the occupancy models
+    if(class(Occ) != 'array'){
+      
+      Occ <- list_to_array(Occ)
+      
+    } else {
+      
+      # reorder dimensions into a more logical order
+      # Species - Year - Iteration
+      Occ <- aperm(Occ, c(3,1,2))
+      
+    }
     
     return(Occ)
   
   } else if(class(input) == "array"){
+    
+    if(!is.null(sample_size)){
+      
+      input <- input[ , , sample(ncol(input),
+                                 size = sample_size,
+                                 replace = FALSE)] 
+      
+    }
     
     return(input)
     
@@ -296,5 +329,38 @@ getData <- function(input){
     stop('Input should be either a file path or an array')
     
   }
+  
+}
+
+list_to_array <- function(Occ){
+  
+  # Calculate dimensions
+  nsp <- length(Occ)
+  maxyr <- max(unlist(lapply(Occ, FUN = function(x) as.numeric(row.names(x)))))
+  minyr <- min(unlist(lapply(Occ, FUN = function(x) as.numeric(row.names(x)))))
+  nyr <- (maxyr - minyr) + 1
+  
+  # Throw an error if the number of iterations is not the same
+  if(min(unlist(lapply(Occ, ncol))) != max(unlist(lapply(Occ, ncol)))){
+    stop('Input data must have the same number of iterations')
+  } else {
+    iter <- as.numeric(unlist(lapply(Occ, ncol))[1])
+  }
+  
+  # Build the array
+  array_holder <- array(data = NA,
+                        dim = c(nsp, nyr, iter),
+                        dimnames = list(species = names(Occ),
+                                        years = as.character(minyr:maxyr),
+                                        iterations = as.character(1:iter)))
+  
+  # Fill the array
+  for(i in 1:length(Occ)){ 
+    
+    array_holder[names(Occ[i]), row.names(Occ[[i]]), ] <- Occ[[i]]
+    
+  }
+  
+  return(array_holder)
   
 }

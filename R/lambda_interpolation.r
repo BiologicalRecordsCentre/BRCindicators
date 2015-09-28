@@ -18,10 +18,15 @@
 #' @param upperQuantile The upper confidence interval to use (as a probability)
 #' @param lowerQuantile The lower confidence interval to use (as a probability)
 #' @param logOdds Logical, if \code{TRUE} then log odds
-#' @return A list with four elements: a summary (data.frame), the raw data used
-#' in the indicator (after removing species that fail thresholds), the raw
-#' indicator value (a value for each iteration in each year), and a measure of
-#' change for each species [ADD SPECIFICS].
+#' @param sample_size numeric, if not NULL then a subsample of the iterations are 
+#' used, equal to the number given. This is useful when datasets are so large
+#' that memory starts to become limiting.
+#' @return A list with five elements: a summary (data.frame), the LogLambda values
+#' , calculated after removing species that fail thresholds and including
+#' interpolation, the raw
+#' indicator value (a value for each iteration in each year), the average annual
+#' percentage change for each species, and a table giving the 'good' years for
+#' each species as defined by the thresholds.
 #' @importFrom car logit
 #' @export
 #' @examples 
@@ -43,7 +48,7 @@
 #' 
 #' # Ensure values are bounded by 0 and 1
 #' myArray[myArray > 1] <- 1
-#' myArray[myArray > 0] <- 0
+#' myArray[myArray < 0] <- 0
 #' 
 #' # Run the lambda_interpolation method on this data                
 #' myIndicator <- lambda_interpolation(myArray)
@@ -61,10 +66,11 @@ lambda_interpolation <-  function(input,
                                   threshold_yrs = 20,
                                   upperQuantile = 0.975,
                                   lowerQuantile = 0.025,
-                                  logOdds = TRUE){
+                                  logOdds = TRUE,
+                                  sample_size = NULL){
   
   # Load the data if path else return input if array
-  Occ <- getData(input = input)
+  Occ <- getData(input = input, sample_size = sample_size)
   
   # How many species?
   nsp1 <- dim(Occ)[1]
@@ -73,6 +79,10 @@ lambda_interpolation <-  function(input,
   Occ <- remove_bad_species(Occ = Occ,
                             threshold_sd = threshold_sd,
                             threshold_yrs = threshold_yrs)
+  
+  # Save the reliable years table to return 
+  good_years <- attr(Occ, 'good_years')
+  
   # Now how many?
   nsp2 <- dim(Occ)[1]
   
@@ -134,6 +144,10 @@ lambda_interpolation <-  function(input,
   # build DD
   sp_change <- data.frame(percent_change_year = sp_pcpy, category = sp_cat)
   
-  return(list(summary = summary_table, data = Occ, ind_data = Indicator_data, species_change = sp_change))
+  return(list(summary = summary_table,
+              LogLambda = LogLambda,
+              ind_data = Indicator_data,
+              species_change = sp_change,
+              good_years = good_years))
   
 } 
