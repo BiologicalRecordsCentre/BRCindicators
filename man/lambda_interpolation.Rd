@@ -6,7 +6,7 @@
 \usage{
 lambda_interpolation(input, index = 100, threshold_sd = 0.2,
   threshold_yrs = 20, upperQuantile = 0.975, lowerQuantile = 0.025,
-  logOdds = TRUE, sample_size = NULL)
+  logOdds = TRUE, sample_size = NULL, year_range = NULL)
 }
 \arguments{
 \item{input}{Either a string giving the path to occupancy model output files
@@ -29,6 +29,9 @@ fulfill the threshold_sd for it to be included.}
 \item{sample_size}{numeric, if not NULL then a subsample of the iterations are
 used, equal to the number given. This is useful when datasets are so large
 that memory starts to become limiting.}
+
+\item{year_range,}{numic vector of length 2 giving the start and end year of the
+data to be analysed.}
 }
 \value{
 A list with five elements: a summary (data.frame), the LogLambda values

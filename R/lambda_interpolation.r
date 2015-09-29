@@ -21,6 +21,8 @@
 #' @param sample_size numeric, if not NULL then a subsample of the iterations are 
 #' used, equal to the number given. This is useful when datasets are so large
 #' that memory starts to become limiting.
+#' @param year_range, numic vector of length 2 giving the start and end year of the 
+#' data to be analysed.
 #' @return A list with five elements: a summary (data.frame), the LogLambda values
 #' , calculated after removing species that fail thresholds and including
 #' interpolation, the raw
@@ -67,10 +69,14 @@ lambda_interpolation <-  function(input,
                                   upperQuantile = 0.975,
                                   lowerQuantile = 0.025,
                                   logOdds = TRUE,
-                                  sample_size = NULL){
+                                  sample_size = NULL,
+                                  year_range = NULL){
   
   # Load the data if path else return input if array
   Occ <- getData(input = input, sample_size = sample_size)
+  
+  # Subset to years
+  if(!is.null(year_range)) Occ <- subset_years(Occ, year_range)
   
   # How many species?
   nsp1 <- dim(Occ)[1]
@@ -118,6 +124,7 @@ lambda_interpolation <-  function(input,
   Indicator_CI <- t(apply(Indicator_data, 1, quantile,
                           probs = c(lowerQuantile, upperQuantile), 
                           na.rm = TRUE))
+  colnames(Indicator_CI) <- c('lower', 'upper')
   
   summary_table <- as.data.frame(cbind(indicator, Indicator_CI))
   summary_table$year <- as.numeric(row.names(summary_table))
