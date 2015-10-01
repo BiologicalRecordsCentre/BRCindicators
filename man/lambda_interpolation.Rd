@@ -76,9 +76,9 @@ myIndicator <- lambda_interpolation(myArray)
 
 # Plot the indicator
 plot_indicator(myIndicator$summary[,'indicator'],
-               myIndicator$summary[,c('2.5\%' ,'97.5\%')])
+               myIndicator$summary[,c('lower' ,'upper')])
 
 ### Running from a directory of sparta ouput
-# myIndicator <- lambda_interpolation('myfilepath/directory')#'
+# myIndicator <- lambda_interpolation('myfilepath/directory')
 }
 

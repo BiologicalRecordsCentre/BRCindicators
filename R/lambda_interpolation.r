@@ -57,10 +57,10 @@
 #' 
 #' # Plot the indicator
 #' plot_indicator(myIndicator$summary[,'indicator'],
-#'                myIndicator$summary[,c('2.5%' ,'97.5%')])
+#'                myIndicator$summary[,c('lower' ,'upper')])
 #' 
 #' ### Running from a directory of sparta ouput
-#' # myIndicator <- lambda_interpolation('myfilepath/directory')#'
+#' # myIndicator <- lambda_interpolation('myfilepath/directory')
 
 lambda_interpolation <-  function(input, 
                                   index = 100,
@@ -136,20 +136,8 @@ lambda_interpolation <-  function(input,
   #spLogLamda <- apply(LogLambda, c(1,3), mean, na.rm = T) # niter values per species
   #spLogLamda <- apply(LogLambda, c(1,2), mean, na.rm = T) # one value per species per year
   #spLogLamda <- apply(LogLambda, 1, mean, na.rm = T) # one value per species
-  spLogLamda <- rowMeans(apply(LogLambda, c(1,2), mean, na.rm = T), na.rm=T) # one value per species
   
-  # this last value is simple, but conflates uncertainty with interannual variation
-  # of one value per species, convert to a percentage change per year
-  sp_pcpy <- 100 * (exp(spLogLamda) - 1)
-  
-  # Assign to cats
-  sp_cat <- cut(sp_pcpy, 
-                breaks = c(-Inf,-2.73,-1.14,1.16,2.81,Inf),
-                labels = c('strong decrease','decrease', 'no change', 'increase','strong increase'),
-                ordered = T)
-  
-  # build DD
-  sp_change <- data.frame(percent_change_year = sp_pcpy, category = sp_cat)
+  sp_change <- species_assessment(LogLambda)
   
   return(list(summary = summary_table,
               LogLambda = LogLambda,

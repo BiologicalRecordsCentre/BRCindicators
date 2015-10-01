@@ -392,3 +392,99 @@ subset_years <- function(Occ, year_range = NULL){
   }
   
 }
+
+species_assessment <- function(LogLambda,
+                               start_year = NULL,
+                               end_year = NULL,
+                               plot = FALSE){
+  
+  # If we are subsetting
+  if(!is.null(start_year) | !is.null(end_year)){
+  
+    # If the assessment is only over a subset of the years do the subsetting first
+    if(is.null(dimnames(LogLambda)[[2]])){
+      
+      if(is.null(start_year)) start_year <- 1
+      if(is.null(end_year)) end_year <- dim(LogLambda)[2]
+    
+      if(end_year > dim(LogLambda)[2]){
+        
+        stop(paste('Years are un-named in your data and the specified end_year [',
+                   end_year,
+                   '] exceeds the number of years in the data [',
+                   dim(LogLambda)[2],
+                   ']', sep = ''))
+        
+      } else {
+        
+        LogLambda <- LogLambda[ , start_year:end_year, ]
+        
+      }
+      
+    } else {
+      
+      if(is.null(start_year)) start_year <- as.character(min(as.numeric(dimnames(LogLambda)[[2]])))
+      if(is.null(end_year)) end_year <- as.character(max(as.numeric(dimnames(LogLambda)[[2]])))
+      
+      LogLambda <- LogLambda[ , as.character(start_year:end_year), ]
+      
+    }
+    
+  }
+  
+  # Calculate the average change across this time period
+  spLogLamda <- rowMeans(apply(LogLambda, c(1,2), mean, na.rm = T), na.rm = T) # one value per species
+  
+  # Remove NAs
+  spLogLamda <- spLogLamda[!is.na(spLogLamda)]
+  
+  # this last value is simple, but conflates uncertainty with interannual variation
+  # of one value per species, convert to a percentage change per year
+  sp_pcpy <- 100 * (exp(spLogLamda) - 1)
+  
+  # Assign to cats
+  sp_cat <- cut(sp_pcpy, 
+                breaks = c(-Inf,-2.73,-1.14,1.16,2.81,Inf),
+                labels = c('strong decrease','decrease', 'no change', 'increase','strong increase'),
+                ordered = T)
+  
+  # build DD
+  sp_change <- data.frame(percent_change_year = sp_pcpy, category = sp_cat)
+  
+  # Plot is desired
+  if(plot) plot_trend_stack(species_change = sp_change$category)
+  
+  # Test change
+  
+  return(sp_change)
+}
+
+indicator_assessment <- function(summary_table,
+                                 start_year = NULL,
+                                 end_year = NULL){
+  
+  if(is.null(start_year)) start_year <- min(summary_table$year)
+  if(is.null(end_year)) end_year <- max(summary_table$year)
+  
+  # Get the indicator value at the start
+  start_ind <- summary_table$indicator[summary_table$year == start_year]
+  
+  # Get the confidence intervals for rhe end of the period
+  end_CIs <- summary_table[summary_table$year == end_year, c('lower', 'upper')]
+  
+  # assess
+  if(start_ind < end_CIs$upper & start_ind > end_CIs$lower){
+    assessment <- 'stable'
+  } else if(start_ind < end_CIs$lower){
+    assessment <- 'decreasing'
+  } else if(start_ind > end_CIs$upper){
+    assessment <- 'increasing'
+  }
+  
+  # Return the assessment
+  assessment <- data.frame(start_index = start_ind,
+                           end_lower = end_CIs$lower,
+                           end_upper = end_CIs$upper,
+                           assessment = assessment)
+  
+}
