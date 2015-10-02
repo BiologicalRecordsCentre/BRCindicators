@@ -44,7 +44,7 @@ trend_assessment <- function(lambda_output,
                              end_year = NULL){
   
   sp_assess <- species_assessment(LogLambda = lambda_output$LogLambda,
-                                  start_year = start_year,
+                                  start_year = start_year + 1,
                                   end_year = end_year,
                                   plot = TRUE)
   
