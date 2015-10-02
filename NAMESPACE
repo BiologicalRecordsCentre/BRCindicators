@@ -2,7 +2,7 @@
 
 export(GAM_smoothing)
 export(bootstrap_indicator)
-export(lambda_interpolation)
+export(lambda_indicator)
 export(plot_indicator)
 export(plot_trend_stack)
 export(rescale_posterior)

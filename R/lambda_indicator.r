@@ -17,7 +17,6 @@
 #' fulfill the threshold_sd for it to be included.
 #' @param upperQuantile The upper confidence interval to use (as a probability)
 #' @param lowerQuantile The lower confidence interval to use (as a probability)
-#' @param logOdds Logical, if \code{TRUE} then log odds
 #' @param sample_size numeric, if not NULL then a subsample of the iterations are 
 #' used, equal to the number given. This is useful when datasets are so large
 #' that memory starts to become limiting.
@@ -53,24 +52,23 @@
 #' myArray[myArray < 0] <- 0
 #' 
 #' # Run the lambda_interpolation method on this data                
-#' myIndicator <- lambda_interpolation(myArray)
+#' myIndicator <- lambda_indicator(myArray)
 #' 
 #' # Plot the indicator
 #' plot_indicator(myIndicator$summary[,'indicator'],
 #'                myIndicator$summary[,c('lower' ,'upper')])
 #' 
 #' ### Running from a directory of sparta ouput
-#' # myIndicator <- lambda_interpolation('myfilepath/directory')
+#' # myIndicator <- lambda_indicator('myfilepath/directory')
 
-lambda_interpolation <-  function(input, 
-                                  index = 100,
-                                  threshold_sd = 0.2,
-                                  threshold_yrs = 20,
-                                  upperQuantile = 0.975,
-                                  lowerQuantile = 0.025,
-                                  logOdds = TRUE,
-                                  sample_size = NULL,
-                                  year_range = NULL){
+lambda_indicator <-  function(input, 
+                              index = 100,
+                              threshold_sd = 0.2,
+                              threshold_yrs = 20,
+                              upperQuantile = 0.975,
+                              lowerQuantile = 0.025,
+                              sample_size = NULL,
+                              year_range = NULL){
   
   # Load the data if path else return input if array
   Occ <- getData(input = input, sample_size = sample_size)
@@ -103,24 +101,25 @@ lambda_interpolation <-  function(input,
   }
   
   # Convert to Odds
-  if(logOdds) Occ <- car::logit(Occ, adjust = 0.001) # Is this the best option?
-  #if(logOdds) Occ <- boot::logit(Occ) # Is this the best option?
-  
+  Occ <- car::logit(Occ, adjust = 0.001) # Is this the best option?
+
   # Calculate the lambda for all species-year combinations
-  LogLambda <- lambda_calc(Occ = Occ, logOdds = logOdds)
+  LogLambda <- apply(Occ, c(1,3), lambda_calc)
+  LogLambda <- aperm(LogLambda, c(2,1,3))
+  
+  # Add back in the dimnames
+  dimnames(LogLambda) <- dimnames(Occ)
   
   # The indicator changes each year by the mean of LogLambda
   Delta <- apply(LogLambda, c(2,3), mean, na.rm = T)
   Delta[1,] <- 0
-  
-  # Convert to lambda, the product of growth rates between from year 1 and year t
-  # Delta in year 1 is zero, so exp(0) = 1
-  Lambda <- exp(apply(Delta, 2, cumsum))
+  Theta <- apply(Delta, 2, cumsum)
   
   # Create summary data to return (i.e. the indicator is simply Lambda rescaled to start at 100) 
+  Lambda <- exp(Theta)
   Indicator_data <- index * Lambda
   
-  indicator <- apply(Indicator_data, 1, median)
+  indicator <- apply(Indicator_data, 1, mean)
   Indicator_CI <- t(apply(Indicator_data, 1, quantile,
                           probs = c(lowerQuantile, upperQuantile), 
                           na.rm = TRUE))
@@ -131,12 +130,6 @@ lambda_interpolation <-  function(input,
   
   if(NA %in% summary_table) warning('Data not available for all years in output due to threshold data removal')
  
-  # NJBI_150923 Add a summary metric for each species
-  # NOT SURE what's the best way of doing this
-  #spLogLamda <- apply(LogLambda, c(1,3), mean, na.rm = T) # niter values per species
-  #spLogLamda <- apply(LogLambda, c(1,2), mean, na.rm = T) # one value per species per year
-  #spLogLamda <- apply(LogLambda, 1, mean, na.rm = T) # one value per species
-  
   sp_change <- species_assessment(LogLambda)
   
   return(list(summary = summary_table,

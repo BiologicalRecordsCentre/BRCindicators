@@ -205,7 +205,7 @@ list_quantiles_CI <- function(rescaled_list, years, quantile_min = 0.025, quanti
 remove_bad_species <- function(Occ, threshold_sd, threshold_yrs){
   
   # Calculate standard deviations
-  sds <- apply(Occ, c(1,2), sd) 
+  sds <- apply(Occ, c(1,2), sd, na.rm = TRUE) 
   
   # first define reliable estimates as those with standard deviations lower than the threshold
   reliable <- sds < threshold_sd
@@ -214,11 +214,12 @@ remove_bad_species <- function(Occ, threshold_sd, threshold_yrs){
   reliable[!reliable] <- NA 
   
   # set the posteriors where sd >  0.2 to NA 
-  OccRel <- sapply(1:dim(Occ)[3], function(j) Occ[,,j] * reliable, simplify='array')
+  OccRel <- sapply(1:dim(Occ)[3], function(j) Occ[ , ,j] * reliable,
+                   simplify='array')
   
   # OccRel is now identical to Occ except that unreliable estimates have been changed to NA
   # now strip out species with fewer reliable years than the desired number
-  OccRel <- OccRel[rowSums(reliable, na.rm=T) >= threshold_yrs,,]
+  OccRel <- OccRel[rowSums(reliable, na.rm=T) >= threshold_yrs, , ]
 
   # Save the good years table - for the species that pass
   # the thresholds - as an attribute of the data returned
@@ -227,44 +228,25 @@ remove_bad_species <- function(Occ, threshold_sd, threshold_yrs){
   
 }
 
-lambda_calc <- function(Occ, logOdds = TRUE){
+lambda_calc <- function(x){
   
-  # first generate an empty array
-  LogLambda <- array(NA, dim = dim(Occ), dimnames = dimnames(Occ))
+  # simpler than before. It assumes data are on the Log scale
+  # takes just a vector of occupancy scores, not a 3D array
+  LogLambda <- numeric(length(x))
   
-  #loop over every year-species combo
-  for(i in 1:dim(Occ)[1]){ 
+  for (t in 2:length(x)){
     
-    for(t in 2:dim(Occ)[2]){
+    relyrs <- (!is.na(x[1:(t - 1)]))
+    
+    if (any(relyrs)){
       
-      # which years in the past have reliable estimates
-      relyrs <- (!is.na(Occ[i,1:(t-1),1]))
+      mrry <- max(which(relyrs)) # most recent reliable year
+      LogLambda[(mrry + 1):t]  <- (x[t] - x[mrry])/(t - mrry)
       
-      if(any(relyrs)){
-        
-        # find the most recent year with reliable estimates (mrry)    
-        mrry <- max(which(relyrs))
-        
-        # the compound interest over this period is given by the exponent of the difference in log odds between years
-        if(logOdds){
-          comp <- exp(Occ[i,t,] - Occ[i,mrry,]) # Odds ratio = proportional change in odds over the number of years
-        } else {
-          comp <- Occ[i,t,] / Occ[i,mrry,] # ratio
-        }
-        
-        # the interpolated annual lamdba is the Nth root of comp, where N is the number of years between adjacent reliable estimates
-        ann_change <- comp ^ (1/(t-mrry))
-        
-        # now interpolate all the years between mrry & t
-        # NB if the gap is 0 years (i.e. mrry = t-1 then there is no interpolation)
-        # if the gap is >0 years then the intervening years have already been set as NA
-        LogLambda[i,(mrry+1):t,] <- log(ann_change)
-        
-      } else {
-        
-        LogLambda[i,t,] <- NA
-        
-      }
+    } else {
+      
+      LogLambda[t] <- NA
+      
     }
   }
   
