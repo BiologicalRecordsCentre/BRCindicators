@@ -458,9 +458,9 @@ indicator_assessment <- function(summary_table,
   if(start_ind < end_CIs$upper & start_ind > end_CIs$lower){
     assessment <- 'stable'
   } else if(start_ind < end_CIs$lower){
-    assessment <- 'decreasing'
-  } else if(start_ind > end_CIs$upper){
     assessment <- 'increasing'
+  } else if(start_ind > end_CIs$upper){
+    assessment <- 'decreasing'
   }
   
   # Return the assessment
