@@ -378,7 +378,10 @@ subset_years <- function(Occ, year_range = NULL){
 species_assessment <- function(LogLambda,
                                start_year = NULL,
                                end_year = NULL,
+                               species_stat = 'mean',
                                plot = FALSE){
+  # Sense check
+  if(!species_stat %in% c('mean', 'median')) stop("species_stat must be either 'mean' or 'median'")
   
   # If we are subsetting
   if(!is.null(start_year) | !is.null(end_year)){
@@ -415,8 +418,9 @@ species_assessment <- function(LogLambda,
   }
   
   # Calculate the average change across this time period
-  spLogLamda <- rowMeans(apply(LogLambda, c(1,2), mean, na.rm = T), na.rm = T) # one value per species
-  
+  if(species_stat == 'mean') spLogLamda <- rowMeans(apply(LogLambda, c(1,2), mean, na.rm = T), na.rm = T) # one value per species
+  if(species_stat == 'median') spLogLamda <- apply(apply(LogLambda, c(1,2), mean, na.rm = T), 1, FUN = median, na.rm = T)
+
   # Remove NAs
   spLogLamda <- spLogLamda[!is.na(spLogLamda)]
   

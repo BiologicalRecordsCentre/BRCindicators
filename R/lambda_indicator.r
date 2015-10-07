@@ -59,7 +59,7 @@
 #'                myIndicator$summary[,c('lower' ,'upper')])
 #' 
 #' ### Running from a directory of sparta ouput
-#' # myIndicator <- lambda_indicator('myfilepath/directory')
+#' # myIndicator <- lambda_indicator('myfilepath/myfolder')
 
 lambda_indicator <-  function(input, 
                               index = 100,
