@@ -5,8 +5,8 @@
 \title{Rescale species values for indicator using Lambda interpolation}
 \usage{
 lambda_indicator(input, index = 100, threshold_sd = 0.2,
-  threshold_yrs = 20, upperQuantile = 0.975, lowerQuantile = 0.025,
-  sample_size = NULL, year_range = NULL)
+  threshold_Rhat = 1.1, threshold_yrs = 20, upperQuantile = 0.975,
+  lowerQuantile = 0.025, sample_size = NULL, year_range = NULL)
 }
 \arguments{
 \item{input}{Either a string giving the path to occupancy model output files
@@ -16,6 +16,10 @@ produced by sparta, or a three dimensional array [species, year, iteration].}
 
 \item{threshold_sd}{The threshold standard deviation for a species-year value
 to be included. If the standard deviation is above this value it is removed.}
+
+\item{threshold_Rhat}{The threshold Rhat value for a species-year value
+to be included. If the Rhat is above this value it is removed. This rule will
+only be used when \code{input} is a path to sparta output.}
 
 \item{threshold_yrs}{Numeric, the minimum number of years that a species must
 fulfill the threshold_sd for it to be included.}

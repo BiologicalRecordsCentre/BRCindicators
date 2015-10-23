@@ -13,6 +13,9 @@
 #' @param index The index value for the first year, defaults to 100.
 #' @param threshold_sd The threshold standard deviation for a species-year value
 #' to be included. If the standard deviation is above this value it is removed.  
+#' @param threshold_Rhat The threshold Rhat value for a species-year value
+#' to be included. If the Rhat is above this value it is removed. This rule will
+#' only be used when \code{input} is a path to sparta output.  
 #' @param threshold_yrs Numeric, the minimum number of years that a species must
 #' fulfill the threshold_sd for it to be included.
 #' @param upperQuantile The upper confidence interval to use (as a probability)
@@ -64,6 +67,7 @@
 lambda_indicator <-  function(input, 
                               index = 100,
                               threshold_sd = 0.2,
+                              threshold_Rhat = 1.1,
                               threshold_yrs = 20,
                               upperQuantile = 0.975,
                               lowerQuantile = 0.025,
@@ -82,7 +86,8 @@ lambda_indicator <-  function(input,
   # Remove the species that do not meet our threshold conditions
   Occ <- remove_bad_species(Occ = Occ,
                             threshold_sd = threshold_sd,
-                            threshold_yrs = threshold_yrs)
+                            threshold_yrs = threshold_yrs,
+                            threshold_Rhat = threshold_Rhat)
   
   # Save the reliable years table to return 
   good_years <- attr(Occ, 'good_years')

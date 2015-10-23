@@ -21,6 +21,15 @@ read_posterior <- function(file, sample_size = NULL){
   # Name the rows by year
   row.names(iteration_values) <- min_year:(min_year + nrow(iteration_values) - 1) 
   
+  # Name the columns by iteration
+  colnames(iteration_values) <- paste('i', 1:ncol(iteration_values), sep = '') 
+  
+  # Add rhat & sd
+  sum_dat <- out$BUGSoutput$summary[grepl("psi.fs",row.names(out$BUGSoutput$summary)),
+                                    c('sd', 'Rhat')]
+  
+  iteration_values <- cbind(iteration_values, sum_dat)
+  
   return(iteration_values)
 }
 
@@ -201,19 +210,32 @@ list_quantiles_CI <- function(rescaled_list, years, quantile_min = 0.025, quanti
   
 }
 
+remove_bad_species <- function(Occ, threshold_sd, threshold_yrs, threshold_Rhat){
+  
+  # If we have sd and Rhat from the input file use those
+  if('sd' %in% dimnames(Occ)[[3]] & 'Rhat' %in% dimnames(Occ)[[3]]){
+    
+    reliable <- Occ[ , ,'sd'] < threshold_sd & Occ[ , ,'Rhat'] < threshold_Rhat
+    reliable[!reliable] <- NA 
+    
+    # set the posteriors where sd or Rhat not met to NA 
+    # remove the sd and Rhat columns
+    Occ <- Occ[ , , !dimnames(Occ)[[3]] %in% c('sd','Rhat')]
 
-remove_bad_species <- function(Occ, threshold_sd, threshold_yrs){
+  # else if it is an array calc sd on the fly
+  } else {
+    
+    # Calculate standard deviations
+    sds <- apply(Occ, c(1,2), sd, na.rm = TRUE) 
+    
+    # first define reliable estimates as those with standard deviations lower than the threshold
+    reliable <- sds < threshold_sd
+    
+    # convert the FALSE elements to NA (for the maths to work below)
+    reliable[!reliable] <- NA 
+
+  }
   
-  # Calculate standard deviations
-  sds <- apply(Occ, c(1,2), sd, na.rm = TRUE) 
-  
-  # first define reliable estimates as those with standard deviations lower than the threshold
-  reliable <- sds < threshold_sd
-  
-  # convert the FALSE elements to NA (for the maths to work below)
-  reliable[!reliable] <- NA 
-  
-  # set the posteriors where sd >  0.2 to NA 
   OccRel <- sapply(1:dim(Occ)[3], function(j) Occ[ , ,j] * reliable,
                    simplify='array')
   
@@ -253,7 +275,6 @@ lambda_calc <- function(x){
   return(LogLambda)
   
 }
-
 
 getData <- function(input, sample_size = NULL){
   
@@ -326,15 +347,15 @@ list_to_array <- function(Occ){
   if(min(unlist(lapply(Occ, ncol))) != max(unlist(lapply(Occ, ncol)))){
     stop('Input data must have the same number of iterations')
   } else {
-    iter <- as.numeric(unlist(lapply(Occ, ncol))[1])
+    iter <- colnames(Occ[[1]])
   }
   
   # Build the array
   array_holder <- array(data = NA,
-                        dim = c(nsp, nyr, iter),
+                        dim = c(nsp, nyr, length(iter)),
                         dimnames = list(species = names(Occ),
                                         years = as.character(minyr:maxyr),
-                                        iterations = as.character(1:iter)))
+                                        iterations = iter))
   
   # Fill the array
   for(i in 1:length(Occ)){ 
