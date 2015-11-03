@@ -26,8 +26,8 @@
 #' @param year_range, numic vector of length 2 giving the start and end year of the 
 #' data to be analysed.
 #' @return A list with five elements: a summary (data.frame), the LogLambda values
-#' , calculated after removing species that fail thresholds and including
-#' interpolation, the raw
+#' (a three dimensional array, species - year - iterations), calculated after
+#' removing species that fail thresholds and including interpolation, the raw
 #' indicator value (a value for each iteration in each year), the average annual
 #' percentage change for each species, and a table giving the 'good' years for
 #' each species as defined by the thresholds.

@@ -31,8 +31,7 @@
 #' @param verbose If TRUE progress is written to console
 #' @return A list with two elements, a summary (data.frame) and the rescaled data
 #' (list)
-#' @export
-#' 
+#' @export 
 rescale_posterior <-  function(input_dir, subset_table = NULL,
                                index = 100, max = 10000,
                                min = 1, year_limit = 10, 

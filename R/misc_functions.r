@@ -215,12 +215,16 @@ remove_bad_species <- function(Occ, threshold_sd, threshold_yrs, threshold_Rhat)
   # If we have sd and Rhat from the input file use those
   if('sd' %in% dimnames(Occ)[[3]] & 'Rhat' %in% dimnames(Occ)[[3]]){
     
-    reliable <- Occ[ , ,'sd'] < threshold_sd & Occ[ , ,'Rhat'] < threshold_Rhat
-    reliable[!reliable] <- NA 
+    reliable <- Occ[ , ,'sd', drop = FALSE] < threshold_sd & Occ[ , ,'Rhat', drop = FALSE] < threshold_Rhat
+    
+    # drop the third dimension (we want to keep the 3rd dimension even if it has
+    # length 1, so this is a little hacky)
+    reliable <- apply(reliable, c(1,2), mean)
+    reliable[reliable == 0] <- NA
     
     # set the posteriors where sd or Rhat not met to NA 
     # remove the sd and Rhat columns
-    Occ <- Occ[ , , !dimnames(Occ)[[3]] %in% c('sd','Rhat')]
+    Occ <- Occ[ , , !dimnames(Occ)[[3]] %in% c('sd','Rhat'), drop = FALSE]
 
   # else if it is an array calc sd on the fly
   } else {
@@ -241,8 +245,10 @@ remove_bad_species <- function(Occ, threshold_sd, threshold_yrs, threshold_Rhat)
   
   # OccRel is now identical to Occ except that unreliable estimates have been changed to NA
   # now strip out species with fewer reliable years than the desired number
-  OccRel <- OccRel[rowSums(reliable, na.rm=T) >= threshold_yrs, , ]
+  OccRel <- OccRel[rowSums(reliable, na.rm=T) >= threshold_yrs, , , drop = FALSE]
 
+  if(dim(OccRel)[1] == 0) stop('None of your species meet the thresholds')
+  
   # Save the good years table - for the species that pass
   # the thresholds - as an attribute of the data returned
   attr(OccRel, 'good_years') <- reliable[rowSums(reliable, na.rm = T) >= threshold_yrs, ]
@@ -386,11 +392,11 @@ subset_years <- function(Occ, year_range = NULL){
       
     }
     
-    Occ <- Occ[ , seq(from = min(year_range), to = max(year_range)), ]
+    Occ <- Occ[ , seq(from = min(year_range), to = max(year_range)), , drop = FALSE]
     
   } else {
     
-    Occ <- Occ[ , as.character(seq(from = min(year_range), to = max(year_range))), ]
+    Occ <- Occ[ , as.character(seq(from = min(year_range), to = max(year_range))), , drop = FALSE]
     
   }
   
@@ -476,7 +482,7 @@ indicator_assessment <- function(summary_table,
   # Get the indicator value at the start
   start_ind <- summary_table$indicator[summary_table$year == start_year]
   
-  # Get the confidence intervals for rhe end of the period
+  # Get the confidence intervals for the end of the period
   end_CIs <- summary_table[summary_table$year == end_year, c('lower', 'upper')]
   
   # assess
