@@ -260,9 +260,14 @@ lambda_calc <- function(x){
   
   # simpler than before. It assumes data are on the Log scale
   # takes just a vector of occupancy scores, not a 3D array
-  LogLambda <- numeric(length(x))
+  LogLambda <- rep(NA, length(x))
   
-  for (t in 2:length(x)){
+  # All values should be NA then we start after the first year
+  # with data. The first year with data is set to 0
+  yearOne <- min(which(!is.na(x)))
+  LogLambda[yearOne] <- 0 
+  
+  for (t in (yearOne + 1):length(x)){
     
     relyrs <- (!is.na(x[1:(t - 1)]))
     

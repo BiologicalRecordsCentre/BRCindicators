@@ -117,8 +117,14 @@ lambda_indicator <-  function(input,
   
   # The indicator changes each year by the mean of LogLambda
   Delta <- apply(LogLambda, c(2,3), mean, na.rm = T)
-  Delta[1,] <- 0
-  Theta <- apply(Delta, 2, cumsum)
+  #Delta[1,] <- 0 TA This should not be needed
+  # We need to cut down the data to remove years with no data
+  
+  # Create an empty Theta
+  Theta <- matrix(data = NA, nrow = nrow(Delta), ncol = ncol(Delta))
+
+  # Add values  
+  Theta[!is.na(rowMeans(Delta)), ] <- apply(Delta[!is.na(rowMeans(Delta)), ], 2, cumsum)
   
   # Create summary data to return (i.e. the indicator is simply Lambda rescaled to start at 100) 
   Lambda <- exp(Theta)
@@ -133,7 +139,7 @@ lambda_indicator <-  function(input,
   summary_table <- as.data.frame(cbind(indicator, Indicator_CI))
   summary_table$year <- as.numeric(row.names(summary_table))
   
-  if(NA %in% summary_table) warning('Data not available for all years in output due to threshold data removal')
+  if(any(is.na(summary_table))) warning('Data not available for all years in output due to threshold data removal')
  
   sp_change <- species_assessment(LogLambda)
   
