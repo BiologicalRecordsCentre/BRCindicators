@@ -121,7 +121,10 @@ lambda_indicator <-  function(input,
   # We need to cut down the data to remove years with no data
   
   # Create an empty Theta
-  Theta <- matrix(data = NA, nrow = nrow(Delta), ncol = ncol(Delta))
+  Theta <- matrix(data = NA,
+                  nrow = nrow(Delta),
+                  ncol = ncol(Delta),
+                  dimnames = dimnames(Delta))
 
   # Add values  
   Theta[!is.na(rowMeans(Delta)), ] <- apply(Delta[!is.na(rowMeans(Delta)), ], 2, cumsum)
