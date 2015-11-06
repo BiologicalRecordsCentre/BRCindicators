@@ -29,8 +29,8 @@
 #' (a three dimensional array, species - year - iterations), calculated after
 #' removing species that fail thresholds and including interpolation, the raw
 #' indicator value (a value for each iteration in each year), the average annual
-#' percentage change for each species, and a table giving the 'good' years for
-#' each species as defined by the thresholds.
+#' percentage change for each species (the fist year is ignored as change is 0),
+#' and a table giving the 'good' years for each species as defined by the thresholds.
 #' @importFrom car logit
 #' @export
 #' @examples 
@@ -144,7 +144,9 @@ lambda_indicator <-  function(input,
   
   if(any(is.na(summary_table))) warning('Data not available for all years in output due to threshold data removal')
  
-  sp_change <- species_assessment(LogLambda)
+  sp_change <- species_assessment(LogLambda,
+                                  start_year = min(as.numeric(dimnames(LogLambda)[[2]])) + 1,
+                                  end_year = max(as.numeric(dimnames(LogLambda)[[2]])))
   
   return(list(summary = summary_table,
               LogLambda = LogLambda,
