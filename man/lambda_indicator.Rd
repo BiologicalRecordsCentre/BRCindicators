@@ -40,8 +40,8 @@ A list with five elements: a summary (data.frame), the LogLambda values
 (a three dimensional array, species - year - iterations), calculated after
 removing species that fail thresholds and including interpolation, the raw
 indicator value (a value for each iteration in each year), the average annual
-percentage change for each species, and a table giving the 'good' years for
-each species as defined by the thresholds.
+percentage change for each species (the fist year is ignored as change is 0),
+and a table giving the 'good' years for each species as defined by the thresholds.
 }
 \description{
 This function takes in the output from a sparta occupancy model
@@ -64,10 +64,13 @@ nyr = 40
 iter = 500
 
 # Build a random set of data
-myArray <- array(rnorm(n = nsp*nyr*iter,
-                 mean = 0.5,
-                 sd = 0.1),
-                 c(nsp, nyr, iter))
+myArray <- array(data = rnorm(n = nsp*nyr*iter,
+                              mean = 0.5,
+                              sd = 0.1),
+                 dim = c(nsp, nyr, iter),
+                 dimnames = list(paste0('SP',1:nsp),
+                                 1:nyr,
+                                 1:iter))
 
 # Ensure values are bounded by 0 and 1
 myArray[myArray > 1] <- 1
