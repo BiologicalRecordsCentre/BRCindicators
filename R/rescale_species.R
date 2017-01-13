@@ -22,6 +22,14 @@ rescale_species <-  function(Data, index = 100, max = 10000,
                              min = 1){
   geomean <- function(x) exp(mean(log(x), na.rm = T))
   
+  if(!inherits(Data, 'matrix')){
+    if(inherits(Data, 'data.frame')){
+      Data <- data.matrix(Data)
+    } else {
+      stop('Data must be a matrix')  
+    }
+  } 
+  
   # Get the multipliers neede to achieved the index value
   multipliers <- index / Data[1,2:ncol(Data)] 
   
