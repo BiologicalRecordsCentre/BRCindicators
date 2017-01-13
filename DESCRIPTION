@@ -1,11 +1,11 @@
 Package: BRCindicators
 Type: Package
 Title: Creating biodiversity indicators for species occurrence data
-Version: 0.1.2
-Date: 2016-09-19
+Version: 0.1.3
+Date: 2017-01-13
 Author: Tom August, Gary Powney, Charlie Outhwaite, Nick Issac
 Maintainer: Tom August <tomaug@ceh.ac.uk>
-Description: This small package contains a number of functions used to create
+Description: This package contains a number of functions used to create
     biodiversity indicators.
 imports: ggplot2, mgcv, reshape2
 License: CC BY

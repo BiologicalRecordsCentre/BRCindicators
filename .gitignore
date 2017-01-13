@@ -1,0 +1,7 @@
+.Rproj.user
+.Rhistory
+.RData
+.Rproj
+Other_files/
+vignette/using_the_pipeline_cache/
+vignette/using_the_pipeline_files/
