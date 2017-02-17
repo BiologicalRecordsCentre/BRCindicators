@@ -8,6 +8,8 @@
 #' @return Returns a dataframe with 4 columns: Year, Index, lower2.5, upper97.5. The last two columns are the credible intervals
 #' @import R2jags
 #' @import reshape2
+#' @importFrom coda mcmc.list as.mcmc
+#' @export
 #' @examples 
 #' 
 #' # Create some example data in the format required
@@ -65,13 +67,13 @@ bma <- function(data, randwalk = TRUE, plot = TRUE) {
   
   if(plot){
     array_sim <- model$BUGSoutput$sims.array
-    comb.samples <- mcmc.list(
+    comb.samples <- coda::mcmc.list(
       lapply(1:3,
              FUN = function(x, array_sim){
                year_ests <- colnames(array_sim[,x,])[grepl('^I\\[', colnames(array_sim[,x,]))]
                ar_temp <- array_sim[,x,c(head(year_ests, 1), tail(year_ests, 1))]
                colnames(ar_temp) <- c('First year', 'Last year')
-               as.mcmc(ar_temp)
+               coda::as.mcmc(ar_temp)
                },
              array_sim = array_sim)
     )
