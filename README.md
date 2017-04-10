@@ -7,4 +7,6 @@ Installing the package is easy and can be done in a couple of lines in R
     library(devtools)
     install_github(repo = 'biologicalrecordscentre/BRCindicators')
 
-For more info [read the vignette](https://github.com/BiologicalRecordsCentre/BRCindicators/blob/master/vignette/using_the_pipeline.pdf)
+For more info read the vignette
+
+    vignette('BRCindicators')
