@@ -4,12 +4,12 @@ author: "Tom August"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output: 
   html_document:
-    toc: true
-    toc_depth: 3
+    keep_md: yes
+    toc: yes
 vignette: >
-  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteIndexEntry{BRCindicators}
   %\usepackage[utf8]{inputenc}
+  %\VignetteEngine{knitr::rmarkdown}
 ---
 
 ```{r knitr_setup, echo=FALSE}
