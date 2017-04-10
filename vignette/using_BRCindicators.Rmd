@@ -1,5 +1,5 @@
 ---
-title: "Using the BRCindicators Pipeline"
+title: "Using BRCindicators"
 author: "Tom August"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output: 
@@ -290,6 +290,86 @@ plot_indicator(indicator = bma_indicator[,'Index'],
 ```
 
 
+## Multi-species Indicator
+
+The multi-species indicator method was developed by Statistics Netherlands and the code is made available on [their website](https://www.cbs.nl/en-gb/society/nature-and-environment/indices-and-trends--trim--/msi-tool) (https://www.cbs.nl/en-gb/society/nature-and-environment/indices-and-trends--trim--/msi-tool). To find out more about the inner working of this method please read the detailed documentation on the authors website. Here is a simple example of how this method runs in `BRCindicators`.
+
+```{r msi1, fig.height=4}
+# Create some example data in the format required
+data <- data.frame(species = rep(letters, each = 50),
+                   year = rep(1:50, length(letters)),
+                   index = runif(n = 50 * length(letters), min = 1, max = 10),
+                   se = runif(n = 50 * length(letters), min = 0.01, max = .8))
+
+# Alternativly I could read in data from a csv
+# read.csv('path/to/my/data.csv')
+
+# Run the MSI function
+msi_out <- msi(data)
+
+# I can capture the output figures too
+# pdf('test.pdf')
+#   msi_out <- msi(data)
+# dev.off()
+```
+
+The code returns two plots to the console, the first plot shows the coefficient of variation (CV) for each of the species. Species with high values of CV may adversly effect the relaibility of hte trend estimation. Use this graph to identify the CV values of the species and use the `maxCV` parameter to set a threshold above which species will be excluded. The results of excluding species in this way can be tested by comparing trend plots. The second plot shows the smoothed trend and the MSI values. These two figures can be captured in the usual way in R by using `pdf()` for example. In the example I create a dataset from random numbers but usually you would use `read.csv()` to read in data from a local file.
+
+Here is a second example which sets some additional parameters. The parameters for `msi` get passed to `msi_tool` so to see a list of all the parameters you can change look at the help documentation in `msi_tool` usign `?msi_tool` at the R console. I cover most of hte important ones here.
+
+```{r msi2, fig.height=4}
+msi_out <- msi(data,
+               nsim = 500, # The number of Mote Carlo simulations
+               SEbaseyear = 10, # The year to index on
+               plotbaseyear = 15, # The year to set as 100 in plots
+               index_smoot = 'INDEX', # plotbaseyear uses MSI not trend
+               span = 0.7, # 'wigglyness' of line, between 0 and 1
+               lastyears = 5, # last X years of time series for short-term trends
+               maxCV = 10, # maximum allowed Coefficient of Variation 
+               changepoint = 25, # compare trends before and after this year
+               truncfac = 8, # max year-to-year index ratio
+               TRUNC = 5, #set all indices below TRUNC to this
+               plot = TRUE # should the plots be returned?)
+               )
+```
+
+This set of parameters is unrealistic but shows the options available. Note that in the second graph the year 10 point now has a se = 0, year 15 MSI is set to 100, and the short term trend is reported for the last 5 years.
+
+The analysis also returns data which provide more insights into the analysis and let you create your own plots if required.
+
+```{r msi3}
+# The returned object has 2 elements
+head(msi_out$results)
+```
+
+The first of the two elements (`results`) returned gives all the data, and a little more, that is presented in the second figure.
+
+```{r msi4}
+# The returned object has 2 elements
+msi_out$trends
+
+# I could write this as a csv too
+# write.csv(msi_out$trends, file = 'path/to/my/output.csv')
+
+```
+
+The second element (`trends`) returned give a summary of various trend assessments across the time series.
+
+We have also added a plot method for the MSI output which provides a plot similar to that of the second figure we have seen already. Lets use this plot method to explore the effect of changing the span value in the analysis
+
+```{r msi_span, fig.height=4}
+for(i in c(0.2, 0.3, 0.5, 0.7)){ # use a range of values for span
+  
+  msi_out <- msi(data, span = i, # span is set to i
+                 nsim = 200, plot = FALSE)
+  print( # print makes the plot visible in the for loop
+    plot(msi_out, title = paste('MSI - span =', i)) # plot
+  )
+  
+}
+```
+
+As the value of span gets closer to 1 the trend line gets smoother.
 
 # Creating a custom pipeline function
 
