@@ -3,5 +3,5 @@
 .RData
 .Rproj
 Other_files/
-vignette/using_BRCindicators_cache/
-vignette/using_BRCindicators_files/
+vignettes/BRCindicators_cache/
+vignettes/BRCindicators_files/

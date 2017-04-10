@@ -8,5 +8,8 @@ Maintainer: Tom August <tomaug@ceh.ac.uk>
 Description: This package contains a number of functions used to create
     biodiversity indicators.
 imports: ggplot2, mgcv, reshape2, coda
+VignetteBuilder: knitr
 License: CC BY
+URL: https://github.com/BiologicalRecordsCentre/BRCindicators
+BugReports: https://github.com/BiologicalRecordsCentre/BRCindicators/issues
 RoxygenNote: 5.0.1

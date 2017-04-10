@@ -1,11 +1,15 @@
 ---
-title: "Using BRCindicators"
+title: "BRCindicators"
 author: "Tom August"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output: 
-  pdf_document:
+  html_document:
     toc: true
     toc_depth: 3
+vignette: >
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteIndexEntry{BRCindicators}
+  %\usepackage[utf8]{inputenc}
 ---
 
 ```{r knitr_setup, echo=FALSE}
