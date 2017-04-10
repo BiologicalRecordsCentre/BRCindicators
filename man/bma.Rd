@@ -4,14 +4,27 @@
 \alias{bma}
 \title{Bayesian Meta-analysis}
 \usage{
-bma(data, randwalk = TRUE, plot = TRUE)
+bma(data, plot = TRUE, model = "random_walk", parallel = FALSE,
+  incl.model = TRUE, n.iter = 10000, m.scale = "loge")
 }
 \arguments{
 \item{data}{a data.frame with 4 columns in this order: species, year, index, se (standard error)}
 
-\item{randwalk}{If \code{TRUE} a random walk feature is added to the model (defualt), else years are treated as independent.}
-
 \item{plot}{Logical, should a trace plot be plotted?}
+
+\item{model}{The type of model to be used. The default of 'random_walk' is strongly recommended.
+Two other models 'uniform' and 'uniform_noeta' exist but are almost always inferior.}
+
+\item{parallel}{if \code{TRUE} the model chains will be run in parallel using one fewer cores than
+are availbale on the computer.}
+
+\item{incl.model}{if \code{TRUE} the model is added as an attribute of the object returned}
+
+\item{n.iter}{The number of iterations of the model to run. Defaults to 10,000 to avoid long run times
+though much longer runs are usually required to reach convergence}
+
+\item{m.scale}{The measurement scale of the data. The scale of the data is assumed to be logarithmic.
+Here you specify which log scale the data is on ('loge', 'log10', or 'logit'). Defaults to 'loge'.}
 }
 \value{
 Returns a dataframe with 4 columns: Year, Index, lower2.5, upper97.5. The last two columns are the credible intervals

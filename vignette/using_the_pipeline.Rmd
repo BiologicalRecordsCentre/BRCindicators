@@ -1,9 +1,19 @@
 ---
-title: "Using the Pipeline"
+title: "Using the BRCindicators Pipeline"
 author: "Tom August"
-date: "9 July 2015"
-output: pdf_document
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: 
+  pdf_document:
+    toc: true
+    toc_depth: 3
 ---
+
+```{r knitr_setup, echo=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      cache = TRUE, 
+                      tidy.opts = list(width.cutoff = 60),
+                      tidy = FALSE)
+```
 
 # Introduction
 
@@ -15,7 +25,7 @@ This package has the ability to read in the output of occupancy models created i
 
 To create an indicator we first need to have species trends, let's create some using the sparta R package.
 
-## Creating yearly estimates of occurrence in sparta
+# Creating yearly estimates of occurrence in sparta
 
 If you already have yearly estimates of abundance or occurrence for your species you can skip this stage. Here we show how you can create these estimates from raw species observation data using sparta.
 
@@ -115,7 +125,7 @@ sfStop()
 list.files('~/Testing_indicator_pipe')
 ```
 
-## Installing BRCindicators
+# Installing BRCindicators
 
 Installing the package is easy and can be done in a couple of lines
 
@@ -124,7 +134,7 @@ library(devtools)
 install_github(repo = 'biologicalrecordscentre/BRCindicators')
 ```
 
-## Summarising sparta output for indicator
+# Summarising sparta output for an indicator
 
 Now that we have some species trends data to work with (no doubt you already have your own) we can use the first function in BRCindicators. This function reads in all the output files from sparta (which are quite large and complex) and returns a simple summary table that we can use for calculating the indicator. If you have done your analysis without using sparta you can skip to the next step.
 
@@ -141,9 +151,17 @@ head(trends_summary[,1:5])
 
 Returned from this function is a summary of the data as a matrix. In each row we have the year, specified in the first column, and each subsequent column is a species. The values in the table are the mean of the posterior for the predicted proportion of sites occupied, a measure of occurrence.
 
-## Calculating indicator values
+# Calculating indicator values
 
-The next step is to re-scale the data so that the value for all species in the first year is the same. Once this is done we calculate the geometric mean across species for each year creating the indicator value. This function also accounts for species that have no data at the beginning of the dataset by entering them at the geometric mean for that year, this stops them dramatically changing the indicator value in the year they join the dataset. It also accounts for species that leave the dataset before the end by holding them at their last value. Finally limits to species values can be given, preventing extremely high or low values biasing the indicator.
+Once we have species-year indicies we are in a position to proceed to calculating an indictor. To do this there are a number of mehods available, some of which are presented here in 'BRCindicators'
+
+## Geometric mean
+
+The geometric mean method is often used with data that do not have errors associated with them.
+
+The first step is to re-scale the data so that the value for all species in the first year is the same. Once this is done we calculate the geometric mean across species for each year creating the indicator value. This function also accounts for species that have no data at the beginning of the dataset by entering them at the geometric mean for that year, this stops them dramatically changing the indicator value in the year they join the dataset. It also accounts for species that leave the dataset before the end by holding them at their last value. Finally limits to species values can be given, preventing extremely high or low values biasing the indicator.
+
+### Rescaling and calculating geometric mean
 
 The data I have generated in 'trends_summary' is very easy to work with but to show off what this function can do I'm going to mess it up a bit.
 
@@ -175,7 +193,7 @@ You can see that species 'a' and 'b' enter the dataset at the geometric mean (th
 
 The 'indicator' column that is returned here is our indicator, calculated as the geometric mean of all the species in the data set. 
 
-## Getting confidence intervals for the indicator
+### Confidence intervals
 
 We can get confidence intervals for this indicator by bootstrapping across species. We have a function for that too!
 
@@ -188,7 +206,7 @@ indicator_CIs <- bootstrap_indicator(Data = scaled_species)
 head(indicator_CIs)
 ```
 
-## Creating a smoothed indicator
+### Smoothing
 
 It is sometimes desirable to create a smoothed indicator value from the raw values. This can be achieved by fitting a GAM (general additive model) to the indicator using a spline. This spline is a smoothed curve that goes through the raw values for the indicator and is fitted using the function 'gam' in the 'mgcv' R package.
 
@@ -211,7 +229,7 @@ lines(x = 1:50, y = eg_smoothed, col = 'red')
 
 Where there is little support for a non-linear trend a GAM smoothed line will tend towards linear. Where there is good support for a non-linear trend the smoothed line will become more 'bendy'.
 
-## Plotting the indicator
+### Plotting
 
 We now have our indicator and the confidence intervals around it. The next step is to plot it. We have included a function that creates a simple plot using ggplot2, however you could easily create your own plots in R using the data.
 
@@ -224,7 +242,56 @@ plot_indicator(indicator = rescaled_trends[,'indicator'],
 
 In this plot you can see the high upper confidence interval in years 2-4, this is due to the artificially high values we gave to species 'c'.
 
-## Creating a custom pipeline function
+## Bayesian Meta-Analysis (BMA)
+
+The Bayesian Meta-Analysis method, or BMA, is suited to data with standard errors associated with them. As with other methods we require data from more than one species, across a number of years, with an error for each species-year estimate.
+
+```{r BMAdata}
+# Here is an example dataset for the BMA method
+data <- data.frame(species = rep(letters, each = 50),
+                   year = rep(1:50, length(letters)), 
+                   index = runif(n = 50 * length(letters), min = 0, max = 1), 
+                   se = runif(n = 50 * length(letters), min = 0.01, max = .1))
+head(data)
+```
+
+It is important that your data is in the same format and that your columns are in the same order and have the same names. Remember you can use the function `read.csv()` to read in the data from a .csv on your computer.
+
+BMA is run using the function `bma`, here we will use the default settings and then see what we can change.
+
+```{r runBMA}
+bma_indicator <- bma(data)
+```
+
+The function returns a plot to your screen which is a diagnostic plot of the model. When the model has converged (i.e. reached a point where the three chains agree on the answer) the lines on the plots on the left will sit on top of one another and the plots on the right will have a nice bell shape. You can turn off this plot by setting `plot` to `FALSE`. By default the method runs the chains in series. Running them in parallel makes the models run faster (about half the time) but will slow down your computer more. We can change this with the parameter `parallel`. The number of iterations the model runs is controlled by `n.iter` and defaults to 10000. If you can it is better to run it for more iterations, though this will take longer. `m.scale` gives the scale your data is on. It is very important that this is correct, choose from 'loge' (natural log, sometimes simply called 'log'), 'log10' (log to the base 10), or 'logit' (output from models of proportions or probabilities).
+
+Let's implement a few of these changes
+
+```{r runBMAparameters}
+bma_indicator2 <- bma(data,
+                     parallel = TRUE,
+                     n.iter = 500,
+                     m.scale = 'log10')
+```
+
+Because we have reduced the number of interations the model no longer has a good convergence. The lines on the graphs on the left do not overlap and the graphs on the right are no longer a smooth bell shape.
+
+The object that is returned is a data.frame with years as rows and columns giving the year value, index value and confidence intervals. You can write this to a csv using the function `write.csv`.
+
+```{r BMAresults}
+head(bma_indicator)
+```
+
+We can use the plotting function in BRCindicators to plot the results of this analysis, which in this case are not all that interesting!
+
+```{r BMAplot}
+plot_indicator(indicator = bma_indicator[,'Index'],
+               CIs = bma_indicator[,c(3,4)])
+```
+
+
+
+# Creating a custom pipeline function
 
 We have demonstrated how you might run the indicator functions one at a time, however in a 'pipeline' we want data to flow through seamlessly. Additionally there are a number of parameters in the functions that we have not shown you that you might find useful. Here is an example of how you can create your own pipeline function. Our function will wrap around the functions described above, setting the parameters to meet our needs. Once we have done this it will allow use to execute our pipeline in one line.
 
@@ -271,7 +338,7 @@ run_pipeline <- function(input_dir){
 
 Once we have created this function we can run this pipeline on a directory in one line, or put it in a loop to run across many directories. 
 
-```{r,}
+```{r, in_one}
 # Now we can run the pipeline in one line, like a boss
 indicator_data <- run_pipeline(input_dir = '~/Testing_indicator_pipe')
 
