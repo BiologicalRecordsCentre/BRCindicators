@@ -105,7 +105,7 @@ bma <- function (data,
     switch(m.scale, 
            loge = x <- exp(x),
            log10 = x <- 10^x,
-           logit = {x <- boot::inv.logit(x)},
+           logit = {x <- boot::inv.logit(as.matrix(x))},
            warning(paste(m.scale, 'unknown, no back-transformation applied')))
     return(x)
   }
