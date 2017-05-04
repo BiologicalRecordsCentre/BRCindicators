@@ -55,7 +55,7 @@ bma <- function (data,
   switch(tolower(model),
          random_walk = {bugs_path <- bma_model_ranwalk()},
          uniform = {bugs_path <- bma_model_uniform()},
-         unifoorm_noeta = {bugs_path <- bma_model_uniform_noeta()},
+         uniform_noeta = {bugs_path <- bma_model_uniform_noeta()},
          {stop("model type not know. Must be one of 'random_walk', 'uniform', 'uniform_noeta'")})
   
   #index <- log(acast(na.omit(data), species ~ year, value.var = "index"))
