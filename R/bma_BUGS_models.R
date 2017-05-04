@@ -32,7 +32,7 @@ model {
   tau.psd[i,t] <- pow(se[i,t], -2)    # Known measurement error
   
   #muN is the true unknown species index this year (on the log scale)
-  # its a simple linear function of the year and site effects, with "process error"
+  # its a simple linear function of the year and species effects, with "process error"
   muN[i,t] <- b0[i] + logI[t] + eta[i,t]
   #muN[i,t] <- alpha + b0[i] + logI[t] + eta[i,t]
   }}
@@ -79,7 +79,7 @@ bma_model_uniform <- function(temp_file = tempfile()){
   tau.psd[i,t] <- pow(se[i,t], -2)    # Known measurement error
   
   #muN is the true unknown species index this year (on the log scale)
-  # its a simple linear function of the year and site effects, with "process error"
+  # its a simple linear function of the year and species effects, with "process error"
   muN[i,t] <- b0[i] + logI[t] + eta[i,t]
   #muN[i,t] <- b0[i] + logI[t]
   #muN[i,t] <- alpha + b0[i] + logI[t] + eta[i,t]
@@ -127,7 +127,7 @@ bma_model_uniform_noeta <- function(temp_file = tempfile()){
   tau.psd[i,t] <- pow(se[i,t], -2)    # Known measurement error
   
   #muN is the true unknown species index this year (on the log scale)
-  # its a simple linear function of the year and site effects, with "process error"
+  # its a simple linear function of the year and species effects, with "process error"
   #muN[i,t] <- b0[i] + logI[t] + eta[i,t]
   muN[i,t] <- b0[i] + logI[t]
   #muN[i,t] <- alpha + b0[i] + logI[t] + eta[i,t]
