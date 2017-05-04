@@ -68,7 +68,7 @@ bma <- function (data,
   se <- acast(data, species ~ year, value.var = "se")
   
   bugs_data <- list(Nsp = nrow(index), Nyr = ncol(index), estimate = index, 
-                    se = se)
+                    se = se, max_se = max(se)) 
   
   params = c("tau.b0", "tau.eta", "tau.I", "logI", "alpha")
   
