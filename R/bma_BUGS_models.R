@@ -17,7 +17,7 @@ model {
   for (i in 1:Nsp){   
   for (t in 1:Nyr){
   eta[i,t] ~ dnorm(0, tau.eta) # process error
-  se[i,t] ~ dunif(0,1) # for the missing values
+  se[i,t] ~ dunif(0,max_se) # for the missing values
   }}
   
   # Hyperpriors
@@ -64,7 +64,7 @@ bma_model_uniform <- function(temp_file = tempfile()){
   for (i in 1:Nsp){   
   for (t in 1:Nyr){
   eta[i,t] ~ dnorm(0, tau.eta) # process error
-  se[i,t] ~ dunif(0,1) # for the missing values
+  se[i,t] ~ dunif(0,max_se) # for the missing values
   }}
   
   # Hyperpriors
@@ -112,7 +112,7 @@ bma_model_uniform_noeta <- function(temp_file = tempfile()){
   for (i in 1:Nsp){   
   for (t in 1:Nyr){
   eta[i,t] ~ dnorm(0, tau.eta) # process error
-  se[i,t] ~ dunif(0,1) # for the missing values
+  se[i,t] ~ dunif(0,max_se) # for the missing values
   }}
   
   # Hyperpriors
