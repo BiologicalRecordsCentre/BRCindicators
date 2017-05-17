@@ -172,7 +172,7 @@ bma_model_test <- function(temp_file = tempfile()){
   # Hyperpriors
   tau.b0 ~ dnorm(0, 0.001)
   tau.I ~ dnorm(0, 0.001)
-  tau.eta ~ dnorm(0, 0.001)
+  tau.eta ~ dunif(0, 10)
   
   # Each year-species combos is estimated with error
   for (t in 1:Nyr){
