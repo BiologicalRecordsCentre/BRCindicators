@@ -154,7 +154,6 @@ bma_model_test <- function(temp_file = tempfile()){
   alpha ~ dnorm(0, 0.001)
   #alpha.b0 ~ dnorm(0, 0.001)
   
-
   # one value per species
   for (i in 1:Nsp){b0[i] ~ dnorm(0, tau.b0)}
   #for (i in 1:Nsp){b0[i] ~ dnorm(alpha.b0, tau.b0)}
@@ -171,9 +170,9 @@ bma_model_test <- function(temp_file = tempfile()){
   }}
   
   # Hyperpriors
-  tau.b0 ~ dunif(0, 10)
-  tau.I ~ dnorm(0, 0.001)
-  tau.eta ~ dunif(0, 10)
+  tau.b0 ~ dt(0,1,1)T(0,)
+  tau.I ~ dt(0,1,1)T(0,)
+  tau.eta ~ dt(0,1,1)T(0,)
   
   # Each year-species combos is estimated with error
   for (t in 1:Nyr){
