@@ -171,7 +171,7 @@ bma_model_test <- function(temp_file = tempfile()){
   }}
   
   # Hyperpriors
-  tau.b0 ~ dnorm(0, 0.001)
+  tau.b0 ~ dunif(0, 10)
   tau.I ~ dnorm(0, 0.001)
   tau.eta ~ dunif(0, 10)
   
