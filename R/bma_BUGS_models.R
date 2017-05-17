@@ -4,7 +4,7 @@ bma_model_ranwalk <- function(temp_file = tempfile()){
 model {
 # Priors 
   
-  alpha ~ dnorm(0, 0.001)
+  #alpha ~ dnorm(0, 0.001)
   #alpha.b0 ~ dnorm(0, 0.001)
   
   # one value per species
@@ -35,8 +35,8 @@ model {
   
   #muN is the true unknown species index this year (on the log scale)
   # its a simple linear function of the year and species effects, with "process error"
-  # muN[i,t] <- b0[i] + logI[t] + eta[i,t]
-  muN[i,t] <- alpha + b0[i] + logI[t] + eta[i,t]
+  muN[i,t] <- b0[i] + logI[t] + eta[i,t]
+  # muN[i,t] <- alpha + b0[i] + logI[t] + eta[i,t]
   }}
   
   # derived parameter: indicator on the measurement scale
