@@ -71,7 +71,7 @@ bma <- function (data,
   bugs_data <- list(Nsp = nrow(index), Nyr = ncol(index), estimate = index, 
                     se = se, max_se = max(se, na.rm = TRUE)) 
   
-  params = c("tau.b0", "tau.eta", "tau.I", "logI", "alpha")
+  params = c("tau.b0", "tau.eta", "tau.I", "logI", "alpha", "combi_logI")
   
   model <- jagsUI::jags(data = bugs_data,
                         inits = NULL,
