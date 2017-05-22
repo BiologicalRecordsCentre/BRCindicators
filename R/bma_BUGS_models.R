@@ -156,9 +156,9 @@ bma_model_test <- function(temp_file = tempfile()){
   
   # one value per species
   #for (i in 1:Nsp){b0[i] ~ dnorm(0, tau.b0)}
-  for (i in 1:Nsp){b0[i] ~ dnorm(alpha.b0, tau.b0)}
-  b0[i] <- 0.5
-  
+  #for (i in 1:Nsp){b0[i] ~ dnorm(alpha.b0, tau.b0)}
+  for (i in 1:Nsp){b0[i] <- 0.2}
+
   # one value per year
   logI[1] ~ dunif(-10, 10)
   for (t in 2:Nyr){logI[t] ~ dnorm(logI[t-1], tau.I)}
