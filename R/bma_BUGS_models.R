@@ -164,16 +164,16 @@ bma_model_test <- function(temp_file = tempfile()){
   for (t in 2:Nyr){logI[t] ~ dnorm(logI[t-1], tau.I)}
   
   # one value per site-species
-  for (i in 1:Nsp){   
-  for (t in 1:Nyr){
-  eta[i,t] ~ dnorm(0, tau.eta) # process error
+  #for (i in 1:Nsp){   
+  #for (t in 1:Nyr){
+  #eta[i,t] ~ dnorm(0, tau.eta) # process error
   #se[i,t] ~ dunif(0,max_se) # for the missing values
-  }}
+  #}}
   
   # Hyperpriors
   tau.b0 ~ dt(0,1,1)T(0,)
   tau.I ~ dt(0,1,1)T(0,)
-  tau.eta ~ dt(0,1,1)T(0,)
+  #tau.eta ~ dt(0,1,1)T(0,)
   
   # Each year-species combos is estimated with error
   for (t in 1:Nyr){
@@ -183,8 +183,8 @@ bma_model_test <- function(temp_file = tempfile()){
   
       #muN is the true unknown species index this year (on the log scale)
       # its a simple linear function of the year and species effects, with "process error"
-      #muN[i,t] <- b0[i] + logI[t]
-      muN[i,t] <- b0[i] + logI[t] + eta[i,t]
+      muN[i,t] <- b0[i] + logI[t]
+      #muN[i,t] <- b0[i] + logI[t] + eta[i,t]
       #muN[i,t] <- alpha + b0[i] + logI[t] + eta[i,t]
     }
   }
