@@ -155,9 +155,9 @@ bma_model_test <- function(temp_file = tempfile()){
   #alpha.b0 ~ dnorm(0, 0.001)
   
   # one value per species
-  #for (i in 1:Nsp){b0[i] ~ dnorm(0, tau.b0)}
+  for (i in 1:Nsp){b0[i] ~ dnorm(0, tau.b0)}
   #for (i in 1:Nsp){b0[i] ~ dnorm(alpha.b0, tau.b0)}
-  for (i in 1:Nsp){b0[i] <- 0.2}
+  #for (i in 1:Nsp){b0[i] <- 0.2}
 
   # one value per year
   logI[1] ~ dunif(-10, 10)
@@ -167,11 +167,11 @@ bma_model_test <- function(temp_file = tempfile()){
   for (i in 1:Nsp){   
   for (t in 1:Nyr){
   eta[i,t] ~ dnorm(0, tau.eta) # process error
-  se[i,t] ~ dunif(0,max_se) # for the missing values
+  #se[i,t] ~ dunif(0,max_se) # for the missing values
   }}
   
   # Hyperpriors
-  #tau.b0 ~ dt(0,1,1)T(0,)
+  tau.b0 ~ dt(0,1,1)T(0,)
   tau.I ~ dt(0,1,1)T(0,)
   tau.eta ~ dt(0,1,1)T(0,)
   
