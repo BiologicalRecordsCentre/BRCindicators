@@ -5,15 +5,14 @@
 \title{Bayesian Meta-analysis}
 \usage{
 bma(data, plot = TRUE, model = "random_walk", parallel = FALSE,
-  incl.model = TRUE, n.iter = 10000, m.scale = "loge")
+  incl.model = TRUE, n.iter = 10000, m.scale = "loge", num.knots = 3)
 }
 \arguments{
 \item{data}{a data.frame with 4 columns in this order: species, year, index, se (standard error)}
 
 \item{plot}{Logical, should a trace plot be plotted?}
 
-\item{model}{The type of model to be used. The default of 'random_walk' is strongly recommended.
-Two other models 'uniform' and 'uniform_noeta' exist but are almost always inferior.}
+\item{model}{The type of model to be used. See details.}
 
 \item{parallel}{if \code{TRUE} the model chains will be run in parallel using one fewer cores than
 are availbale on the computer.}
@@ -25,12 +24,25 @@ though much longer runs are usually required to reach convergence}
 
 \item{m.scale}{The measurement scale of the data. The scale of the data is assumed to be logarithmic.
 Here you specify which log scale the data is on ('loge', 'log10', or 'logit'). Defaults to 'loge'.}
+
+\item{num.knots}{If using either of the smooth models this specifies the number of knots.}
 }
 \value{
 Returns a dataframe with 4 columns: Year, Index, lower2.5, upper97.5. The last two columns are the credible intervals
 }
 \description{
 Use a bayesian meta-analysis to create an indicator from species index values and standard error.
+}
+\details{
+There are a number of model to choose from:
+\itemize{
+ \item{\code{"random_walk"}}{ - Also known as BMA3, strongly recommended.}
+ \item{\code{"uniform"}}{ - Also known as BMA2.}
+ \item{\code{"uniform_noeta"}}{ - Also known as BMA1.}
+ \item{\code{"FNgr"}}{ - Indicator defined by Growth rates, as in Freeman & Newson.}
+ \item{\code{"smooth_stoch"}}{ - Indicator defined by Growth rates, with Ruppert smoother (stochastic version).}
+ \item{\code{"smooth_det"}}{ - Indicator defined by Growth rates, with Ruppert smoother (deterministic version).}
+}
 }
 \examples{
 
@@ -47,4 +59,3 @@ bma_indicator <- bma(data)
 plot_indicator(indicator = bma_indicator[,'Index'],
                CIs = bma_indicator[,c(3,4)])
 }
-
