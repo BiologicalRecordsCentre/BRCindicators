@@ -23,6 +23,9 @@
 #'  \item{\code{"FNgr"}}{ - Indicator defined by Growth rates, as in Freeman & Newson.}
 #'  \item{\code{"smooth_stoch"}}{ - Indicator defined by Growth rates, with Ruppert smoother (stochastic version).}
 #'  \item{\code{"smooth_det"}}{ - Indicator defined by Growth rates, with Ruppert smoother (deterministic version).}
+#'  \item{\code{"FNgr2"}}{ - Variant where species can join the series late and error on the first year is 0 (check with Nick and Steve).}
+#'  \item{\code{"smooth_stoch2"}}{ - Variant where species can join the series late and error on the first year is 0 (check with Nick and Steve).}
+#'  \item{\code{"smooth_det2"}}{ - Variant where species can join the series late and error on the first year is 0 (check with Nick and Steve).}
 #' }
 #' @return Returns a dataframe with 4 columns: Year, Index, lower2.5, upper97.5. The last two columns are the credible intervals
 #' @import reshape2
@@ -53,7 +56,7 @@ bma <- function (data,
                  incl.model = TRUE,
                  n.iter = 1e4,
                  m.scale = 'loge',
-                 num.knots = 10,
+                 num.knots = 12,
                  rescaleYr1 = TRUE){
   
   if (!identical(colnames(data), c("species", "year", "index", 
@@ -72,9 +75,12 @@ bma <- function (data,
          fngr = {bugs_path <- bma_model_FNgr()},
          smooth_stoch = {bugs_path <- bma_model_smooth_stoch()},
          smooth_det = {bugs_path <- bma_model_smooth_det()},
+         fngr2 = {bugs_path <- bma_model_FNgr2()},
+         smooth_stoch2 = {bugs_path <- bma_model_smooth_stoch2()},
+         smooth_det2 = {bugs_path <- bma_model_smooth_det2()},
          {stop(paste("model type not know. Must be one of 'random_walk',",
                      "'uniform', 'uniform_noeta', 'FNgr', 'smooth_stoch',",
-                     "'smooth_det'"))})
+                     "'smooth_det', 'smooth_stoch2', 'smooth_det2', 'FNgr2'"))})
   
   # 24 Feb - the index is already on the log scale (for butteflies at least)
   #index <- log(acast(data, species ~ year, value.var = "index"))
@@ -91,7 +97,8 @@ bma <- function (data,
                                     yes = 10,
                                     no = max(se, na.rm = TRUE))) 
   
-  if(model %in% c('smooth_stoch', 'smooth_det')){
+  if(model %in% c('smooth_stoch', 'smooth_det',
+                  'smooth_stoch2', 'smooth_det2')){
     ZX <- makeZX(num.knots = num.knots,
                  covariate = seq(min(data$year),
                                  max(data$year)))
@@ -100,12 +107,23 @@ bma <- function (data,
     bugs_data[['num.knots']] <- num.knots
   }
   
+  if(model %in% c('smooth_stoch2', 'smooth_det2', 'FNgr2')){
+    # using row.names should ensure the same order in the bugs data
+    FY <- sapply(row.names(index), FUN = function(x){
+      min(data$year[!is.na(data$index) & data$species == x])
+    })
+
+    bugs_data[['FY']] <- FY
+  }
+  
   # Setup parameters to monitor
   params = c("tau.spi", "logI", "spindex", "sigma.obs")
-  if(model %in% c('smooth_stoch', 'smooth_det')) params <- c(params, "logI.raw")
+  if(model %in% c('smooth_stoch', 'smooth_det',
+                  'smooth_stoch2', 'smooth_det2')) params <- c(params, "logI.raw")
   if(model %in% c('random_walk', 'uniform', 'uniform_noeta')) params <- c(params, "tau.eta")
   if(model %in% c('random_walk')) params <- c(params, "tau.I")
-  if(model %in% c('smooth_stoch', 'smooth_det', 'FNgr')) params <- c(params, "spgrowth")
+  if(model %in% c('smooth_stoch', 'smooth_det', 'FNgr',
+                  'smooth_stoch2', 'smooth_det2', 'FNgr2')) params <- c(params, "spgrowth")
   
   model <- jagsUI::jags(data = bugs_data,
                         inits = NULL,

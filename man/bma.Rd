@@ -5,7 +5,7 @@
 \title{Bayesian Meta-analysis}
 \usage{
 bma(data, plot = TRUE, model = "random_walk", parallel = FALSE,
-  incl.model = TRUE, n.iter = 10000, m.scale = "loge", num.knots = 10,
+  incl.model = TRUE, n.iter = 10000, m.scale = "loge", num.knots = 12,
   rescaleYr1 = TRUE)
 }
 \arguments{
@@ -46,6 +46,9 @@ There are a number of model to choose from:
  \item{\code{"FNgr"}}{ - Indicator defined by Growth rates, as in Freeman & Newson.}
  \item{\code{"smooth_stoch"}}{ - Indicator defined by Growth rates, with Ruppert smoother (stochastic version).}
  \item{\code{"smooth_det"}}{ - Indicator defined by Growth rates, with Ruppert smoother (deterministic version).}
+ \item{\code{"FNgr2"}}{ - Variant where species can join the series late and error on the first year is 0 (check with Nick and Steve).}
+ \item{\code{"smooth_stoch2"}}{ - Variant where species can join the series late and error on the first year is 0 (check with Nick and Steve).}
+ \item{\code{"smooth_det2"}}{ - Variant where species can join the series late and error on the first year is 0 (check with Nick and Steve).}
 }
 }
 \examples{

@@ -400,3 +400,234 @@ bma_model_smooth_det <- function(temp_file = tempfile()){
 }
 
 ################################################################################
+
+bma_model_FNgr2 <- function(temp_file = tempfile()){
+  # Indicator defined by Growth rates, as in Freeman & Newson
+  # Defined by equations 1-5 in Steve Freeman's document of 2/11/17
+  # Also known as "FN_indicator" in Steve's email of 2/11/17
+  # 29/11/17 Now takes an extra vector, FY, indexing the first year for which a species has data
+  # this makes some other code redundant
+  # this version is suitable for datasets where species have zero SE in year 1
+  # and some species are allowed to join late
+  # Therefore the indicator must be plotted with zero error in year 1 
+  # uncertainty in logI[1] doesn't measure the same thing as uncertainty in other years 
+  
+  
+  model <- '
+  model {
+  
+  ###################  Define priors
+  # process errors
+  tau.spi <- pow(sigma.spi,-2)
+  sigma.spi ~ dunif(0,30)
+  tau.sg <- pow(sigma.sg,-2)
+  sigma.sg ~ dunif(0,1000)
+  
+  # observation errors
+  # one value per site-species
+  #for (s in 1:nsp){   
+  #  for (t in 1:nyears){
+  #    sigma.obs[s,t] ~ dunif(0, max_se) # for the missing values
+  #  }}
+  
+  #for (s in 1:nsp){
+  #  spindex[s,1] ~ dnorm(logI[1], tau.spi)
+  #}
+  
+  for (t in 1:(nyears)){
+  logI[t] ~ dnorm(0,0.000001)
+  }
+  
+  ###################  Define likelihood  #######################
+  
+  for (t in 1:(nyears-1)){
+  logLambda[t] <- logI[t+1] - logI[t]
+  }
+  
+  for (s in 1:nsp){
+  for (t in 1:(nyears-1)){
+  spgrowth[s,t] ~ dnorm(logLambda[t], tau.sg)
+  }}
+  
+  for (s in 1:nsp){
+  for (t in (FY[s]+1):(nyears)){
+  spindex[s,t] <- estimate[s,FY[s]] + sum(spgrowth[s,FY[s]:(t-1)])
+  estimate[s,t] ~ dnorm(spindex[s,t], tau.obs[s,t])
+  tau.obs[s,t] <- pow(sigma.obs[s,t], -2)
+  }}
+  
+  #########################  end likelihood ###########################
+  
+  }'
+  
+  writeLines(text = model, con = temp_file)
+  return(temp_file)
+}
+
+################################################################################
+
+bma_model_smooth_stoch2 <- function(temp_file = tempfile()){
+  # Indicator defined by Growth rates, with Ruppert smoother (stochastic version)
+  # Defined by equation 6 in Steve Freeman's document of 2/11/17
+  # Also known as "smooth_indicator_2" in Steve's email of 2/11/17
+  # 29/11/17 Now takes an extra vector, FY, indexing the first year for which a species has data
+  # this makes some other code redundant
+  # this version is suitable for datasets where species have zero SE in year 1
+  # and some species area allowed to join late
+  # Therefore the indicator must be plotted with zero error in year 1 
+  # uncertainty in logI[1] doesn't measure the same thing as uncertainty in other years 
+  
+  model <- '
+  model {
+  
+  ###################  Define priors
+  # process errors
+  tau.spi <- pow(sigma.spi,-2)
+  sigma.spi ~ dunif(0,30)
+  tau.sg <- pow(sigma.sg,-2)
+  sigma.sg ~ dunif(0,1000)
+  
+  # observation errors
+  # one value per site-species
+  #for (s in 1:nsp){   
+  #  for (t in 1:nyears){
+  #    sigma.obs[s,t] ~ dunif(0, max_se) # for the missing values
+  #}}
+  
+  #for (s in 1:nsp){
+  #  spindex[s,1] ~ dnorm(logI.raw[1], tau.spi)
+  #}
+  logI.raw[1]~dnorm(0,0.00001) # I think this is redundant
+  
+  ########### Smoothing done here   #############
+  
+  beta[1]~dnorm(0,0.000001)
+  beta[2]~dnorm(0,0.000001)
+  taueps ~ dgamma(0.000001,0.000001)
+  taub ~ dgamma(0.000001,0.000001)
+  for(k in 1:num.knots){b[k] ~ dnorm(0,taub)}
+  
+  for (t in 1:(nyears)){
+  #logI.raw[t] ~ dnorm(m[t], taueps)
+  logLambda[t] ~ dnorm(m[t], taueps)
+  m[t] <- mfe[t] + mre[t]
+  mfe[t] <- beta[1] * X[t,1] + beta[2] * X[t,2]
+  for (k in 1:num.knots){
+  temp[t,k]<-b[k]*Z[t,k]
+  }
+  mre[t] <- sum(temp[t,1:num.knots])
+  }
+  
+  ###################  Define likelihood  #######################
+  
+  #for (t in 1:(nyears-1)){
+  #  logLambda[t] <- logI.raw[t+1] - logI.raw[t]
+  #}
+  for (t in 2:nyears){
+  logI.raw[t] <- logI.raw[t-1] + logLambda[t-1]
+  }
+  
+  for (s in 1:nsp){
+  for (t in 1:(nyears-1)){
+  spgrowth[s,t] ~ dnorm(logLambda[t], tau.sg)
+  }}
+  
+  for (s in 1:nsp){
+  for (t in (FY[s]+1):(nyears)){
+  spindex[s,t] <- estimate[s,FY[s]] + sum(spgrowth[s,FY[s]:(t-1)])
+  estimate[s,t] ~ dnorm(spindex[s,t], tau.obs[s,t])
+  tau.obs[s,t] <- pow(sigma.obs[s,t], -2)
+  }}
+  
+  logI <- m
+  
+  #########################  end likelihood ###########################
+  
+  }'
+  
+  writeLines(text = model, con = temp_file)
+  return(temp_file)
+}
+
+################################################################################
+
+bma_model_smooth_det2 <- function(temp_file = tempfile()){
+  # Indicator defined by Growth rates, with Ruppert smoother (deterministic version)
+  # Defined by equation 7 in Steve Freeman's document of 2/11/17
+  # Also known as "smooth_indicator_1" in Steve's email of 2/11/17
+  # 29/11/17 Now takes an extra vector, FY, indexing the first year for which a species has data
+  # this makes some other code redundant
+  # this version is suitable for datasets where species have zero SE in year 1
+  # and some species area allowed to join late
+  # Therefore the indicator must be plotted with zero error in year 1 
+  # uncertainty in logI[1] doesn't measure the same thing as uncertainty in other years 
+  
+  model <- '
+  model {
+  
+  ###################  Define priors
+  # process errors
+  tau.spi<-pow(sigma.y,-2)
+  sigma.y~dunif(0,30)
+  tau.sg<-pow(sigma.s,-2)
+  sigma.s~dunif(0,1000)
+  
+  # observation errors
+  # one value per site-species
+  #for (s in 1:nsp){   
+  #  for (t in 1:nyears){
+  #    sigma.obs[s,t] ~ dunif(0, max_se) # for the missing values
+  #  }}
+  
+  #for (s in 1:nsp){
+  #  spindex[s,1] ~ dnorm(logI.raw[1],tau.spi)
+  #}
+  logI.raw[1]~dnorm(0,0.00001) # I think this is redundant
+  
+  ########### Smoothing done here   #############
+  
+  beta[1]~dnorm(0,0.000001)
+  beta[2]~dnorm(0,0.000001)
+  taub~dgamma(0.000001,0.000001)
+  for(k in 1:num.knots){b[k]~dnorm(0,taub)}
+  
+  for (t in 1:(nyears)){
+  logLambda[t] <- m[t]
+  m[t] <- mfe[t]+mre[t]
+  mfe[t] <- beta[1] * X[t,1] + beta[2] * X[t,2]
+  for (k in 1:num.knots){
+  temp[t,k] <- b[k]*Z[t,k]
+  }
+  mre[t] <- sum(temp[t,1:num.knots])
+  }
+  
+  ###################  Define likelihood  #######################
+  
+  for (t in 2:nyears){
+  logI.raw[t] <- logI.raw[t-1] + logLambda[t-1]
+  }
+  
+  for (s in 1:nsp){
+  for (t in 1:(nyears-1)){
+  spgrowth[s,t] ~ dnorm(logLambda[t],tau.sg)
+  }}
+  
+  for (s in 1:nsp){
+  for (t in (FY[s]+1):(nyears)){
+  spindex[s,t]<- estimate[s,FY[s]] + sum(spgrowth[s,FY[s]:(t-1)])
+  estimate[s,t] ~ dnorm(spindex[s,t], tau.obs[s,t])
+  tau.obs[s,t] <- pow(sigma.obs[s,t], -2)
+  }}
+  
+  logI <- m
+  
+  #########################  end likelihood ###########################
+  
+  }
+  '
+  
+  writeLines(text = model, con = temp_file)
+  return(temp_file)
+}
+
+################################################################################
