@@ -140,7 +140,8 @@ bma <- function (data,
     logI_rescaled <- t(apply(model$sims.list$logI, 1, function(x) x - x[1]))
     pd <- data.frame(mean = apply(logI_rescaled, 2, mean),
                      q2.5 = apply(logI_rescaled, 2, quantile, probs = 0.025),
-                     q97.5 = apply(logI_rescaled, 2, quantile, probs = 0.975))
+                     q97.5 = apply(logI_rescaled, 2, quantile, probs = 0.975),
+                     row.names = paste0('logI', 1:ncol(logI_rescaled)))
   }
   # convert the logI back to the measurement scale  
   unb2b <- function(x, m.scale){
