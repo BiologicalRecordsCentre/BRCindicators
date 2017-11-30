@@ -30,4 +30,3 @@ so that the value in the starting year is the same. This function accounts
 for species that have no data at the beginning of the period or those that
 have no data at teh end of the period.
 }
-

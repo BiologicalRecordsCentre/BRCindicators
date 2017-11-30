@@ -16,4 +16,3 @@
 \description{
 Plots a summary of the MSI analysis
 }
-

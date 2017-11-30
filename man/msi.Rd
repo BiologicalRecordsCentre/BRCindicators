@@ -37,4 +37,3 @@ msi_out <- msi(data, plot = FALSE)
 # Plot the resulting indicator
 plot(msi_out)
 }
-

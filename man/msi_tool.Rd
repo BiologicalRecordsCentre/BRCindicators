@@ -54,4 +54,3 @@ for the MSIs and linear and flexible (smoothed) trends. The trends are classifie
 like testing for changepoints, comparison of trends before and after a changepoint and the calculation
 and testing of the total change in a time series.
 }
-

@@ -86,4 +86,3 @@ plot_indicator(myIndicator$summary[,'indicator'],
 ### Running from a directory of sparta ouput
 # myIndicator <- lambda_indicator('myfilepath/myfolder')
 }
-

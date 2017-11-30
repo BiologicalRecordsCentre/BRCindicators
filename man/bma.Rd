@@ -5,7 +5,8 @@
 \title{Bayesian Meta-analysis}
 \usage{
 bma(data, plot = TRUE, model = "random_walk", parallel = FALSE,
-  incl.model = TRUE, n.iter = 10000, m.scale = "loge", num.knots = 3)
+  incl.model = TRUE, n.iter = 10000, m.scale = "loge", num.knots = 10,
+  rescaleYr1 = TRUE)
 }
 \arguments{
 \item{data}{a data.frame with 4 columns in this order: species, year, index, se (standard error)}
@@ -26,6 +27,9 @@ though much longer runs are usually required to reach convergence}
 Here you specify which log scale the data is on ('loge', 'log10', or 'logit'). Defaults to 'loge'.}
 
 \item{num.knots}{If using either of the smooth models this specifies the number of knots.}
+
+\item{rescaleYr1}{Logical, should all iterations be scaled so that the first year is equal? If TRUE
+year one will have 0 error.}
 }
 \value{
 Returns a dataframe with 4 columns: Year, Index, lower2.5, upper97.5. The last two columns are the credible intervals

@@ -56,4 +56,3 @@ myIndicator <- lambda_interpolation(myArray)
 # Plot the trend stack
 trend_assessment(myIndicator)
 }
-

@@ -13,6 +13,8 @@
 #' @param m.scale The measurement scale of the data. The scale of the data is assumed to be logarithmic.
 #' Here you specify which log scale the data is on ('loge', 'log10', or 'logit'). Defaults to 'loge'.
 #' @param num.knots If using either of the smooth models this specifies the number of knots.
+#' @param rescaleYr1 Logical, should all iterations be scaled so that the first year is equal? If TRUE
+#' year one will have 0 error.
 #' @details There are a number of model to choose from:
 #' \itemize{
 #'  \item{\code{"random_walk"}}{ - Also known as BMA3, strongly recommended.}
@@ -51,7 +53,8 @@ bma <- function (data,
                  incl.model = TRUE,
                  n.iter = 1e4,
                  m.scale = 'loge',
-                 num.knots = 3){
+                 num.knots = 10,
+                 rescaleYr1 = TRUE){
   
   if (!identical(colnames(data), c("species", "year", "index", 
                                    "se"))) {
@@ -84,12 +87,16 @@ bma <- function (data,
                     nyears = ncol(index),
                     estimate = index, 
                     sigma.obs = se, 
-                    max_se = max(se, na.rm = TRUE)) 
+                    max_se = ifelse(test = all(is.na(se)),
+                                    yes = 10,
+                                    no = max(se, na.rm = TRUE))) 
   
   if(model %in% c('smooth_stoch', 'smooth_det')){
-    bugs_data[['Z']] <- makeZ(num.knots = num.knots,
-                              covariate = seq(min(data$year),
-                                              max(data$year)))
+    ZX <- makeZX(num.knots = num.knots,
+                 covariate = seq(min(data$year),
+                                 max(data$year)))
+    bugs_data[['Z']] <- ZX[['Z']]
+    bugs_data[['X']] <- ZX[['X']]
     bugs_data[['num.knots']] <- num.knots
   }
   
@@ -98,6 +105,7 @@ bma <- function (data,
   if(model %in% c('smooth_stoch', 'smooth_det')) params <- c(params, "logI.raw")
   if(model %in% c('random_walk', 'uniform', 'uniform_noeta')) params <- c(params, "tau.eta")
   if(model %in% c('random_walk')) params <- c(params, "tau.I")
+  if(model %in% c('smooth_stoch', 'smooth_det', 'FNgr')) params <- c(params, "spgrowth")
   
   model <- jagsUI::jags(data = bugs_data,
                         inits = NULL,
@@ -123,10 +131,17 @@ bma <- function (data,
     plot(comb.samples)
   }
   
-  pd <- data.frame(mean = unlist(model$mean),
-                   q2.5 = unlist(model$q2.5),
-                   q97.5 = unlist(model$q97.5))
-  
+  # rescale year 1/ or not
+  if(!rescaleYr1){ 
+    pd <- data.frame(mean = unlist(model$mean),
+                     q2.5 = unlist(model$q2.5),
+                     q97.5 = unlist(model$q97.5))
+  } else {
+    logI_rescaled <- t(apply(model$sims.list$logI, 1, function(x) x - x[1]))
+    pd <- data.frame(mean = apply(logI_rescaled, 2, mean),
+                     q2.5 = apply(logI_rescaled, 2, quantile, probs = 0.025),
+                     q97.5 = apply(logI_rescaled, 2, quantile, probs = 0.975))
+  }
   # convert the logI back to the measurement scale  
   unb2b <- function(x, m.scale){
     switch(m.scale, 
@@ -136,7 +151,7 @@ bma <- function (data,
            warning(paste(m.scale, 'unknown, no back-transformation applied')))
     return(x)
   }
-  pd <- unb2b(pd[grepl("^logI",dimnames(pd)[[1]]),], m.scale)
+  pd <- unb2b(pd[grepl("^logI[[:digit:]]+",dimnames(pd)[[1]]),], m.scale)
   
   rescale_bayesian_indicator <- function(x, centering = "firstyr") {
     if (centering == "firstyr") {
