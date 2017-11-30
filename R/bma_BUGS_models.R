@@ -425,10 +425,11 @@ bma_model_FNgr2 <- function(temp_file = tempfile()){
   
   # observation errors
   # one value per site-species
-  #for (s in 1:nsp){   
-  #  for (t in 1:nyears){
-  #    sigma.obs[s,t] ~ dunif(0, max_se) # for the missing values
-  #  }}
+  for (s in 1:nsp){
+   for (t in 1:nyears){
+     sigma.obs[s,t] ~ dunif(0, max_se) # for the missing values
+   }
+  }
   
   #for (s in 1:nsp){
   #  spindex[s,1] ~ dnorm(logI[1], tau.spi)
@@ -489,10 +490,11 @@ bma_model_smooth_stoch2 <- function(temp_file = tempfile()){
   
   # observation errors
   # one value per site-species
-  #for (s in 1:nsp){   
-  #  for (t in 1:nyears){
-  #    sigma.obs[s,t] ~ dunif(0, max_se) # for the missing values
-  #}}
+  for (s in 1:nsp){
+   for (t in 1:nyears){
+     sigma.obs[s,t] ~ dunif(0, max_se) # for the missing values
+   }
+  }
   
   #for (s in 1:nsp){
   #  spindex[s,1] ~ dnorm(logI.raw[1], tau.spi)
@@ -574,10 +576,11 @@ bma_model_smooth_det2 <- function(temp_file = tempfile()){
   
   # observation errors
   # one value per site-species
-  #for (s in 1:nsp){   
-  #  for (t in 1:nyears){
-  #    sigma.obs[s,t] ~ dunif(0, max_se) # for the missing values
-  #  }}
+  for (s in 1:nsp){
+   for (t in 1:nyears){
+     sigma.obs[s,t] ~ dunif(0, max_se) # for the missing values
+   }
+  }
   
   #for (s in 1:nsp){
   #  spindex[s,1] ~ dnorm(logI.raw[1],tau.spi)

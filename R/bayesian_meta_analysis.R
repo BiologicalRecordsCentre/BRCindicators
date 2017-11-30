@@ -92,10 +92,16 @@ bma <- function (data,
   bugs_data <- list(nsp = nrow(index),
                     nyears = ncol(index),
                     estimate = index, 
-                    sigma.obs = se, 
+                    sigma.obs = se,
                     max_se = ifelse(test = all(is.na(se)),
                                     yes = 10,
                                     no = max(se, na.rm = TRUE))) 
+  
+  # if(model %in% c('random_walk', 'uniform', 'uniform_noeta', 'FNgr', 'smooth_stoch', 'smooth_det')){
+  #   bugs_data[['max_se']] <- ifelse(test = all(is.na(se)),
+  #                                   yes = 10,
+  #                                   no = max(se, na.rm = TRUE))
+  # }
   
   if(model %in% c('smooth_stoch', 'smooth_det',
                   'smooth_stoch2', 'smooth_det2')){
