@@ -490,16 +490,15 @@ bma_model_smooth_stoch2 <- function(temp_file = tempfile()){
   
   # observation errors
   # one value per site-species
-  for (s in 1:nsp){
-   for (t in 1:nyears){
-     sigma.obs[s,t] ~ dunif(0, max_se) # for the missing values
-   }
-  }
+  #for (s in 1:nsp){   
+  #  for (t in 1:nyears){
+  #    sigma.obs[s,t] ~ dunif(0, max_se) # for the missing values
+  #}}
   
   #for (s in 1:nsp){
   #  spindex[s,1] ~ dnorm(logI.raw[1], tau.spi)
   #}
-  logI.raw[1]~dnorm(0,0.00001) # I think this is redundant
+  logI[1]~dnorm(0,0.00001) # I think this is redundant
   
   ########### Smoothing done here   #############
   
@@ -522,11 +521,8 @@ bma_model_smooth_stoch2 <- function(temp_file = tempfile()){
   
   ###################  Define likelihood  #######################
   
-  #for (t in 1:(nyears-1)){
-  #  logLambda[t] <- logI.raw[t+1] - logI.raw[t]
-  #}
   for (t in 2:nyears){
-  logI.raw[t] <- logI.raw[t-1] + logLambda[t-1]
+  logI[t] <- logI[t-1] + logLambda[t-1]
   }
   
   for (s in 1:nsp){
@@ -540,8 +536,6 @@ bma_model_smooth_stoch2 <- function(temp_file = tempfile()){
   estimate[s,t] ~ dnorm(spindex[s,t], tau.obs[s,t])
   tau.obs[s,t] <- pow(sigma.obs[s,t], -2)
   }}
-  
-  logI <- m
   
   #########################  end likelihood ###########################
   
@@ -576,16 +570,15 @@ bma_model_smooth_det2 <- function(temp_file = tempfile()){
   
   # observation errors
   # one value per site-species
-  for (s in 1:nsp){
-   for (t in 1:nyears){
-     sigma.obs[s,t] ~ dunif(0, max_se) # for the missing values
-   }
-  }
+  #for (s in 1:nsp){   
+  #  for (t in 1:nyears){
+  #    sigma.obs[s,t] ~ dunif(0, max_se) # for the missing values
+  #  }}
   
   #for (s in 1:nsp){
   #  spindex[s,1] ~ dnorm(logI.raw[1],tau.spi)
   #}
-  logI.raw[1]~dnorm(0,0.00001) # I think this is redundant
+  logI[1]~dnorm(0,0.00001) # I think this is redundant
   
   ########### Smoothing done here   #############
   
@@ -607,7 +600,7 @@ bma_model_smooth_det2 <- function(temp_file = tempfile()){
   ###################  Define likelihood  #######################
   
   for (t in 2:nyears){
-  logI.raw[t] <- logI.raw[t-1] + logLambda[t-1]
+  logI[t] <- logI[t-1] + logLambda[t-1]
   }
   
   for (s in 1:nsp){
@@ -622,8 +615,6 @@ bma_model_smooth_det2 <- function(temp_file = tempfile()){
   tau.obs[s,t] <- pow(sigma.obs[s,t], -2)
   }}
   
-  logI <- m
-  
   #########################  end likelihood ###########################
   
   }
@@ -634,3 +625,4 @@ bma_model_smooth_det2 <- function(temp_file = tempfile()){
 }
 
 ################################################################################
+
