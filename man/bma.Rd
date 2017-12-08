@@ -6,7 +6,7 @@
 \usage{
 bma(data, plot = TRUE, model = "random_walk", parallel = FALSE,
   incl.model = TRUE, n.iter = 10000, m.scale = "loge", num.knots = 12,
-  rescaleYr1 = TRUE)
+  rescaleYr = 1)
 }
 \arguments{
 \item{data}{a data.frame with 4 columns in this order: species, year, index, se (standard error)}

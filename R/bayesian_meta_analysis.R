@@ -57,7 +57,7 @@ bma <- function (data,
                  n.iter = 1e4,
                  m.scale = 'loge',
                  num.knots = 12,
-                 rescaleYr1 = TRUE){
+                 rescaleYr = 1){
   
   if (!identical(colnames(data), c("species", "year", "index", 
                                    "se"))) {
@@ -123,13 +123,14 @@ bma <- function (data,
   }
   
   # Setup parameters to monitor
-  params = c("tau.spi", "logI", "spindex", "sigma.obs")
-  if(model %in% c('smooth_stoch', 'smooth_det',
-                  'smooth_stoch2', 'smooth_det2')) params <- c(params, "logI.raw")
+  params = c("tau.spi", "logI", "sigma.obs")
+  if(model %in% c('smooth_stoch', 'smooth_det')) params <- c(params, "logI.raw")
   if(model %in% c('random_walk', 'uniform', 'uniform_noeta')) params <- c(params, "tau.eta")
   if(model %in% c('random_walk')) params <- c(params, "tau.I")
   if(model %in% c('smooth_stoch', 'smooth_det', 'FNgr',
-                  'smooth_stoch2', 'smooth_det2', 'FNgr2')) params <- c(params, "spgrowth")
+                  'smooth_stoch2', 'smooth_det2', 'FNgr2')) params <- c(params, "logLambda", "spgrowth")
+  if(model %in% c('smooth_stoch', 'smooth_det', 'FNgr')) params <- c(params, "tau.sg")
+  params <- c(params, "spindex")
   
   model <- jagsUI::jags(data = bugs_data,
                         inits = NULL,
@@ -156,12 +157,12 @@ bma <- function (data,
   }
   
   # rescale year 1/ or not
-  if(!rescaleYr1){ 
+  if(rescaleYr == 0){ 
     pd <- data.frame(mean = unlist(model$mean),
                      q2.5 = unlist(model$q2.5),
                      q97.5 = unlist(model$q97.5))
   } else {
-    logI_rescaled <- t(apply(model$sims.list$logI, 1, function(x) x - x[1]))
+    logI_rescaled <- t(apply(model$sims.list$logI, 1, function(x) x - x[rescaleYr]))
     pd <- data.frame(mean = apply(logI_rescaled, 2, mean),
                      q2.5 = apply(logI_rescaled, 2, quantile, probs = 0.025),
                      q97.5 = apply(logI_rescaled, 2, quantile, probs = 0.975),
