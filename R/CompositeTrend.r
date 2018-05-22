@@ -1,6 +1,6 @@
 #' CompositeTrend function
 #' 
-#' This function can be used to produce composite metrics of change 
+#' @description This function can be used to produce composite metrics of change 
 #' (indicators), whilst propagating uncertainty in the individual 
 #' species trend estimates through to the final composite trend 
 #' metric. This function takes in a dataframe of sampled annual
@@ -49,19 +49,14 @@
 #' @import boot
 #' @export
 
-CompositeTrend <- function(indata, 
-                    output_path,
-                    trend_choice = "arithmetic_logit_occ",
-                    group_name,
-                    save_iterations = "yes",
-                    TrendScale = NULL,
-                    plot_output = TRUE){
+CompositeTrend <- function(indata, output_path, trend_choice = "arithmetic_logit_occ", group_name,
+                           save_iterations = "yes", TrendScale = NULL, plot_output = TRUE){
   
   load(indata)
   
-  number_of_spp <- length(unique(as.character(samp_post$spp))) # HOW MANY SPECIES GOING INTO THE INDICATOR? # 214 hoverflies # 139 bees
+  number_of_spp <- length(unique(as.character(samp_post$spp))) # How many species contribute to the indicator?
   
-  # loop through iterations - later convert to array and apply across array, should be quicker. #
+  # loop through iterations - later convert to array and apply across array, should be quicker #
   composite_trend <- NULL
   for (j in 1:length(unique(samp_post$iter))){
     print(j)
@@ -97,15 +92,15 @@ CompositeTrend <- function(indata,
     
   }
   
-  # if the trend is based on logit, back convert to odds (rather than occupancy) following Steve Freeman's advice #
+  # if the trend is based on logit, back convert to odds (rather than occupancy) following Steve Freeman's comments #
   if(trend_choice == "arithmetic_logit_occ"){
     composite_trend <- exp(composite_trend)
   }
   
-  # scale to 100 for biodiversity indicators
+  # Are we scaling the indicator? - Scale to 100 for UK biodiversity indicators
   if(!is.null(TrendScale)){
     multiplier <- TrendScale/mean(composite_trend[,1])  # identify multiplier 
-    composite_trend <- composite_trend * multiplier # scale logit arithmetic mean so mean value in year 1 = 100 #
+    composite_trend <- composite_trend * multiplier # scale logit arithmetic mean so mean value in year 1 = the input value for TrendScale #
   }
   
   if(save_iterations == "yes"){
