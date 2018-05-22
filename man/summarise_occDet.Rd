@@ -21,4 +21,3 @@ A data.frame. In each row we have the year, the species and the
 This function reads in and summarises all the .rdata files that are output
 by the occDetModel in sparta.
 }
-

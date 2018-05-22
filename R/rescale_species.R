@@ -110,7 +110,8 @@ rescale_species <-  function(Data, index = 100, max = 10000,
 
   # apply tail function
   temp_indicator_scaled <- apply(X = indicator_scaled[,-ncol(indicator_scaled)],
-                                 MARGIN = 2, FUN = fillTailNAs)
+                            MARGIN = 2, FUN = fillTailNAs)
+
   
   # Recalculate geomean and bind to the species indicies
   indicator_scaled <- cbind(temp_indicator_scaled, apply(X = temp_indicator_scaled, MARGIN = 1, FUN = geomean))

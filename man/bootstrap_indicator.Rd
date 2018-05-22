@@ -27,4 +27,3 @@ A matrix. In each row we have the year, the species and the
 This function takes in a dataframe of multi-species data that have been scaled
 and adds confidence intervals to the indicator value.
 }
-

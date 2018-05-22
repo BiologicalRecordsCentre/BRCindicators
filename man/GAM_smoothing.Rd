@@ -22,4 +22,3 @@ model object used for making predictions.
 \description{
 This function uses a GAM to smooth a numeric vector
 }
-

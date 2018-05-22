@@ -47,4 +47,3 @@ myIndicator <- lambda_interpolation(myArray)
 # Plot the trend stack
 plot_trend_stack(myIndicator$species_change[,'category'])
 }
-

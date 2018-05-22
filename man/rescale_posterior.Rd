@@ -51,4 +51,3 @@ is to calculate the indicator line for each iteration (given in the posterior da
 and then to present the 97.5 and 2.5 quantiles of these lines. Both are returned
 in the summary table.
 }
-

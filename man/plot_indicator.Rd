@@ -29,4 +29,3 @@ The plot object is returned
 \description{
 This function plots the indicator using ggplot2.
 }
-
