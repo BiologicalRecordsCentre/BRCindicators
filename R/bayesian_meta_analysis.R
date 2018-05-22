@@ -128,16 +128,17 @@ bma <- function (data,
   if(model %in% c('random_walk', 'uniform', 'uniform_noeta')) params <- c(params, "tau.eta")
   if(model %in% c('random_walk')) params <- c(params, "tau.I")
   if(model %in% c('smooth_stoch', 'smooth_det', 'FNgr',
-                  'smooth_stoch2', 'smooth_det2', 'FNgr2')) params <- c(params, "logLambda", "spgrowth")
+                  'smooth_stoch2', 'smooth_det2', 'FNgr2')) params <- c(params, "logLambda", "spgrowth", "logI2")
   if(model %in% c('smooth_stoch', 'smooth_det', 'FNgr')) params <- c(params, "tau.sg")
   params <- c(params, "spindex")
-  
+
   model <- jagsUI::jags(data = bugs_data,
                         inits = NULL,
                         param = params,
                         parallel = parallel,
                         n.cores = parallel::detectCores()-1,
                         model.file = bugs_path,
+                        store.data = TRUE,
                         n.chains = 3,
                         n.thin = 2,
                         n.iter = n.iter,
