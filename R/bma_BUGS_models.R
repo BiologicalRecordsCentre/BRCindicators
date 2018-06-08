@@ -1,4 +1,6 @@
 
+#' @export
+#' 
 # Multispecies indicators from Bayesian Meta-Analysis 
 # Each function contains BUGS code for a different model
 # Code by Nick Isaac, Tom August & Steve Freeman
