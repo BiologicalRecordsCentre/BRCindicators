@@ -57,7 +57,9 @@ bma <- function (data,
                  n.iter = 1e4,
                  m.scale = 'loge',
                  num.knots = 12,
-                 rescaleYr = 1){
+                 rescaleYr = 1,
+                 n.thin = 5,
+                 save.sppars = TRUE){
   
   if (!identical(colnames(data), c("species", "year", "index", 
                                    "se"))) {
@@ -130,7 +132,10 @@ bma <- function (data,
   if(model %in% c('smooth_stoch', 'smooth_det', 'FNgr',
                   'smooth_stoch2', 'smooth_det2', 'FNgr2')) params <- c(params, "logLambda", "spgrowth", "logI2")
   if(model %in% c('smooth_stoch', 'smooth_det', 'FNgr')) params <- c(params, "tau.sg")
-  params <- c(params, "spindex")
+  if(model %in% c('smooth_stoch', 'smooth_det','smooth_stoch2', 'smooth_det2')) params <- c(params, "beta", "taub")
+  if(save.sppars) {
+    params <- c(params[!params %in% c("spgrowth", "sigma.obs")], "spindex")
+  }
 
   model <- jagsUI::jags(data = bugs_data,
                         inits = NULL,
@@ -140,7 +145,7 @@ bma <- function (data,
                         model.file = bugs_path,
                         store.data = TRUE,
                         n.chains = 3,
-                        n.thin = 2,
+                        n.thin = n.thin,
                         n.iter = n.iter,
                         n.burnin = floor(n.iter/2))
   

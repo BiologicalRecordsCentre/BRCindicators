@@ -600,9 +600,9 @@ bma_model_smooth_det2 <- function(temp_file = tempfile()){
     logLambda[t] <- m[t]
     m[t] <- mfe[t]+mre[t]
     mfe[t] <- beta[1] * X[t,1] + beta[2] * X[t,2]
-  for (k in 1:num.knots){
-    temp[t,k] <- b[k]*Z[t,k]
-  }
+    for (k in 1:num.knots){
+      temp[t,k] <- b[k]*Z[t,k]
+    }
     mre[t] <- sum(temp[t,1:num.knots])
   }
   
