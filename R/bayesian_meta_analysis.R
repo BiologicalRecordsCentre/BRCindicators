@@ -15,6 +15,8 @@
 #' @param num.knots If using either of the smooth models this specifies the number of knots.
 #' @param rescaleYr1 Logical, should all iterations be scaled so that the first year is equal? If TRUE
 #' year one will have 0 error.
+#' @param n.thin Thinning rate for the Markov chains. Defaults to 5.
+#' @param save.sppars Logical. Should the species-specific parameters be monitored? Defaults to TRUE 
 #' @details There are a number of model to choose from:
 #' \itemize{
 #'  \item{\code{"random_walk"}}{ - Also known as BMA3, strongly recommended.}
