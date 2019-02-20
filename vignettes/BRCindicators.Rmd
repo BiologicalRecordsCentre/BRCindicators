@@ -9,6 +9,7 @@ output:
 vignette: >
   %\VignetteIndexEntry{BRCindicators}
   %\usepackage[utf8]{inputenc}
+  %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
 ---
 

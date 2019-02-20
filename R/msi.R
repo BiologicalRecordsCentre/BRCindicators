@@ -19,8 +19,8 @@
 #' # Create some example data in the format required
 #' data <- data.frame(species = rep(letters, each = 50),
 #'                    year = rep(1:50, length(letters)),
-#'                    index = runif(n = 50 * length(letters), min = 1, max = 10),
-#'                    se = runif(n = 50 * length(letters), min = 0.01, max = .8))
+#'                    index = runif(n = 50 * length(letters), min = 50, max = 150),
+#'                    se = runif(n = 50 * length(letters), min = 0.1, max = 8))
 #' 
 #' # Run the MSI function
 #' msi_out <- msi(data, plot = FALSE)
@@ -55,6 +55,7 @@ msi <- function(data, ...){
   }
   
   dir <- tempdir()
+  
 
   write.csv(data, file = file.path(dir, 'input.csv'), row.names = FALSE)
   
