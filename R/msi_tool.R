@@ -87,12 +87,17 @@ msi_tool <- function(wd = getwd(),
   plotbaseyear <- plotbaseyear-minyear+1
   baseyear <- max(1,SEbaseyear-minyear+1)
   lastyears <- min(lastyears,nyear)
-  INP <- data.frame(species, year, index, se)
+  # INP <- data.frame(species, year, index, se)
   SPEC <- as.matrix(species)
   species <- sort(rep(uspecies,each=nyear))
   year <- rep(uyear,nspecies)
-  INP1 <- data.frame(species, year)
-  INP2 <- merge(INP, INP1, by=c("species","year"), sort=TRUE, all=TRUE)
+  # INP1 <- data.frame(species, year)
+  # INP2 <- merge(INP, INP1, by=c("species","year"), sort=TRUE, all=TRUE)
+  INP2 <- data.frame(species = rdata[,"species"],
+                     year = rdata[,"year"],
+                     index = rdata[,"index"],
+                     se = rdata[,"se"])[order(rdata[,"species"],
+                                         rdata[,"year"]), ]
   
   # Calculate and plot mean CV for indices per species
   CVtemp <- INP2[INP2$index >= 10, ] # select records with index >= 10 for CV calculation

@@ -1,7 +1,7 @@
 Package: BRCindicators
 Type: Package
 Title: Creating biodiversity indicators for species occurrence data
-Version: 1.1
+Version: 1.2
 Date: 2017-12-08
 Author: Tom August, Gary Powney, Charlie Outhwaite, Nick Issac
 Maintainer: Tom August <tomaug@ceh.ac.uk>
@@ -12,4 +12,4 @@ VignetteBuilder: knitr
 License: CC BY
 URL: https://github.com/BiologicalRecordsCentre/BRCindicators
 BugReports: https://github.com/BiologicalRecordsCentre/BRCindicators/issues
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.1
