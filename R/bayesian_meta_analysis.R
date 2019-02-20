@@ -74,6 +74,7 @@ bma <- function (data,
          random_walk = {bugs_path <- bma_model_ranwalk()},
          uniform = {bugs_path <- bma_model_uniform()},
          uniform_noeta = {bugs_path <- bma_model_uniform_noeta()},
+
          fngr = {bugs_path <- bma_model_FNgr()},
          smooth_stoch = {bugs_path <- bma_model_smooth_stoch()},
          smooth_det = {bugs_path <- bma_model_smooth_det()},
@@ -83,6 +84,7 @@ bma <- function (data,
          {stop(paste("model type not know. Must be one of 'random_walk',",
                      "'uniform', 'uniform_noeta', 'FNgr', 'smooth_stoch',",
                      "'smooth_det', 'smooth_stoch2', 'smooth_det2', 'FNgr2'"))})
+
   
   # 24 Feb - the index is already on the log scale (for butteflies at least)
   #index <- log(acast(data, species ~ year, value.var = "index"))
@@ -105,6 +107,7 @@ bma <- function (data,
   #                                   no = max(se, na.rm = TRUE))
   # }
   
+
   if(model %in% c('smooth_stoch', 'smooth_det',
                   'smooth_stoch2', 'smooth_det2')){
     ZX <- makeZX(num.knots = num.knots,
@@ -114,6 +117,7 @@ bma <- function (data,
     bugs_data[['X']] <- ZX[['X']]
     bugs_data[['num.knots']] <- num.knots
   }
+
   
   if(model %in% c('smooth_stoch2', 'smooth_det2', 'FNgr2')){
     # using row.names should ensure the same order in the bugs data

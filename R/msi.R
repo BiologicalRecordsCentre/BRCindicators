@@ -46,13 +46,13 @@ msi <- function(data, ...){
   if(inherits(data$species, 'factor')) data$species <- as.character(data$species)
   
   # data needs to be rescaled to 100
-  for(sp in unique(data$species)){
+  #for(sp in unique(data$species)){
     
-    multi_factor <- 100 / na.omit(data$index[data$species == sp])[1]
-    data$index[data$species == sp] <- data$index[data$species == sp] * multi_factor
-    data$se[data$species == sp] <- data$se[data$species == sp] * multi_factor
+  #  multi_factor <- 100 / na.omit(data$index[data$species == sp])[1]
+  #  data$index[data$species == sp] <- data$index[data$species == sp] * multi_factor
+  #  data$se[data$species == sp] <- data$se[data$species == sp] * multi_factor
     
-  }
+  #}
   
   dir <- tempdir()
   
