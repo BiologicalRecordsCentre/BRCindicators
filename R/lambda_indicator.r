@@ -119,8 +119,8 @@ lambda_indicator <-  function(input,
   
   # replace the first zero for each species as a species cannot have a growth rate in its first year
   for (i in 1:nrow(LogLambda)){
-    firstZero<-match(0,LogLambda[i,,])
-    LogLambda[i,firstZero,]<-NA
+    firstZero <- match(0, LogLambda[i,,])
+    LogLambda[i, firstZero,] <- NA
   }
   
   # Add back in the dimnames
@@ -160,10 +160,10 @@ lambda_indicator <-  function(input,
                                   end_year = max(as.numeric(dimnames(LogLambda)[[2]])))
   
   # Add the number of species contributing each year to the LogLambda summary
-  LogLambdaPart<-LogLambda[,,1] # take the first matrix from the array
-  LogLambdaPartTF<-(!(is.na(LogLambdaPart))) # convert to Boolean
-  NperYear<-colSums(LogLambdaPartTF) # add up the number of species that contribute (TRUE)
-  summary_table$Species_Number<-NperYear   
+  LogLambdaPart <- LogLambda[,,1] # take the first matrix from the array
+  LogLambdaPartTF <- (!(is.na(LogLambdaPart))) # convert to Boolean
+  NperYear <- colSums(LogLambdaPartTF) # add up the number of species that contribute (TRUE)
+  summary_table$Species_Number <- NperYear   
   
   return(list(summary = summary_table,
               LogLambda = LogLambda,

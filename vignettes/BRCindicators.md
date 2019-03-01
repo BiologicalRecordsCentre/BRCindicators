@@ -71,7 +71,7 @@ head(myData)
 # First format our data
 formattedOccData <- formatOccData(taxa = myData$taxa,
                                   site = myData$site,
-                                  time_period = myData$time_period)
+                                  survey = myData$time_period)
 ```
 
 ```
