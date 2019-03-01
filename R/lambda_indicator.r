@@ -81,7 +81,7 @@ lambda_indicator <-  function(input,
                               region = NULL){
   
   # Load the data if path else return input if array
-  Occ <- getData(input = input, sample_size = sample_size)
+  Occ <- getData(input = input, sample_size = sample_size, region = region)
   
   # Subset to years
   if(!is.null(year_range)) Occ <- subset_years(Occ, year_range)
