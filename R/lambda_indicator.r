@@ -23,7 +23,7 @@
 #' @param sample_size numeric, if not NULL then a subsample of the iterations are 
 #' used, equal to the number given. This is useful when datasets are so large
 #' that memory starts to become limiting.
-#' @param year_range numic vector of length 2 giving the start and end year of the 
+#' @param year_range numeric vector of length 2 giving the start and end year of the 
 #' data to be analysed.
 #' @param region Specify the region or aggregate data for which the indicator will 
 #' be produced. If NULL (default) the function will be run on the full data (psi.fs).
