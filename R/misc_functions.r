@@ -9,7 +9,12 @@ read_posterior <- function(file, sample_size = NULL){
   min_year <- ifelse(is.null(out$min_year), 1, out$min_year)
   
   # Extract the values for each iteration
-  iteration_values <- t(out$BUGSoutput$sims.list$psi.fs)
+  if(!is.null(region)){
+    iteration_values <- t(out$BUGSoutput$sims.list[paste0("psi.fs.r_",region)][[1]])
+  } else {
+    iteration_values <- t(out$BUGSoutput$sims.list$psi.fs)
+    warning('No region specified therefore defaulting to the full dataset (psi.fs)')
+  }
   
   if(!is.null(sample_size)){
     # Sample is needed
@@ -25,8 +30,14 @@ read_posterior <- function(file, sample_size = NULL){
   colnames(iteration_values) <- paste('i', 1:ncol(iteration_values), sep = '') 
   
   # Add rhat & sd
-  sum_dat <- out$BUGSoutput$summary[grepl("psi.fs",row.names(out$BUGSoutput$summary)),
-                                    c('sd', 'Rhat')]
+  if(!is.null(region)){
+    sum_dat <- out$BUGSoutput$summary[grep(paste0("psi.fs.r_", region), row.names(out$BUGSoutput$summary)), c('sd', 'Rhat')]
+  } else {
+    sum_dat <- out$BUGSoutput$summary[grep("psi.fs[", row.names(out$BUGSoutput$summary)), c('sd', 'Rhat')]
+  }
+    
+#    sum_dat <- out$BUGSoutput$summary[grepl("psi.fs",row.names(out$BUGSoutput$summary)),
+#                                    c('sd', 'Rhat')]
   
   iteration_values <- cbind(iteration_values, sum_dat)
   
