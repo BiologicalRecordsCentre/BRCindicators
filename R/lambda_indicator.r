@@ -26,7 +26,9 @@
 #' @param year_range numeric vector of length 2 giving the start and end year of the 
 #' data to be analysed.
 #' @param region Specify the region or aggregate data for which the indicator will 
-#' be produced. If NULL (default) the function will be run on the full data (psi.fs).
+#' be produced (for example: ENGLAND, WALES, SCOTLAND). The region name should match
+#' the name used when running occDetFunc. If NULL (default) the function will be run 
+#' on the full data (psi.fs).
 #' @return A list with five elements: a summary (data.frame), the LogLambda values
 #' (a three dimensional array, species - year - iterations), calculated after
 #' removing species that fail thresholds and including interpolation, the raw
