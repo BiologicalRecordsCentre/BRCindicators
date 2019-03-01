@@ -1,7 +1,7 @@
 geomean <- function(x) exp(mean(log(x), na.rm = T))
 
 # create a function to read in the data we want from these .rdata files
-read_posterior <- function(file, sample_size = NULL){
+read_posterior <- function(file, sample_size = NULL, region = NULL){
   
   load(file)
   
@@ -298,7 +298,7 @@ lambda_calc <- function(x){
   
 }
 
-getData <- function(input, sample_size = NULL){
+getData <- function(input, sample_size = NULL, region = NULL){
   
   if(!is.null(sample_size)) if(!is.numeric(sample_size)) stop('sample_size must be numeric')
   
@@ -316,7 +316,7 @@ getData <- function(input, sample_size = NULL){
     org <- getwd()
     setwd(input)
     Occ <- sapply(files, read_posterior,
-                  simplify = 'array', sample_size = sample_size)
+                  simplify = 'array', sample_size = sample_size, region = region)
     setwd(org)
     cat('done\n')
     
