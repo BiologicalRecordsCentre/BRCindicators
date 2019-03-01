@@ -31,6 +31,8 @@
 #' indicator value (a value for each iteration in each year), the average annual
 #' percentage change for each species (the fist year is ignored as change is 0),
 #' and a table giving the 'good' years for each species as defined by the thresholds.
+#' Please note that the number of species contributing to the first year is 0 as this 
+#' is fixed to the index value.
 #' @importFrom car logit
 #' @export
 #' @examples 
@@ -115,12 +117,18 @@ lambda_indicator <-  function(input,
   LogLambda <- apply(Occ, c(1,3), lambda_calc)
   LogLambda <- aperm(LogLambda, c(2,1,3))
   
+  # replace the first zero for each species as a species cannot have a growth rate in its first year
+  for (i in 1:nrow(LogLambda)){
+    firstZero <- match(0, LogLambda[i,,])
+    LogLambda[i, firstZero,] <- NA
+  }
+  
   # Add back in the dimnames
   dimnames(LogLambda) <- dimnames(Occ)
   
   # The indicator changes each year by the mean of LogLambda
   Delta <- apply(LogLambda, c(2,3), mean, na.rm = T)
-  #Delta[1,] <- 0 TA This should not be needed
+  Delta[1,] <- 0 
   # We need to cut down the data to remove years with no data
   
   # Create an empty Theta
@@ -150,6 +158,12 @@ lambda_indicator <-  function(input,
   sp_change <- species_assessment(LogLambda,
                                   start_year = min(as.numeric(dimnames(LogLambda)[[2]])) + 1,
                                   end_year = max(as.numeric(dimnames(LogLambda)[[2]])))
+  
+  # Add the number of species contributing each year to the LogLambda summary
+  LogLambdaPart <- LogLambda[,,1] # take the first matrix from the array
+  LogLambdaPartTF <- (!(is.na(LogLambdaPart))) # convert to Boolean
+  NperYear <- colSums(LogLambdaPartTF) # add up the number of species that contribute (TRUE)
+  summary_table$Species_Number <- NperYear   
   
   return(list(summary = summary_table,
               LogLambda = LogLambda,
