@@ -33,7 +33,7 @@ read_posterior <- function(file, sample_size = NULL, region = NULL){
   if(!is.null(region)){
     sum_dat <- out$BUGSoutput$summary[grep(paste0("psi.fs.r_", region), row.names(out$BUGSoutput$summary)), c('sd', 'Rhat')]
   } else {
-    sum_dat <- out$BUGSoutput$summary[grep("psi.fs[", row.names(out$BUGSoutput$summary)), c('sd', 'Rhat')]
+    sum_dat <- out$BUGSoutput$summary[grep("psi.fs\\[", row.names(out$BUGSoutput$summary)), c('sd', 'Rhat')]
   }
     
 #    sum_dat <- out$BUGSoutput$summary[grepl("psi.fs",row.names(out$BUGSoutput$summary)),
