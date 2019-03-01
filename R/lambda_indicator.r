@@ -31,6 +31,8 @@
 #' indicator value (a value for each iteration in each year), the average annual
 #' percentage change for each species (the fist year is ignored as change is 0),
 #' and a table giving the 'good' years for each species as defined by the thresholds.
+#' Please note that the number of species contributing to the first year is 0 as this 
+#' is fixed to the index value.
 #' @importFrom car logit
 #' @export
 #' @examples 
