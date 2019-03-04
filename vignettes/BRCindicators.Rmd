@@ -19,6 +19,9 @@ knitr::opts_chunk$set(echo = TRUE,
                       tidy.opts = list(width.cutoff = 60),
                       tidy = FALSE)
 ```
+```{r libraries}
+require(snowfall)
+```
 
 # Introduction
 
@@ -34,7 +37,7 @@ To create an indicator we first need to have species trends, let's create some u
 
 If you already have yearly estimates of abundance or occurrence for your species you can skip this stage. Here we show how you can create these estimates from raw species observation data using sparta.
 
-```{r, eval=FALSE}
+```{r set_up, eval=FALSE}
 # Install the package from CRAN
 # THIS WILL WORK ONLY AFTER THE PACKAGE IS PUBLISHED
 install.packages('sparta')
@@ -46,7 +49,7 @@ install_github('biologicalrecordscentre/sparta')
 
 Let's assume you have some raw data already, we can under take occupancy modelling like this
 
-```{r, echo = FALSE}
+```{r create_some_data}
 # Create data
 n <- 8000 # size of dataset
 nyr <- 50 # number of years in data
@@ -75,14 +78,14 @@ time_period <- sample(rDates, size = n, TRUE, prob = time_probabilities)
 myData <- data.frame(taxa, site, time_period)
 ```
 
-```{r,cache = TRUE}
+```{r library_sparta}
 # Load the sparta package
 library(sparta)
 ```
 
 For demonstration purposes I have a faked dataset of 8000 species observations. In my dataset the species are named after the letters in the alphabet. Below I show how I can use the Bayesian occupancy models in sparta to create yearly estimates of occurrence. For more information please see the [vignette for sparta](https://github.com/BiologicalRecordsCentre/sparta/raw/master/vignette/sparta_vignette.pdf)
 
-```{r,cache = TRUE}
+```{r format_data}
 # Preview of my data
 head(myData)
 
@@ -134,7 +137,7 @@ list.files('~/Testing_indicator_pipe')
 
 Installing the package is easy and can be done in a couple of lines
 
-```{r,eval = FALSE}
+```{r eval = FALSE}
 library(devtools)
 install_github(repo = 'biologicalrecordscentre/BRCindicators')
 ```
@@ -143,7 +146,7 @@ install_github(repo = 'biologicalrecordscentre/BRCindicators')
 
 Now that we have some species trends data to work with (no doubt you already have your own) we can use the first function in BRCindicators. This function reads in all the output files from sparta (which are quite large and complex) and returns a simple summary table that we can use for calculating the indicator. If you have done your analysis without using sparta you can skip to the next step.
 
-```{r,cache = TRUE}
+```{r set_up_run}
 library(BRCindicators)
 
 # All we have to supply is the directory where out data is saved
@@ -170,7 +173,7 @@ The first step is to re-scale the data so that the value for all species in the 
 
 The data I have generated in 'trends_summary' is very easy to work with but to show off what this function can do I'm going to mess it up a bit.
 
-```{r,cache = TRUE}
+```{r trends_summary}
 trends_summary[1:3, 'a'] <- NA
 trends_summary[1:5, 'b'] <- NA
 trends_summary[2:4, 'c'] <- 1000
@@ -185,7 +188,7 @@ Now that I have 'messed up' the data a bit we have two species with data missing
 
 Now lets run this through the re-scaling function.
 
-```{r,cache=TRUE}
+```{r rescaled_indicator}
 # Let's run this data through our scaling function (all defaults used)
 rescaled_trends <- rescale_species(Data = trends_summary)
 
@@ -202,7 +205,7 @@ The 'indicator' column that is returned here is our indicator, calculated as the
 
 We can get confidence intervals for this indicator by bootstrapping across species. We have a function for that too!
 
-```{r,cache=TRUE}
+```{r create_confidence_intervals}
 # This function takes just the species columns
 scaled_species <- rescaled_trends[,!colnames(rescaled_trends) %in% c('year', 'indicator')]
 indicator_CIs <- bootstrap_indicator(Data = scaled_species)
@@ -215,7 +218,7 @@ head(indicator_CIs)
 
 It is sometimes desirable to create a smoothed indicator value from the raw values. This can be achieved by fitting a GAM (general additive model) to the indicator using a spline. This spline is a smoothed curve that goes through the raw values for the indicator and is fitted using the function 'gam' in the 'mgcv' R package.
 
-```{r,cache=TRUE}
+```{r smoothing_indicator}
 # The smoothing function takes the indicator values
 smoothed_indicator <- GAM_smoothing(rescaled_trends[,'indicator'])
 
@@ -238,7 +241,7 @@ Where there is little support for a non-linear trend a GAM smoothed line will te
 
 We now have our indicator and the confidence intervals around it. The next step is to plot it. We have included a function that creates a simple plot using ggplot2, however you could easily create your own plots in R using the data.
 
-```{r, cache = TRUE}
+```{r plot_indicator}
 # Plot our indicator.
 plot_indicator(indicator = rescaled_trends[,'indicator'],
                smoothed_line = smoothed_indicator,
@@ -297,20 +300,53 @@ plot_indicator(indicator = bma_indicator[,'Index'],
 
 ## Multi-species Indicator
 
-The multi-species indicator method was developed by Statistics Netherlands and the code is made available on [their website](https://www.cbs.nl/en-gb/society/nature-and-environment/indices-and-trends--trim--/msi-tool) (https://www.cbs.nl/en-gb/society/nature-and-environment/indices-and-trends--trim--/msi-tool). To find out more about the inner working of this method please read the detailed documentation on the authors website. Here is a simple example of how this method runs in `BRCindicators`.
+The multi-species indicator method was developed by Statistics Netherlands and the code is made available on [their website](https://www.cbs.nl/en-gb/society/nature-and-environment/indices-and-trends--trim--/msi-tool). To find out more about the inner working of this method please read the [detailed documentation](https://www.cbs.nl/-/media/_pdf/2017/22/msi_manual.pdf) on the authors website. Here is a simple example of how this method runs in `BRCindicators`.
 
 ```{r msi1, fig.height=4}
 # Create some example data in the format required
-data <- data.frame(species = rep(letters, each = 50),
-                   year = rep(1:50, length(letters)),
-                   index = runif(n = 50 * length(letters), min = 1, max = 10),
-                   se = runif(n = 50 * length(letters), min = 0.01, max = .8))
+nyr = 20
+species = rep(letters, each = nyr)
+year = rev(rep(1:nyr, length(letters)))
+
+# Create an index value that increases with time
+index = rep(seq(50, 100, length.out = nyr), length(letters))
+# Add randomness to species
+index = index * runif(n = length(index), 0.7, 1.3)
+# Add correlated randomness across species, to years
+index = index * rep(runif(0.8, 1.2, n = nyr), length(letters))
+
+se = runif(n = nyr * length(letters), min = 10, max = 20)
+
+data <- data.frame(species, year, index, se)
+
+# Our species are decreasing
+plot(data$year, data$index)
+
+# Species index values need to be 100 in the base year. Here I use
+# the first year as my base year and rescale to 100. The standard error
+# in the base year should be 0.
+min_year <- min(data$year)
+
+for(sp in unique(data$species)){
+
+  subset_data <- data[data$species == sp, ]
+  multi_factor <- 100 / subset_data$index[subset_data$year == min_year]
+  data$index[data$species == sp] <- data$index[data$species == sp] * multi_factor
+  data$se[data$species == sp] <- data$se[data$species == sp] * multi_factor
+  data$se[data$species == sp][1] <- 0
+
+}
+
+# Our first year is now indexed at 100
+plot(data$year, data$index)
 
 # Alternativly I could read in data from a csv
-# read.csv('path/to/my/data.csv')
+# data <- read.csv('path/to/my/data.csv')
 
 # Run the MSI function
 msi_out <- msi(data)
+
+head(msi_out$CV)
 
 # I can capture the output figures too
 # pdf('test.pdf')
@@ -318,7 +354,7 @@ msi_out <- msi(data)
 # dev.off()
 ```
 
-The code returns two plots to the console, the first plot shows the coefficient of variation (CV) for each of the species. Species with high values of CV may adversly effect the relaibility of hte trend estimation. Use this graph to identify the CV values of the species and use the `maxCV` parameter to set a threshold above which species will be excluded. The results of excluding species in this way can be tested by comparing trend plots. The second plot shows the smoothed trend and the MSI values. These two figures can be captured in the usual way in R by using `pdf()` for example. In the example I create a dataset from random numbers but usually you would use `read.csv()` to read in data from a local file.
+The code returns two plots to the console, the first plot shows the coefficient of variation (CV) for each of the species. Species with high values of CV may adversly effect the relaibility of the trend estimation. Use this graph to identify the CV values of the species and use the `maxCV` parameter to set a threshold above which species will be excluded. The results of excluding species in this way can be tested by comparing trend plots. The CV values are hard to assign to species from this plot as the species are coded to numbers. To see the raw values look at the CV component of msi_out (i.e. `msi_out$CV`). The second plot shows the smoothed trend and the MSI values. These two figures can be captured in the usual way in R by using `pdf()` for example. In the example I create a dataset from random numbers but usually you would use `read.csv()` to read in data from a local file.
 
 Here is a second example which sets some additional parameters. The parameters for `msi` get passed to `msi_tool` so to see a list of all the parameters you can change look at the help documentation in `msi_tool` usign `?msi_tool` at the R console. I cover most of hte important ones here.
 
@@ -331,7 +367,7 @@ msi_out <- msi(data,
                span = 0.7, # 'wigglyness' of line, between 0 and 1
                lastyears = 5, # last X years of time series for short-term trends
                maxCV = 10, # maximum allowed Coefficient of Variation 
-               changepoint = 25, # compare trends before and after this year
+               changepoint = 10, # compare trends before and after this year
                truncfac = 8, # max year-to-year index ratio
                TRUNC = 5, #set all indices below TRUNC to this
                plot = TRUE # should the plots be returned?)
@@ -355,7 +391,6 @@ msi_out$trends
 
 # I could write this as a csv too
 # write.csv(msi_out$trends, file = 'path/to/my/output.csv')
-
 ```
 
 The second element (`trends`) returned give a summary of various trend assessments across the time series.
@@ -363,7 +398,7 @@ The second element (`trends`) returned give a summary of various trend assessmen
 We have also added a plot method for the MSI output which provides a plot similar to that of the second figure we have seen already. Lets use this plot method to explore the effect of changing the span value in the analysis
 
 ```{r msi_span, fig.height=4}
-for(i in c(0.2, 0.3, 0.5, 0.7)){ # use a range of values for span
+for(i in c(0.3, 0.5, 0.7)){ # use a range of values for span
   
   msi_out <- msi(data, span = i, # span is set to i
                  nsim = 200, plot = FALSE)
