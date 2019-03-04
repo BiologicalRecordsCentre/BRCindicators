@@ -15,7 +15,9 @@ msi_tool(wd = getwd(), inputFile, jobname = "MSI_job", nsim = 1000,
 \arguments{
 \item{wd}{The path for input and ouput files}
 
-\item{inputFile}{The name of the input file}
+\item{inputFile}{The name of the input file. This must have columns species, year, index, se
+in that order. The index value in the base year (which need not be the first year), should be set to 100
+with se of 0.}
 
 \item{jobname}{Generic name for output files}
 
