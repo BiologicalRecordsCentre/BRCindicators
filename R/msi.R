@@ -10,6 +10,7 @@
 #' 
 #' @param data a data.frame with 4 columns in this order: 'species', 'year', 'index', 'se' (standard error).
 #' The index value in the base year (which need not be the first year), should be set to 100, with se of 0. 
+#' @param jobname Generic name for output files
 #' @param ... other parameters to pass to \code{msi_tool}
 #' @return Returns a dataframe with 4 columns: Year, Index, lower2.5, upper97.5. The last two columns are the credible intervals
 #' @import reshape2
@@ -58,7 +59,7 @@
 #' # Plot the resulting indicator
 #' plot(msi_out)
 
-msi <- function(data, ...){
+msi <- function(data, jobname = 'MSI_job', ...){
   
   stopifnot(inherits(x = data, what = 'data.frame'))
   if(!all(colnames(data) == c("species", "year", "index", "se"))){
@@ -99,9 +100,9 @@ msi <- function(data, ...){
 
   write.csv(data, file = file.path(dir, 'input.csv'), row.names = FALSE)
   
-  msi_tool(wd = dir, inputFile = 'input.csv', jobname = 'MSI_job', ...)
+  msi_tool(wd = dir, inputFile = 'input.csv', jobname = jobname, ...)
   
-  results <- read.table(file.path(dir, "MSI_job_RESULTS.csv"), sep = ';',
+  results <- read.table(file.path(dir, paste0(jobname, "_RESULTS.csv")), sep = ';',
                         header = TRUE)
   # replace all commas with decimals and make them numbers
   # who does that?!
@@ -109,7 +110,7 @@ msi <- function(data, ...){
     results[,i] <- as.numeric(gsub(',','.',as.character(results[,i])))
   }
   
-  trends <- read.table(file.path(dir, "MSI_job_TRENDS.csv"), sep = ';',
+  trends <- read.table(file.path(dir, paste0(jobname, "_TRENDS.csv")), sep = ';',
                        header = TRUE)
   
   colnames(trends)[1] <- 'Measure'
