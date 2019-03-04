@@ -4,11 +4,13 @@
 \alias{msi}
 \title{Multi-Species Indicator}
 \usage{
-msi(data, ...)
+msi(data, jobname = "MSI_job", ...)
 }
 \arguments{
 \item{data}{a data.frame with 4 columns in this order: 'species', 'year', 'index', 'se' (standard error).
 The index value in the base year (which need not be the first year), should be set to 100, with se of 0.}
+
+\item{jobname}{Generic name for output files}
 
 \item{...}{other parameters to pass to \code{msi_tool}}
 }
