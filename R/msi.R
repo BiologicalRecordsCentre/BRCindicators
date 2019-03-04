@@ -99,7 +99,7 @@ msi <- function(data, ...){
 
   write.csv(data, file = file.path(dir, 'input.csv'), row.names = FALSE)
   
-  msi_tool(wd = dir, inputFile = 'input.csv', jobname = 'MSI_job', ...)
+  msi_tool(wd = dir, inputFile = 'input.csv', ...)
   
   results <- read.table(file.path(dir, "MSI_job_RESULTS.csv"), sep = ';',
                         header = TRUE)
