@@ -6,7 +6,8 @@
 \usage{
 lambda_indicator(input, index = 100, threshold_sd = 0.2,
   threshold_Rhat = 1.1, threshold_yrs = 20, upperQuantile = 0.975,
-  lowerQuantile = 0.025, sample_size = NULL, year_range = NULL)
+  lowerQuantile = 0.025, sample_size = NULL, year_range = NULL,
+  region = NULL)
 }
 \arguments{
 \item{input}{Either a string giving the path to occupancy model output files
@@ -32,8 +33,11 @@ fulfill the threshold_sd for it to be included.}
 used, equal to the number given. This is useful when datasets are so large
 that memory starts to become limiting.}
 
-\item{year_range, }{numic vector of length 2 giving the start and end year of the 
+\item{year_range}{numeric vector of length 2 giving the start and end year of the 
 data to be analysed.}
+
+\item{region}{Specify the region or aggregate data for which the indicator will 
+be produced. If NULL (default) the function will be run on the full data (psi.fs).}
 }
 \value{
 A list with five elements: a summary (data.frame), the LogLambda values

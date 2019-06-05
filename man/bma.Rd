@@ -16,7 +16,7 @@ bma(data, plot = TRUE, model = "random_walk", parallel = FALSE,
 \item{model}{The type of model to be used. See details.}
 
 \item{parallel}{if \code{TRUE} the model chains will be run in parallel using one fewer cores than
-are availbale on the computer.}
+are available on the computer. NOTE: this will typically not work for parallel use on cluster PCs.}
 
 \item{incl.model}{if \code{TRUE} the model is added as an attribute of the object returned}
 

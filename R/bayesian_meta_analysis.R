@@ -6,7 +6,7 @@
 #' @param plot Logical, should a trace plot be plotted?
 #' @param model The type of model to be used. See details.
 #' @param parallel if \code{TRUE} the model chains will be run in parallel using one fewer cores than
-#' are availbale on the computer.
+#' are available on the computer. NOTE: this will typically not work for parallel use on cluster PCs.
 #' @param incl.model if \code{TRUE} the model is added as an attribute of the object returned
 #' @param n.iter The number of iterations of the model to run. Defaults to 10,000 to avoid long run times
 #' though much longer runs are usually required to reach convergence

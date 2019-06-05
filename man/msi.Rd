@@ -4,10 +4,13 @@
 \alias{msi}
 \title{Multi-Species Indicator}
 \usage{
-msi(data, ...)
+msi(data, jobname = "MSI_job", ...)
 }
 \arguments{
-\item{data}{a data.frame with 4 columns in this order: 'species', 'year', 'index', 'se' (standard error)}
+\item{data}{a data.frame with 4 columns in this order: 'species', 'year', 'index', 'se' (standard error).
+The index value in the base year (which need not be the first year), should be set to 100, with se of 0.}
+
+\item{jobname}{Generic name for output files}
 
 \item{...}{other parameters to pass to \code{msi_tool}}
 }
@@ -26,10 +29,39 @@ and testing of the total change in a time series.
 \examples{
 
 # Create some example data in the format required
-data <- data.frame(species = rep(letters, each = 50),
-                   year = rep(1:50, length(letters)),
-                   index = runif(n = 50 * length(letters), min = 50, max = 150),
-                   se = runif(n = 50 * length(letters), min = 0.1, max = 8))
+Create some example data in the format required
+nyr = 20
+species = rep(letters, each = nyr)
+year = rev(rep(1:nyr, length(letters)))
+
+# Create an index value that increases with time
+index = rep(seq(50, 100, length.out = nyr), length(letters))
+# Add randomness to species
+index = index * runif(n = length(index), 0.7, 1.3)
+# Add correlated randomness acrosss species, to years
+index = index * rep(runif(0.8, 1.2, n = nyr), length(letters))
+
+se = runif(n = nyr * length(letters), min = 10, max = 20)
+
+data <- data.frame(species, year, index, se)
+
+# Our species are decreasing
+plot(data$year, data$index)
+
+# Species index values need to be 100 in the base year. Here I use
+# the first year as my base year and rescale to 100. The standard error
+# in the base year should be 0.
+min_year <- min(data$year)
+
+for(sp in unique(data$species)){
+  
+  subset_data <- data[data$species == sp, ]
+  multi_factor <- 100 / subset_data$index[subset_data$year == min_year]
+  data$index[data$species == sp] <- data$index[data$species == sp] * multi_factor
+  data$se[data$species == sp] <- data$se[data$species == sp] * multi_factor
+  data$se[data$species == sp][1] <- 0
+  
+}
 
 # Run the MSI function
 msi_out <- msi(data, plot = FALSE)
