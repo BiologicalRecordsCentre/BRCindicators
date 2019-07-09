@@ -19,7 +19,7 @@
 #' @param save.sppars Logical. Should the species-specific parameters be monitored? Defaults to TRUE 
 #' @details There are a number of model to choose from:
 #' \itemize{
-#'  \item{\code{"random_walk"}}{ - Also known as BMA3, strongly recommended.}
+#'  \item{\code{"random_walk"}}{ - Also known as BMA3.}
 #'  \item{\code{"uniform"}}{ - Also known as BMA2.}
 #'  \item{\code{"uniform_noeta"}}{ - Also known as BMA1.}
 #'  \item{\code{"FNgr"}}{ - Indicator defined by Growth rates, as in Freeman & Newson.}
@@ -28,6 +28,7 @@
 #'  \item{\code{"FNgr2"}}{ - Variant where species can join the series late and error on the first year is 0 (check with Nick and Steve).}
 #'  \item{\code{"smooth_stoch2"}}{ - Variant where species can join the series late and error on the first year is 0 (check with Nick and Steve).}
 #'  \item{\code{"smooth_det2"}}{ - Variant where species can join the series late and error on the first year is 0 (check with Nick and Steve).}
+#'  \item{\code{"smooth_det_sigtheta"}}{ - Variant of det2 in which standard errors are assumed constant (check with Nick and Steve).}
 #' }
 #' @return Returns a dataframe with 4 columns: Year, Index, lower2.5, upper97.5. The last two columns are the credible intervals
 #' @import reshape2
@@ -136,7 +137,9 @@ bma <- function (data,
   if(model %in% c('smooth_stoch', 'smooth_det', 'FNgr')) params <- c(params, "tau.sg")
   if(model %in% c('smooth_stoch', 'smooth_det','smooth_stoch2', 'smooth_det2')) params <- c(params, "beta", "taub")
   if(save.sppars) {
-    params <- c(params[!params %in% c("spgrowth", "sigma.obs")], "spindex")
+    params <- c(params, "spindex")
+  } else {
+    params <- params[!params %in% c("spgrowth", "sigma.obs")]
   }
 
   model <- jagsUI::jags(data = bugs_data,
