@@ -1,4 +1,6 @@
 
+#' @export
+#' 
 # Multispecies indicators from Bayesian Meta-Analysis 
 # Each function contains BUGS code for a different model
 # Code by Nick Isaac, Tom August & Steve Freeman
@@ -598,9 +600,9 @@ bma_model_smooth_det2 <- function(temp_file = tempfile()){
     logLambda[t] <- m[t]
     m[t] <- mfe[t]+mre[t]
     mfe[t] <- beta[1] * X[t,1] + beta[2] * X[t,2]
-  for (k in 1:num.knots){
-    temp[t,k] <- b[k]*Z[t,k]
-  }
+    for (k in 1:num.knots){
+      temp[t,k] <- b[k]*Z[t,k]
+    }
     mre[t] <- sum(temp[t,1:num.knots])
   }
   
@@ -623,6 +625,85 @@ bma_model_smooth_det2 <- function(temp_file = tempfile()){
       spindex[s,t] <- estimate[s,FY[s]] + sum(spgrowth[s,FY[s]:(t-1)])
       estimate[s,t] ~ dnorm(spindex[s,t], tau.obs[s,t])
       tau.obs[s,t] <- pow(sigma.obs[s,t], -2)
+    }}
+
+  # mean of the species indices  
+  for (t in 1:nyears) {
+    logI[t] <- sum(spindex[,t])/nsp
+  }
+
+  #########################  end likelihood ###########################
+  
+  }
+  '
+  
+  writeLines(text = model, con = temp_file)
+  return(temp_file)
+}
+
+################################################################################
+
+bma_model_smooth_det_sigtheta <- function(temp_file = tempfile()){
+  # Indicator defined by Growth rates, with Ruppert smoother (deterministic version)
+  # Defined by equation 7 in Steve Freeman's document of 2/11/17
+  # Also known as "smooth_indicator_1" in Steve's email of 2/11/17
+  # 29/11/17 Now takes an extra vector, FY, indexing the first year for which a species has data
+  # this makes some other code redundant
+  # this version is suitable for datasets where species have zero SE in year 1
+  # and some species area allowed to join late
+  # Therefore the indicator must be plotted with zero error in year 1 
+  # uncertainty in logI2[1] doesn't measure the same thing as uncertainty in other years 
+  # tau.spi is on the growth rates, not the index
+  # logI is now estimated without uncertainty due to interspecific variation
+  # in this version, standard errors are not read from the data but rather estimated
+  
+  model <- '
+  model {
+  
+  ###################  Define priors
+  # process errors
+  tau.spi <- pow(sigma.y,-2)
+  sigma.y ~ dunif(0,30)
+  theta ~ dunif(0,30) # observation error is constant
+  
+  logI2[1] <- 0
+
+  ########### Smoothing done here   #############
+  
+  beta[1]~dnorm(0,0.000001)
+  beta[2]~dnorm(0,0.000001)
+  taub~dgamma(0.000001,0.000001)
+  for(k in 1:num.knots){b[k]~dnorm(0,taub)}
+  
+  for (t in 1:(nyears)){
+    logLambda[t] <- m[t]
+    m[t] <- mfe[t]+mre[t]
+    mfe[t] <- beta[1] * X[t,1] + beta[2] * X[t,2]
+    for (k in 1:num.knots){
+      temp[t,k] <- b[k]*Z[t,k]
+    }
+    mre[t] <- sum(temp[t,1:num.knots])
+  }
+  
+  ###################  Define likelihood  #######################
+  
+  for (t in 2:nyears){
+    logI2[t] <- logI2[t-1] + logLambda[t-1]
+  }
+  
+  for (s in 1:nsp){
+  for (t in 1:(nyears-1)){
+    spgrowth[s,t] ~ dnorm(logLambda[t],tau.spi)
+  }}
+  
+   for (s in 1:nsp){
+     for (t in 1:FY[s]){
+    spindex[s,t] <- spindex[s,t+1] - spgrowth[s,t]
+  }
+    for (t in (FY[s]+1):(nyears)){
+      spindex[s,t] <- estimate[s,FY[s]] + sum(spgrowth[s,FY[s]:(t-1)])
+      estimate[s,t] ~ dnorm(spindex[s,t], tau.obs[s,t])
+      tau.obs[s,t] <- pow(theta, -2)
     }}
 
   # mean of the species indices  

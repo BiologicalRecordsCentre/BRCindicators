@@ -15,9 +15,11 @@
 #' @param num.knots If using either of the smooth models this specifies the number of knots.
 #' @param rescaleYr1 Logical, should all iterations be scaled so that the first year is equal? If TRUE
 #' year one will have 0 error.
+#' @param n.thin Thinning rate for the Markov chains. Defaults to 5.
+#' @param save.sppars Logical. Should the species-specific parameters be monitored? Defaults to TRUE 
 #' @details There are a number of model to choose from:
 #' \itemize{
-#'  \item{\code{"random_walk"}}{ - Also known as BMA3, strongly recommended.}
+#'  \item{\code{"random_walk"}}{ - Also known as BMA3.}
 #'  \item{\code{"uniform"}}{ - Also known as BMA2.}
 #'  \item{\code{"uniform_noeta"}}{ - Also known as BMA1.}
 #'  \item{\code{"FNgr"}}{ - Indicator defined by Growth rates, as in Freeman & Newson.}
@@ -26,6 +28,7 @@
 #'  \item{\code{"FNgr2"}}{ - Variant where species can join the series late and error on the first year is 0 (check with Nick and Steve).}
 #'  \item{\code{"smooth_stoch2"}}{ - Variant where species can join the series late and error on the first year is 0 (check with Nick and Steve).}
 #'  \item{\code{"smooth_det2"}}{ - Variant where species can join the series late and error on the first year is 0 (check with Nick and Steve).}
+#'  \item{\code{"smooth_det_sigtheta"}}{ - Variant of det2 in which standard errors are assumed constant (check with Nick and Steve).}
 #' }
 #' @return Returns a dataframe with 4 columns: Year, Index, lower2.5, upper97.5. The last two columns are the credible intervals
 #' @import reshape2
@@ -59,7 +62,8 @@ bma <- function (data,
                  num.knots = 12,
                  rescaleYr = 1,
                  n.thin = 5,
-                 save.spindex = TRUE){
+                 #save.spindex = TRUE){
+                 save.sppars = TRUE){
   
   if (!identical(colnames(data), c("species", "year", "index", 
                                    "se"))) {
@@ -136,7 +140,13 @@ bma <- function (data,
   if(model %in% c('smooth_stoch', 'smooth_det', 'FNgr',
                   'smooth_stoch2', 'smooth_det2', 'FNgr2')) params <- c(params, "logLambda", "spgrowth", "logI2")
   if(model %in% c('smooth_stoch', 'smooth_det', 'FNgr')) params <- c(params, "tau.sg")
-  if(save.spindex) params <- c(params, "spindex")
+  #if(save.spindex) params <- c(params, "spindex")
+  if(model %in% c('smooth_stoch', 'smooth_det','smooth_stoch2', 'smooth_det2')) params <- c(params, "beta", "taub")
+  if(save.sppars) {
+    params <- c(params, "spindex")
+  } else {
+    params <- params[!params %in% c("spgrowth", "sigma.obs")]
+  }
 
   model <- jagsUI::jags(data = bugs_data,
                         inits = NULL,
