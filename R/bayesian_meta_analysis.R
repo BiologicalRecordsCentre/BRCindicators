@@ -6,7 +6,7 @@
 #' @param plot Logical, should a trace plot be plotted?
 #' @param model The type of model to be used. See details.
 #' @param parallel if \code{TRUE} the model chains will be run in parallel using one fewer cores than
-#' are availbale on the computer.
+#' are available on the computer. NOTE: this will typically not work for parallel use on cluster PCs.
 #' @param incl.model if \code{TRUE} the model is added as an attribute of the object returned
 #' @param n.iter The number of iterations of the model to run. Defaults to 10,000 to avoid long run times
 #' though much longer runs are usually required to reach convergence
@@ -62,6 +62,7 @@ bma <- function (data,
                  num.knots = 12,
                  rescaleYr = 1,
                  n.thin = 5,
+                 #save.spindex = TRUE){
                  save.sppars = TRUE){
   
   if (!identical(colnames(data), c("species", "year", "index", 
@@ -77,6 +78,7 @@ bma <- function (data,
          random_walk = {bugs_path <- bma_model_ranwalk()},
          uniform = {bugs_path <- bma_model_uniform()},
          uniform_noeta = {bugs_path <- bma_model_uniform_noeta()},
+
          fngr = {bugs_path <- bma_model_FNgr()},
          smooth_stoch = {bugs_path <- bma_model_smooth_stoch()},
          smooth_det = {bugs_path <- bma_model_smooth_det()},
@@ -87,6 +89,7 @@ bma <- function (data,
          {stop(paste("model type not know. Must be one of 'random_walk',",
                      "'uniform', 'uniform_noeta', 'FNgr', 'smooth_stoch',",
                      "'smooth_det', 'smooth_stoch2', 'smooth_det2', 'FNgr2', 'smooth_det_sigtheta'"))})
+
   
   # 24 Feb - the index is already on the log scale (for butteflies at least)
   #index <- log(acast(data, species ~ year, value.var = "index"))
@@ -118,6 +121,7 @@ bma <- function (data,
     bugs_data[['X']] <- ZX[['X']]
     bugs_data[['num.knots']] <- num.knots
   }
+
   
   if(model %in% c('smooth_stoch2', 'smooth_det2', 'smooth_det_sigtheta', 'FNgr2')){
     # using row.names should ensure the same order in the bugs data

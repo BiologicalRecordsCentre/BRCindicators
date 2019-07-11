@@ -23,14 +23,20 @@
 #' @param sample_size numeric, if not NULL then a subsample of the iterations are 
 #' used, equal to the number given. This is useful when datasets are so large
 #' that memory starts to become limiting.
-#' @param year_range, numic vector of length 2 giving the start and end year of the 
+#' @param year_range numeric vector of length 2 giving the start and end year of the 
 #' data to be analysed.
+#' @param region Specify the region or aggregate data for which the indicator will 
+#' be produced (for example: ENGLAND, WALES, SCOTLAND). The region name should match
+#' the name used when running occDetFunc. If NULL (default) the function will be run 
+#' on the full data (psi.fs).
 #' @return A list with five elements: a summary (data.frame), the LogLambda values
 #' (a three dimensional array, species - year - iterations), calculated after
 #' removing species that fail thresholds and including interpolation, the raw
 #' indicator value (a value for each iteration in each year), the average annual
 #' percentage change for each species (the fist year is ignored as change is 0),
 #' and a table giving the 'good' years for each species as defined by the thresholds.
+#' Please note that the number of species contributing to the first year is 0 as this 
+#' is fixed to the index value.
 #' @importFrom car logit
 #' @export
 #' @examples 
@@ -75,10 +81,11 @@ lambda_indicator <-  function(input,
                               upperQuantile = 0.975,
                               lowerQuantile = 0.025,
                               sample_size = NULL,
-                              year_range = NULL){
+                              year_range = NULL,
+                              region = NULL){
   
   # Load the data if path else return input if array
-  Occ <- getData(input = input, sample_size = sample_size)
+  Occ <- getData(input = input, sample_size = sample_size, region = region)
   
   # Subset to years
   if(!is.null(year_range)) Occ <- subset_years(Occ, year_range)
@@ -115,12 +122,18 @@ lambda_indicator <-  function(input,
   LogLambda <- apply(Occ, c(1,3), lambda_calc)
   LogLambda <- aperm(LogLambda, c(2,1,3))
   
+  # replace the first zero for each species as a species cannot have a growth rate in its first year
+  for (i in 1:nrow(LogLambda)){
+    firstZero <- match(0, LogLambda[i,,])
+    LogLambda[i, firstZero,] <- NA
+  }
+  
   # Add back in the dimnames
   dimnames(LogLambda) <- dimnames(Occ)
   
   # The indicator changes each year by the mean of LogLambda
   Delta <- apply(LogLambda, c(2,3), mean, na.rm = T)
-  #Delta[1,] <- 0 TA This should not be needed
+  Delta[1,] <- 0 
   # We need to cut down the data to remove years with no data
   
   # Create an empty Theta
@@ -150,6 +163,12 @@ lambda_indicator <-  function(input,
   sp_change <- species_assessment(LogLambda,
                                   start_year = min(as.numeric(dimnames(LogLambda)[[2]])) + 1,
                                   end_year = max(as.numeric(dimnames(LogLambda)[[2]])))
+  
+  # Add the number of species contributing each year to the LogLambda summary
+  LogLambdaPart <- LogLambda[,,1] # take the first matrix from the array
+  LogLambdaPartTF <- (!(is.na(LogLambdaPart))) # convert to Boolean
+  NperYear <- colSums(LogLambdaPartTF) # add up the number of species that contribute (TRUE)
+  summary_table$Species_Number <- NperYear   
   
   return(list(summary = summary_table,
               LogLambda = LogLambda,

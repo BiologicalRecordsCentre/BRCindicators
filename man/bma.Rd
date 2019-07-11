@@ -5,8 +5,8 @@
 \title{Bayesian Meta-analysis}
 \usage{
 bma(data, plot = TRUE, model = "random_walk", parallel = FALSE,
-  incl.model = TRUE, n.iter = 10000, m.scale = "loge", num.knots = 12,
-  rescaleYr = 1)
+  incl.model = TRUE, n.iter = 10000, m.scale = "loge",
+  num.knots = 12, rescaleYr = 1, n.thin = 5, save.spindex = TRUE)
 }
 \arguments{
 \item{data}{a data.frame with 4 columns in this order: species, year, index, se (standard error)}
@@ -16,7 +16,7 @@ bma(data, plot = TRUE, model = "random_walk", parallel = FALSE,
 \item{model}{The type of model to be used. See details.}
 
 \item{parallel}{if \code{TRUE} the model chains will be run in parallel using one fewer cores than
-are availbale on the computer.}
+are available on the computer. NOTE: this will typically not work for parallel use on cluster PCs.}
 
 \item{incl.model}{if \code{TRUE} the model is added as an attribute of the object returned}
 
