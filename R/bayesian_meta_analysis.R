@@ -85,9 +85,10 @@ bma <- function (data,
          fngr2 = {bugs_path <- bma_model_FNgr2()},
          smooth_stoch2 = {bugs_path <- bma_model_smooth_stoch2()},
          smooth_det2 = {bugs_path <- bma_model_smooth_det2()},
+         smooth_det_sigtheta = {bugs_path <- bma_model_smooth_det_sigtheta()},
          {stop(paste("model type not know. Must be one of 'random_walk',",
                      "'uniform', 'uniform_noeta', 'FNgr', 'smooth_stoch',",
-                     "'smooth_det', 'smooth_stoch2', 'smooth_det2', 'FNgr2'"))})
+                     "'smooth_det', 'smooth_stoch2', 'smooth_det2', 'FNgr2', 'smooth_det_sigtheta'"))})
 
   
   # 24 Feb - the index is already on the log scale (for butteflies at least)
@@ -111,8 +112,7 @@ bma <- function (data,
   #                                   no = max(se, na.rm = TRUE))
   # }
   
-
-  if(model %in% c('smooth_stoch', 'smooth_det',
+  if(model %in% c('smooth_stoch', 'smooth_det', 'smooth_det_sigtheta',
                   'smooth_stoch2', 'smooth_det2')){
     ZX <- makeZX(num.knots = num.knots,
                  covariate = seq(min(data$year),
@@ -123,7 +123,7 @@ bma <- function (data,
   }
 
   
-  if(model %in% c('smooth_stoch2', 'smooth_det2', 'FNgr2')){
+  if(model %in% c('smooth_stoch2', 'smooth_det2', 'smooth_det_sigtheta', 'FNgr2')){
     # using row.names should ensure the same order in the bugs data
     FY <- sapply(row.names(index), FUN = function(x){
       min(data$year[!is.na(data$index) & data$species == x])
@@ -134,14 +134,13 @@ bma <- function (data,
   
   # Setup parameters to monitor
   params = c("tau.spi", "logI", "sigma.obs")
-  if(model %in% c('smooth_stoch', 'smooth_det')) params <- c(params, "logI.raw")
+  if(model %in% c('smooth_stoch', 'smooth_det', 'smooth_det_sigtheta')) params <- c(params, "logI.raw")
   if(model %in% c('random_walk', 'uniform', 'uniform_noeta')) params <- c(params, "tau.eta")
   if(model %in% c('random_walk')) params <- c(params, "tau.I")
-  if(model %in% c('smooth_stoch', 'smooth_det', 'FNgr',
+  if(model %in% c('smooth_stoch', 'smooth_det', 'FNgr','smooth_det_sigtheta',
                   'smooth_stoch2', 'smooth_det2', 'FNgr2')) params <- c(params, "logLambda", "spgrowth", "logI2")
-  if(model %in% c('smooth_stoch', 'smooth_det', 'FNgr')) params <- c(params, "tau.sg")
-  #if(save.spindex) params <- c(params, "spindex")
-  if(model %in% c('smooth_stoch', 'smooth_det','smooth_stoch2', 'smooth_det2')) params <- c(params, "beta", "taub")
+  if(model %in% c('smooth_stoch', 'smooth_det', 'FNgr', 'smooth_det_sigtheta')) params <- c(params, "tau.sg")
+  if(model %in% c('smooth_stoch', 'smooth_det','smooth_stoch2', 'smooth_det2','smooth_det_sigtheta')) params <- c(params, "beta", "taub")
   if(save.sppars) {
     params <- c(params, "spindex")
   } else {

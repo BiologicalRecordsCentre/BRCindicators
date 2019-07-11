@@ -656,6 +656,7 @@ bma_model_smooth_det_sigtheta <- function(temp_file = tempfile()){
   # tau.spi is on the growth rates, not the index
   # logI is now estimated without uncertainty due to interspecific variation
   # in this version, standard errors are not read from the data but rather estimated
+  # (but they still need to be included in the dataset)
   
   model <- '
   model {
