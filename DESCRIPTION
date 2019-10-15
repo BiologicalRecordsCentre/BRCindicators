@@ -12,10 +12,10 @@ Authors@R: c(person("Tom", "August", role = c("aut", "cre"), email = "tomaug@ceh
 Maintainer: Tom August <tomaug@ceh.ac.uk>
 Description: This package contains a number of functions used to create
     biodiversity indicators.
-Imports: ggplot2, mgcv, reshape2, coda, car, RColorBrewer, jagsUI, 
-        mgcv
+Imports: ggplot2, reshape2, coda, car, RColorBrewer, jagsUI, 
+        mgcv, boot
 VignetteBuilder: knitr
-License: CC BY
+License: GPL-3
 URL: https://github.com/BiologicalRecordsCentre/BRCindicators
 BugReports: https://github.com/BiologicalRecordsCentre/BRCindicators/issues
 RoxygenNote: 6.1.1

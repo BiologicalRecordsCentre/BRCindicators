@@ -32,8 +32,8 @@
 #' myArray[myArray > 1] <- 1
 #' myArray[myArray < 0] <- 0
 #' 
-#' # Run the lambda_interpolation method on this data                
-#' myIndicator <- lambda_interpolation(myArray)
+#' # Run the lambda_indicator method on this data                
+#' myIndicator <- lambda_indicator(myArray)
 #' 
 #' # Plot the trend stack
 #' plot_trend_stack(myIndicator$species_change[,'category'])

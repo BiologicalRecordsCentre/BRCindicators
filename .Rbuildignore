@@ -3,4 +3,5 @@
 Other_files/
 ^\.travis\.yml$
 ^codecov\.yml$
-vignettes\BRCindicators_cache/
+vignettes/BRCindicators_cache/
+misc/
