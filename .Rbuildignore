@@ -1,3 +1,5 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 Other_files/
+^\.travis\.yml$
+^codecov\.yml$
