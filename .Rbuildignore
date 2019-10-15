@@ -5,3 +5,4 @@ Other_files/
 ^codecov\.yml$
 vignettes/BRCindicators_cache/
 misc/
+BMA_development/

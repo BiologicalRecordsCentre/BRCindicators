@@ -7,6 +7,7 @@
 #' to as a numeric vector.
 #' @param plot If \code{TRUE} a plot is generated showing the smoothed
 #' spline.
+#' @param ... other arguements passed to \code{mgcv::gam}
 #' @return The smoothed/predicted values are returned as well as the 
 #' model object used for making predictions.
 #' @import mgcv
