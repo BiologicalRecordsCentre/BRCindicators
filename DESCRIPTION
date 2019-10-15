@@ -12,4 +12,4 @@ VignetteBuilder: knitr
 License: CC BY
 URL: https://github.com/BiologicalRecordsCentre/BRCindicators
 BugReports: https://github.com/BiologicalRecordsCentre/BRCindicators/issues
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.1

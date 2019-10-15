@@ -5,8 +5,8 @@
 \title{Bayesian Meta-analysis}
 \usage{
 bma(data, plot = TRUE, model = "random_walk", parallel = FALSE,
-  incl.model = TRUE, n.iter = 10000, m.scale = "loge", num.knots = 12,
-  rescaleYr = 1)
+  incl.model = TRUE, n.iter = 10000, m.scale = "loge",
+  num.knots = 12, rescaleYr = 1, n.thin = 5, save.sppars = TRUE)
 }
 \arguments{
 \item{data}{a data.frame with 4 columns in this order: species, year, index, se (standard error)}
@@ -28,6 +28,10 @@ Here you specify which log scale the data is on ('loge', 'log10', or 'logit'). D
 
 \item{num.knots}{If using either of the smooth models this specifies the number of knots.}
 
+\item{n.thin}{Thinning rate for the Markov chains. Defaults to 5.}
+
+\item{save.sppars}{Logical. Should the species-specific parameters be monitored? Defaults to TRUE}
+
 \item{rescaleYr1}{Logical, should all iterations be scaled so that the first year is equal? If TRUE
 year one will have 0 error.}
 }
@@ -40,7 +44,7 @@ Use a bayesian meta-analysis to create an indicator from species index values an
 \details{
 There are a number of model to choose from:
 \itemize{
- \item{\code{"random_walk"}}{ - Also known as BMA3, strongly recommended.}
+ \item{\code{"random_walk"}}{ - Also known as BMA3.}
  \item{\code{"uniform"}}{ - Also known as BMA2.}
  \item{\code{"uniform_noeta"}}{ - Also known as BMA1.}
  \item{\code{"FNgr"}}{ - Indicator defined by Growth rates, as in Freeman & Newson.}
@@ -49,6 +53,7 @@ There are a number of model to choose from:
  \item{\code{"FNgr2"}}{ - Variant where species can join the series late and error on the first year is 0 (check with Nick and Steve).}
  \item{\code{"smooth_stoch2"}}{ - Variant where species can join the series late and error on the first year is 0 (check with Nick and Steve).}
  \item{\code{"smooth_det2"}}{ - Variant where species can join the series late and error on the first year is 0 (check with Nick and Steve).}
+ \item{\code{"smooth_det_sigtheta"}}{ - Variant of det2 in which standard errors are assumed constant (check with Nick and Steve).}
 }
 }
 \examples{

@@ -1,6 +1,6 @@
 #' Bayesian Meta-analysis
 #' 
-#' @description Use a bayesian meta-analysis to create an indicator from species index values and standard error.
+#' @description Use a Bayesian meta-analysis to create an indicator from species index values, optionally incorporating standard error.
 #' 
 #' @param data a data.frame with 4 columns in this order: species, year, index, se (standard error) 
 #' @param plot Logical, should a trace plot be plotted?
@@ -35,6 +35,9 @@
 #' @import jagsUI
 #' @importFrom boot inv.logit
 #' @importFrom coda mcmc.list as.mcmc
+#' @references Freeman, S.N., Isaac, N.J.B., Besbeas, P.T., Dennis, E.B. & Morgan, B.J.T. (2019) 
+#'             A generic method for estimating and smoothing multispecies biodiversity indices, robust to intermittent data. 
+#'             \emph{JABES}, in revision.
 #' @export
 #' @examples 
 #' 
@@ -155,7 +158,7 @@ bma <- function (data,
                         n.iter = n.iter,
                         n.burnin = floor(n.iter/2))
   
-  if (plot) {
+  if (plot==TRUE) {
     array_sim <- model$samples
     comb.samples <- mcmc.list(lapply(1:3, FUN = function(x, 
                                                          array_sim) {

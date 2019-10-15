@@ -1,12 +1,11 @@
 
-#' @export
-#' 
 # Multispecies indicators from Bayesian Meta-Analysis 
 # Each function contains BUGS code for a different model
 # Code by Nick Isaac, Tom August & Steve Freeman
 
 ################################################################################
 
+# 15/10/19: We're streamlining the options for the BMA. This function will contain only deprecated options.
 # 15/11/17: There are six models, all with the prefix "bma_model"
   # the ranwalk, uniform & uniform_noeta were written by Nick Isaac
   # FNgr, SmoothStoch & SmoothDet were written by Stephen Freeman
