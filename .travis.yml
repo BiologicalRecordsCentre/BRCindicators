@@ -30,13 +30,13 @@ env:
   matrix:
     - r: release
       not_cran: true
-      r_check_args: "--no-manual"
+      r_check_args: "--no-manual --no-build-vignettes"
     - r: release
       not_cran: false
-      r_check_args: "--no-manual --as--cran"
+      r_check_args: "--no-manual --no-build-vignettes --as--cran"
     - r: devel
       not_cran: true
-      r_check_args: "--no-manual"
+      r_check_args: "--no-manual --no-build-vignettes"
     - r: devel
       not_cran: false
-      r_check_args: "--no-manual --as--cran"
+      r_check_args: "--no-manual --no-build-vignettes --as--cran"
