@@ -4,7 +4,7 @@
 \alias{bma}
 \title{Bayesian Meta-analysis}
 \usage{
-bma(data, plot = TRUE, model = "random_walk", parallel = FALSE,
+bma(data, plot = TRUE, model = "Smooth", parallel = FALSE,
   incl.model = TRUE, n.iter = 10000, m.scale = "loge",
   num.knots = 12, rescaleYr = 1, n.thin = 5, save.sppars = TRUE)
 }
@@ -39,7 +39,7 @@ year one will have 0 error.}
 Returns a dataframe with 4 columns: Year, Index, lower2.5, upper97.5. The last two columns are the credible intervals
 }
 \description{
-Use a bayesian meta-analysis to create an indicator from species index values and standard error.
+Use a Bayesian meta-analysis to create an indicator from species index values, optionally incorporating standard error.
 }
 \details{
 There are a number of model to choose from:
@@ -65,9 +65,14 @@ data <- data.frame(species = rep(letters, each = 50),
                    se = runif(n = 50 * length(letters), min = 0.01, max = .1))
 
 # Run the Bayesian meta-analysis
-bma_indicator <- bma(data)
+bma_indicator <- bma(data, model="Smooth")
 
 # Plot the resulting indicator
 plot_indicator(indicator = bma_indicator[,'Index'],
                CIs = bma_indicator[,c(3,4)])
+}
+\references{
+Freeman, S.N., Isaac, N.J.B., Besbeas, P.T., Dennis, E.B. & Morgan, B.J.T. (2019) 
+            A generic method for estimating and smoothing multispecies biodiversity indices, robust to intermittent data. 
+            \emph{JABES}, in revision.
 }

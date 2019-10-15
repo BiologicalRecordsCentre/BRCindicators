@@ -48,7 +48,7 @@
 #'                    se = runif(n = 50 * length(letters), min = 0.01, max = .1))
 #' 
 #' # Run the Bayesian meta-analysis
-#' bma_indicator <- bma(data)
+#' bma_indicator <- bma(data, model="Smooth")
 #' 
 #' # Plot the resulting indicator
 #' plot_indicator(indicator = bma_indicator[,'Index'],
@@ -57,7 +57,7 @@
 
 bma <- function (data,
                  plot = TRUE,
-                 model = 'random_walk',
+                 model = 'Smooth',
                  parallel = FALSE,
                  incl.model = TRUE,
                  n.iter = 1e4,
@@ -68,34 +68,26 @@ bma <- function (data,
                  #save.spindex = TRUE){
                  save.sppars = TRUE){
   
-  if (!identical(colnames(data), c("species", "year", "index", 
-                                   "se"))) {
-    stop('data column names should be: "species", "year", "index", "se"')
+  if (!identical(colnames(data)[1:3], c("species", "year", "index"))) {
+    stop('data column names should be: "species", "year", "index"')
   }
+  
+  if(colnames(data)[4] != "se" | ncol(data) < 4) # add a set of NAs
+    data$se <- NA
   
   # This is not my preferrred behaviour
   if(!m.scale %in% c('loge', 'log10', 'logit')) stop("m.scale must be 'loge', 'log10', or 'logit'")
   
   # pick the correct model
-  switch(tolower(model),
-         random_walk = {bugs_path <- bma_model_ranwalk()},
-         uniform = {bugs_path <- bma_model_uniform()},
-         uniform_noeta = {bugs_path <- bma_model_uniform_noeta()},
-
-         fngr = {bugs_path <- bma_model_FNgr()},
-         smooth_stoch = {bugs_path <- bma_model_smooth_stoch()},
-         smooth_det = {bugs_path <- bma_model_smooth_det()},
-         fngr2 = {bugs_path <- bma_model_FNgr2()},
-         smooth_stoch2 = {bugs_path <- bma_model_smooth_stoch2()},
-         smooth_det2 = {bugs_path <- bma_model_smooth_det2()},
-         smooth_det_sigtheta = {bugs_path <- bma_model_smooth_det_sigtheta()},
-         {stop(paste("model type not know. Must be one of 'random_walk',",
-                     "'uniform', 'uniform_noeta', 'FNgr', 'smooth_stoch',",
-                     "'smooth_det', 'smooth_stoch2', 'smooth_det2', 'FNgr2', 'smooth_det_sigtheta'"))})
-
+  model_code <- get_bmaBUGScode(option = model)
   
-  # 24 Feb - the index is already on the log scale (for butteflies at least)
-  #index <- log(acast(data, species ~ year, value.var = "index"))
+  # save it to a temp file 
+  bugs_path <- tempfile()
+  writeLines(text = model_code, con = bugs_path)
+
+  # include an option here to standardise the data to some value in year 1 
+  
+  # we assume that the index values are already on the unbounded (log) scale  
   index <- (acast(data, species ~ year, value.var = "index"))
   
   se <- acast(data, species ~ year, value.var = "se")
@@ -192,7 +184,8 @@ bma <- function (data,
     switch(m.scale, 
            loge = x <- exp(x),
            log10 = x <- 10^x,
-           logit = {x <- boot::inv.logit(as.matrix(x))},
+           logit = x <- exp(x), # Counter-intuitively, since we want geometric mean odds
+           #logit = {x <- boot::inv.logit(as.matrix(x))}, # this would give occupancy, which is hard to interpret
            warning(paste(m.scale, 'unknown, no back-transformation applied')))
     return(x)
   }
