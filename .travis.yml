@@ -30,17 +30,17 @@ env:
   matrix:
     - r: release
       not_cran: true
-      r_build_args: "--no-build-vignettes --no-manual --no-resave-data"
-      r_check_args: "--no-manual --no-build-vignettes"
+      r_build_args: --no-build-vignettes --no-manual --no-resave-data
+      r_check_args: --no-manual --no-build-vignettes
     - r: release
       not_cran: false
-      r_build_args: "--no-build-vignettes --no-manual --no-resave-data"
-      r_check_args: "--no-manual --no-build-vignettes --as--cran"
+      r_build_args: --no-build-vignettes --no-manual --no-resave-data
+      r_check_args: --no-manual --no-build-vignettes --as--cran
     - r: devel
       not_cran: true
-      r_build_args: "--no-build-vignettes --no-manual --no-resave-data"
-      r_check_args: "--no-manual --no-build-vignettes"
+      r_build_args: --no-build-vignettes --no-manual --no-resave-data
+      r_check_args: --no-manual --no-build-vignettes
     - r: devel
       not_cran: false
-      r_build_args: "--no-build-vignettes --no-manual --no-resave-data"
-      r_check_args: "--no-manual --no-build-vignettes --as--cran"
+      r_build_args: --no-build-vignettes --no-manual --no-resave-data
+      r_check_args: --no-manual --no-build-vignettes --as--cran
