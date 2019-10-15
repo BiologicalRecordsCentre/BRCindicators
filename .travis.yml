@@ -7,11 +7,8 @@ apt_packages:
  - libv8-dev
 
 r_packages:
- - rjags
- - covr
-
-r_github_packages:
- - BiologicalRecordsCentre/sparta
+  - rjags
+  - covr
 
 ## After success update the code coverage
 after_success:
@@ -32,18 +29,18 @@ warnings_are_errors: false
 env:
   matrix:
     - r: release
-      NOT_CRAN: true
-      R_BUILD_ARGS:"--no-manual --no-resave-data"
-      R_CHECK_ARGS:"--no-manual"
+      not_cran: true
+      r_build_args: --no-build-vignettes --no-manual --no-resave-data
+      r_check_args: --no-manual --no-build-vignettes
     - r: release
-      NOT_CRAN: false
-      R_BUILD_ARGS:"--no-manual --no-resave-data"
-      R_CHECK_ARGS:"--no-manual --as--cran"
+      not_cran: false
+      r_build_args: --no-build-vignettes --no-manual --no-resave-data
+      r_check_args: --no-manual --no-build-vignettes --as--cran
     - r: devel
-      NOT_CRAN: true
-      R_BUILD_ARGS:"--no-manual --no-resave-data"
-      R_CHECK_ARGS:"--no-manual"
+      not_cran: true
+      r_build_args: --no-build-vignettes --no-manual --no-resave-data
+      r_check_args: --no-manual --no-build-vignettes
     - r: devel
-      NOT_CRAN: false
-      R_BUILD_ARGS:"--no-manual --no-resave-data"
-      R_CHECK_ARGS:"--no-manual --as--cran"
+      not_cran: false
+      r_build_args: --no-build-vignettes --no-manual --no-resave-data
+      r_check_args: --no-manual --no-build-vignettes --as--cran
