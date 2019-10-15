@@ -72,6 +72,7 @@ model {
   #spindex is the true unknown species index this year (on the log scale)
   # its a simple linear function of the year and species effects, with "process error"
   spindex[s,t] <- b0[s] + logI[t] + eta[s,t]
+
   }}
 
   #########################  end likelihood ###########################
@@ -464,7 +465,6 @@ bma_model_FNgr2 <- function(temp_file = tempfile()){
   }
 
   #########################  end likelihood ###########################
-  
   }'
   
   writeLines(text = model, con = temp_file)
@@ -642,7 +642,6 @@ bma_model_smooth_det2 <- function(temp_file = tempfile()){
 
 ################################################################################
 
-
 bma_model_smooth_det_sigtheta <- function(temp_file = tempfile()){
   # Indicator defined by Growth rates, with Ruppert smoother (deterministic version)
   # Defined by equation 7 in Steve Freeman's document of 2/11/17
@@ -722,5 +721,3 @@ bma_model_smooth_det_sigtheta <- function(temp_file = tempfile()){
 }
 
 ################################################################################
-
-

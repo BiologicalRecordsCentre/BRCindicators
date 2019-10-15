@@ -10,7 +10,9 @@
 #' and testing of the total change in a time series.
 #' 
 #' @param wd The path for input and ouput files
-#' @param inputFile The name of the input file
+#' @param inputFile The name of the input file. This must have columns species, year, index, se
+#' in that order. The index value in the base year (which need not be the first year), should be set to 100
+#' with se of 0.
 #' @param jobname Generic name for output files
 #' @param nsim Number of Monte Carlo simulations
 #' @param SEbaseyear Desired year to set MSI to 100 and SE to 0; usually the first year of the time series
@@ -52,15 +54,15 @@ msi_tool <- function(wd = getwd(),
   
   # catch changepoint error
   if(is.null(changepoint)) changepoint <- floor(max(rdata[,"year"]) - ((max(rdata[,"year"]) - min(rdata[,"year"]))/2))
-  if(!changepoint %in% unique(rdata$year)) stop('changepoint year in not in range of years in data')
+  if(!changepoint %in% unique(rdata$year)) stop('changepoint year is not in range of years in data')
   
   # check SEbaseyear
   if(is.null(SEbaseyear)) SEbaseyear <- min(rdata[,"year"])
-  if(!SEbaseyear %in% unique(rdata$year)) stop('SEbaseyear year in not in range of years in data')
+  if(!SEbaseyear %in% unique(rdata$year)) stop('SEbaseyear year is not in range of years in data')
   
   # Check plotbaseyear
   if(is.null(plotbaseyear)) plotbaseyear <- min(rdata[,"year"])
-  if(!plotbaseyear %in% unique(rdata$year)) stop('plotbaseyear year in not in range of years in data')
+  if(!plotbaseyear %in% unique(rdata$year)) stop('plotbaseyear year is not in range of years in data')
   
   # check span
   if(span > 1 | span < 0) stop('span must be between 0 and 1')
@@ -87,12 +89,17 @@ msi_tool <- function(wd = getwd(),
   plotbaseyear <- plotbaseyear-minyear+1
   baseyear <- max(1,SEbaseyear-minyear+1)
   lastyears <- min(lastyears,nyear)
-  INP <- data.frame(species, year, index, se)
+  # INP <- data.frame(species, year, index, se)
   SPEC <- as.matrix(species)
   species <- sort(rep(uspecies,each=nyear))
   year <- rep(uyear,nspecies)
-  INP1 <- data.frame(species, year)
-  INP2 <- merge(INP, INP1, by=c("species","year"), sort=TRUE, all=TRUE)
+  # INP1 <- data.frame(species, year)
+  # INP2 <- merge(INP, INP1, by=c("species","year"), sort=TRUE, all=TRUE)
+  INP2 <- data.frame(species = rdata[,"species"],
+                     year = rdata[,"year"],
+                     index = rdata[,"index"],
+                     se = rdata[,"se"])[order(rdata[,"species"],
+                                         rdata[,"year"]), ]
   
   # Calculate and plot mean CV for indices per species
   CVtemp <- INP2[INP2$index >= 10, ] # select records with index >= 10 for CV calculation
@@ -108,6 +115,9 @@ msi_tool <- function(wd = getwd(),
     plot(1:length(uspecies), mnCV, type="p", pch=19, col="black",
          main=jobname, xlab="species code", ylab="meanCV")
   }
+  
+  write.csv(data.frame(species = uspecies, mean_CV = mnCV),
+            file = 'species_CV_values.csv', row.names = FALSE)
   
   CV <- as.data.frame(rep(mnCV, each=nyear))
   

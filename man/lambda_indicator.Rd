@@ -6,7 +6,8 @@
 \usage{
 lambda_indicator(input, index = 100, threshold_sd = 0.2,
   threshold_Rhat = 1.1, threshold_yrs = 20, upperQuantile = 0.975,
-  lowerQuantile = 0.025, sample_size = NULL, year_range = NULL)
+  lowerQuantile = 0.025, sample_size = NULL, year_range = NULL,
+  region = NULL)
 }
 \arguments{
 \item{input}{Either a string giving the path to occupancy model output files
@@ -32,8 +33,13 @@ fulfill the threshold_sd for it to be included.}
 used, equal to the number given. This is useful when datasets are so large
 that memory starts to become limiting.}
 
-\item{year_range, }{numic vector of length 2 giving the start and end year of the 
+\item{year_range}{numeric vector of length 2 giving the start and end year of the 
 data to be analysed.}
+
+\item{region}{Specify the region or aggregate data for which the indicator will 
+be produced (for example: ENGLAND, WALES, SCOTLAND). The region name should match
+the name used when running occDetFunc. If NULL (default) the function will be run 
+on the full data (psi.fs).}
 }
 \value{
 A list with five elements: a summary (data.frame), the LogLambda values
@@ -42,6 +48,8 @@ removing species that fail thresholds and including interpolation, the raw
 indicator value (a value for each iteration in each year), the average annual
 percentage change for each species (the fist year is ignored as change is 0),
 and a table giving the 'good' years for each species as defined by the thresholds.
+Please note that the number of species contributing to the first year is 0 as this 
+is fixed to the index value.
 }
 \description{
 This function takes in the output from a sparta occupancy model
