@@ -37,7 +37,9 @@ that memory starts to become limiting.}
 data to be analysed.}
 
 \item{region}{Specify the region or aggregate data for which the indicator will 
-be produced. If NULL (default) the function will be run on the full data (psi.fs).}
+be produced (for example: ENGLAND, WALES, SCOTLAND). The region name should match
+the name used when running occDetFunc. If NULL (default) the function will be run 
+on the full data (psi.fs).}
 }
 \value{
 A list with five elements: a summary (data.frame), the LogLambda values
@@ -46,6 +48,8 @@ removing species that fail thresholds and including interpolation, the raw
 indicator value (a value for each iteration in each year), the average annual
 percentage change for each species (the fist year is ignored as change is 0),
 and a table giving the 'good' years for each species as defined by the thresholds.
+Please note that the number of species contributing to the first year is 0 as this 
+is fixed to the index value.
 }
 \description{
 This function takes in the output from a sparta occupancy model
