@@ -29,18 +29,18 @@ warnings_are_errors: false
 env:
   matrix:
     - r: release
-      not_cran: true
+      NOT_CRAN: true
       R_BUILD_ARGS:"--no-build-vignettes --no-manual --no-resave-data"
       R_CHECK_ARGS:"--no-manual --no-build-vignettes"
     - r: release
-      not_cran: false
+      NOT_CRAN: false
       R_BUILD_ARGS:"--no-build-vignettes --no-manual --no-resave-data"
       R_CHECK_ARGS:"--no-manual --no-build-vignettes --as--cran"
     - r: devel
-      not_cran: true
+      NOT_CRAN: true
       R_BUILD_ARGS:"--no-build-vignettes --no-manual --no-resave-data"
       R_CHECK_ARGS:"--no-manual --no-build-vignettes"
     - r: devel
-      not_cran: false
+      NOT_CRAN: false
       R_BUILD_ARGS:"--no-build-vignettes --no-manual --no-resave-data"
       R_CHECK_ARGS:"--no-manual --no-build-vignettes --as--cran"
