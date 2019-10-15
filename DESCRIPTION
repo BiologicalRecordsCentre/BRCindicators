@@ -23,4 +23,5 @@ Encoding: UTF-8
 Suggests: 
     testthat,
     covr,
-    knitr
+    knitr,
+    rmarkdown
