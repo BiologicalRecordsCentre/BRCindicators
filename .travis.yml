@@ -10,6 +10,8 @@ r_packages:
   - rjags
   - covr
 
+r_github_packages: BiologicalRecordsCentre/sparta
+
 ## After success update the code coverage
 after_success:
  - Rscript -e 'library(covr);codecov()'
@@ -30,17 +32,17 @@ env:
   matrix:
     - r: release
       NOT_CRAN: true
-      R_BUILD_ARGS:"--no-build-vignettes --no-manual --no-resave-data"
-      R_CHECK_ARGS:"--no-manual --no-build-vignettes"
+      R_BUILD_ARGS:"--no-manual --no-resave-data"
+      R_CHECK_ARGS:"--no-manual"
     - r: release
       NOT_CRAN: false
-      R_BUILD_ARGS:"--no-build-vignettes --no-manual --no-resave-data"
-      R_CHECK_ARGS:"--no-manual --no-build-vignettes --as--cran"
+      R_BUILD_ARGS:"--no-manual --no-resave-data"
+      R_CHECK_ARGS:"--no-manual --as--cran"
     - r: devel
       NOT_CRAN: true
-      R_BUILD_ARGS:"--no-build-vignettes --no-manual --no-resave-data"
-      R_CHECK_ARGS:"--no-manual --no-build-vignettes"
+      R_BUILD_ARGS:"--no-manual --no-resave-data"
+      R_CHECK_ARGS:"--no-manual"
     - r: devel
       NOT_CRAN: false
-      R_BUILD_ARGS:"--no-build-vignettes --no-manual --no-resave-data"
-      R_CHECK_ARGS:"--no-manual --no-build-vignettes --as--cran"
+      R_BUILD_ARGS:"--no-manual --no-resave-data"
+      R_CHECK_ARGS:"--no-manual --as--cran"
