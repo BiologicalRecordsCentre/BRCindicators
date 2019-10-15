@@ -6,6 +6,11 @@
 #' @param input_dir The directory where all the .rdata files are located.
 #'        This will be the same as the \code{output_dir} arguement given
 #'        to occDetModel in sparta when creating the output.
+#'        
+#' @param region If the model output contains regional estimates specify the region
+#'        name here to extract estimates from that region only (e.g."ENGLAND"). If NULL
+#'        the estimate based on all sites will be used instead.
+#'        
 #' @param verbose If \code{TRUE} then progress is printed to screen.
 #' 
 #' @return A data.frame. In each row we have the year, the species and the
@@ -13,7 +18,7 @@
 #' @importFrom reshape2 dcast   
 #' @export
 
-summarise_occDet <-  function(input_dir, verbose = TRUE){
+summarise_occDet <-  function(input_dir, region = NULL, verbose = TRUE){
     
     library(reshape2)
 
@@ -25,17 +30,29 @@ summarise_occDet <-  function(input_dir, verbose = TRUE){
     if(length(files) < length(list.files(path = input_dir))) warning('Not all files in ', input_dir, ' are .rdata files, other file types have been ignored')
     
     # create a function to read in the data we want from these .rdata files
-    read_bayes <- function(file){
+    read_bayes <- function(file, in_region = region){
       
       load(file) 
+      
+      if(!(is.null(in_region))){
+        if(!(in_region %in% out$regions)) stop("Requested region is not listed in model output")
+      }
+      
       # some old outputs dont have min year in which case make it == 1
       min_year <- ifelse(is.null(out$min_year), 1, out$min_year)
       #Get the summary output for the rows and columns that we are interested in
       temp_out <- as.data.frame(out$BUGSoutput$summary)
-      rows <- grep("psi.fs", row.names(temp_out))
-      summary_out <- data.frame(year = (min_year - 1) + as.numeric(gsub("psi.fs", "", gsub("\\[|\\]","", row.names(temp_out)[rows]))),
+      if(is.null(in_region)){
+        rows <- grep("^(psi.fs[^.r])", row.names(temp_out))
+        summary_out <- data.frame(year = (min_year - 1) + as.numeric(gsub("psi.fs", "", gsub("\\[|\\]","", row.names(temp_out)[rows]))),
+                                  mean_proportion_sites = temp_out[rows, c("mean")],
+                                  species_name = gsub('.rdata', '', basename(file)))
+      }else{
+        rows <- grep(paste0("psi.fs.r_",in_region), row.names(temp_out))
+        summary_out <- data.frame(year = (min_year - 1) + as.numeric(gsub(paste0("psi.fs.r_",in_region), "", gsub("\\[|\\]","", row.names(temp_out)[rows]))),
                                 mean_proportion_sites = temp_out[rows, c("mean")],
-                                species_name = gsub('.rdata', '', basename(file)))  
+                                species_name = gsub('.rdata', '', basename(file)))
+      }
       ### Replace the name bit with something better ###
       return(summary_out)
     }
