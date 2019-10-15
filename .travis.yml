@@ -7,10 +7,11 @@ apt_packages:
  - libv8-dev
 
 r_packages:
-  - rjags
-  - covr
+ - rjags
+ - covr
 
-r_github_packages: BiologicalRecordsCentre/sparta
+r_github_packages:
+ - BiologicalRecordsCentre/sparta
 
 ## After success update the code coverage
 after_success:
