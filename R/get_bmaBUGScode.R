@@ -11,7 +11,7 @@ get_bmaBUGScode <- function(option="Smooth",
                                 save.local = FALSE) {
   
   switch(tolower(option),
-         Smooth = {model_code <- bma_model_Smooth()},
+         smooth = {model_code <- bma_model_Smooth()},
          random_walk = {model_code <- bma_model_ranwalk()},
          uniform = {model_code <- bma_model_uniform()},
          uniform_noeta = {model_code <- bma_model_uniform_noeta()},
@@ -23,9 +23,9 @@ get_bmaBUGScode <- function(option="Smooth",
          smooth_stoch2 = {model_code <- bma_model_smooth_stoch2()},
          smooth_det2 = {model_code <- bma_model_smooth_det2()},
          smooth_det_sigtheta = {model_code <- bma_model_smooth_det_sigtheta()},
-         {stop(paste("model type not know. Must be one of 'random_walk',",
-                     "'uniform', 'uniform_noeta', 'FNgr', 'smooth_stoch',",
-                     "'smooth_det', 'smooth_stoch2', 'smooth_det2', 'FNgr2', 'smooth_det_sigtheta'"))})
+         {stop(paste("model type not know. Must be one of 'smooth', 'random_walk',",
+                     "'uniform', 'uniform_noeta', 'fngr', 'smooth_stoch',",
+                     "'smooth_det', 'smooth_stoch2', 'smooth_det2', 'fngr2', 'smooth_det_sigtheta'"))})
   
   if(print.screen) cat(model_code, sep = '\n')
   if(save.local) writeLines(text = model_code, con = "bma_BUGS_code.txt")
