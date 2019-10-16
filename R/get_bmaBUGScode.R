@@ -10,7 +10,7 @@ get_bmaBUGScode <- function(option="Smooth",
                                 print.screen = FALSE,
                                 save.local = FALSE) {
   
-  switch(tolower(model),
+  switch(tolower(option),
          Smooth = {model_code <- bma_model_Smooth()},
          random_walk = {model_code <- bma_model_ranwalk()},
          uniform = {model_code <- bma_model_uniform()},
