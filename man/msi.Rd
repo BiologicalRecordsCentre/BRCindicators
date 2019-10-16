@@ -29,7 +29,6 @@ and testing of the total change in a time series.
 \examples{
 
 # Create some example data in the format required
-Create some example data in the format required
 nyr = 20
 species = rep(letters, each = nyr)
 year = rev(rep(1:nyr, length(letters)))
