@@ -29,15 +29,26 @@ summarise_occDet <-  function(input_dir, region = NULL, verbose = TRUE){
     if(length(files) == 0) stop('No .rdata files found in ', input_dir)
     if(length(files) < length(list.files(path = input_dir))) warning('Not all files in ', input_dir, ' are .rdata files, other file types have been ignored')
     
+    loadRData <- function(fileName){
+      #loads an RData file, and returns it
+      load(fileName)
+      if(length(ls()[ls() != "fileName"]) > 1){
+        stop('The rdata file(s) contain more than one object. They should contain a single object, the JAGS model output from the sparta package')
+      }
+      get(ls()[ls() != "fileName"])
+    }
+    
     # create a function to read in the data we want from these .rdata files
     read_bayes <- function(file, in_region = region){
       
-      load(file) 
+      out <- loadRData(file) 
       
       if(!(is.null(in_region))){
         if(!(in_region %in% out$regions)) stop("Requested region is not listed in model output")
       }
       
+      out <- loadRData(file) 
+
       # some old outputs dont have min year in which case make it == 1
       min_year <- ifelse(is.null(out$min_year), 1, out$min_year)
       #Get the summary output for the rows and columns that we are interested in
