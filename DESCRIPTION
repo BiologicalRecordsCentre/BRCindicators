@@ -24,4 +24,5 @@ Suggests:
     testthat,
     covr,
     knitr,
+    snowfall,
     rmarkdown
