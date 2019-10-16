@@ -13,7 +13,7 @@
 #' @param m.scale The measurement scale of the data. The scale of the data is assumed to be logarithmic.
 #' Here you specify which log scale the data is on ('loge', 'log10', or 'logit'). Defaults to 'loge'.
 #' @param num.knots If using either of the smooth models this specifies the number of knots.
-#' @param rescaleYr1 Logical, should all iterations be scaled so that the first year is equal? If TRUE
+#' @param rescaleYr Logical, should all iterations be scaled so that the first year is equal? If TRUE
 #' year one will have 0 error.
 #' @param n.thin Thinning rate for the Markov chains. Defaults to 5.
 #' @param save.sppars Logical. Should the species-specific parameters be monitored? Defaults to TRUE 

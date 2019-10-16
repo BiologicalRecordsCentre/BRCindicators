@@ -3,10 +3,11 @@
 #' This function uses a GAM to smooth a numeric vector
 #'  
 #' @param values A numeric vector that will be smoothed
-#' @param year Optional, the years that \code{value} corresponds
+#' @param years Optional, the years that \code{value} corresponds
 #' to as a numeric vector.
 #' @param plot If \code{TRUE} a plot is generated showing the smoothed
 #' spline.
+#' @param ... other arguements passed to \code{mgcv::gam}
 #' @return The smoothed/predicted values are returned as well as the 
 #' model object used for making predictions.
 #' @import mgcv

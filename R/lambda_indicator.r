@@ -63,7 +63,7 @@
 #' myArray[myArray > 1] <- 1
 #' myArray[myArray < 0] <- 0
 #' 
-#' # Run the lambda_interpolation method on this data                
+#' # Run the lambda_indicator method on this data                
 #' myIndicator <- lambda_indicator(myArray)
 #' 
 #' # Plot the indicator
