@@ -506,21 +506,21 @@ msi_tool <- function(wd = getwd(),
   
   # create output file with plot
   if(plot){
-    maxy <- max(uppCI_MSI) + 10
-    jpeg(filename = jobnameGRAPH, width = 480, height = 480,units = "px", pointsize = 12, bg = "white", res = NA, restoreConsole = TRUE)
+    #maxy <- max(uppCI_MSI) + 10
+    #jpeg(filename = jobnameGRAPH, width = 480, height = 480,units = "px", pointsize = 12, bg = "white", res = NA, restoreConsole = TRUE)
     legend1 <- paste(nspecies, "species")
     legend2 <- paste(TrendClass)
     legend3 <- paste("last", lastyears, "years:", TrendClass_short)
-    plot(uyear, simMSImean, type="p", pch=19, col="black", main=jobname, xlab="", ylab="Index", xlim = c(minyear, maxyear), ylim = c(0,maxy))
-    text(minyear, 40, legend1, adj=0, cex=0.8)
-    text(minyear, 25, legend2, adj=0, cex=0.8)
-    text(minyear, 10, legend3, adj=0, cex=0.8)
-    lines(uyear, rescale*exp(smoothMSI[,1]), lty=1, col="black")
-    lines(uyear, rescale*exp(smoothMSI[,12]), lty=3, col="black")
-    lines(uyear, rescale*exp(smoothMSI[,13]), lty=3, col="black")
+    #plot(uyear, simMSImean, type="p", pch=19, col="black", main=jobname, xlab="", ylab="Index", xlim = c(minyear, maxyear), ylim = c(0,maxy))
+    #text(minyear, 40, legend1, adj=0, cex=0.8)
+    #text(minyear, 25, legend2, adj=0, cex=0.8)
+    #text(minyear, 10, legend3, adj=0, cex=0.8)
+    #lines(uyear, rescale*exp(smoothMSI[,1]), lty=1, col="black")
+    #lines(uyear, rescale*exp(smoothMSI[,12]), lty=3, col="black")
+    #lines(uyear, rescale*exp(smoothMSI[,13]), lty=3, col="black")
     #arrows(uyear, simMSImean, uyear, (simMSImean-simMSIsd), angle = 90, code = 3, length=0)
     #arrows(uyear, simMSImean, uyear, (simMSImean+simMSIsd), angle = 90, code = 3, length=0)
-    dev.off()
+    #dev.off()
     
     # plot to screen
     maxy <- max(uppCI_MSI) + 10
