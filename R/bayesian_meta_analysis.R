@@ -2,7 +2,7 @@
 #' 
 #' @description Use a Bayesian meta-analysis to create an indicator from species index values, optionally incorporating standard error.
 #' 
-#' @param data a data.frame with 4 columns in this order: species, year, index, se (standard error) 
+#' @param data a data.frame with 4 columns in this order: species, year, index, se (standard error). Index values are assumed to be on the unbounded (logarithmic scale)
 #' @param plot Logical, should a trace plot be plotted?
 #' @param model The type of model to be used. See details.
 #' @param parallel if \code{TRUE} the model chains will be run in parallel using one fewer cores than
@@ -19,6 +19,7 @@
 #' @param save.sppars Logical. Should the species-specific parameters be monitored? Defaults to TRUE 
 #' @details There are a number of model to choose from:
 #' \itemize{
+#'  \item{\code{"smooth"}}{default .. details?}
 #'  \item{\code{"random_walk"}}{ - Also known as BMA3.}
 #'  \item{\code{"uniform"}}{ - Also known as BMA2.}
 #'  \item{\code{"uniform_noeta"}}{ - Also known as BMA1.}
@@ -65,7 +66,6 @@ bma <- function (data,
                  num.knots = 12,
                  rescaleYr = 1,
                  n.thin = 5,
-                 #save.spindex = TRUE){
                  save.sppars = TRUE){
   
   if (!identical(colnames(data)[1:3], c("species", "year", "index"))) {
@@ -74,6 +74,10 @@ bma <- function (data,
   
   if(colnames(data)[4] != "se" | ncol(data) < 4) # add a set of NAs
     data$se <- NA
+  
+  # do a quick check for whether the index values have been transformed
+  if(min(data$index, na.rm = T) >= 0)
+    print("Warning: No negative index values detected. Are you sure you transformed the data?")
   
   # This is not my preferrred behaviour
   if(!m.scale %in% c('loge', 'log10', 'logit')) stop("m.scale must be 'loge', 'log10', or 'logit'")
@@ -141,21 +145,21 @@ bma <- function (data,
   } else {
     params <- params[!params %in% c("spgrowth", "sigma.obs")]
   }
-
-  model <- jagsUI::jags(data = bugs_data,
-                        inits = NULL,
-                        param = params,
-                        parallel = parallel,
-                        n.cores = parallel::detectCores()-1,
-                        model.file = bugs_path,
-                        store.data = TRUE,
-                        n.chains = 3,
-                        n.thin = n.thin,
-                        n.iter = n.iter,
-                        n.burnin = floor(n.iter/2))
+  
+  model.out <- jagsUI::jags(data = bugs_data,
+                            inits = NULL,
+                            param = params,
+                            parallel = parallel,
+                            n.cores = parallel::detectCores()-1,
+                            model.file = bugs_path,
+                            store.data = TRUE,
+                            n.chains = 3,
+                            n.thin = n.thin,
+                            n.iter = n.iter,
+                            n.burnin = floor(n.iter/2))
   
   if (plot==TRUE) {
-    array_sim <- model$samples
+    array_sim <- model.out$samples
     comb.samples <- mcmc.list(lapply(1:3, FUN = function(x, 
                                                          array_sim) {
       year_ests <- colnames(array_sim[[x]])[grepl("^logI\\[",  # changed from I
@@ -169,11 +173,11 @@ bma <- function (data,
   
   # rescale year 1/ or not
   if(rescaleYr == 0){ 
-    pd <- data.frame(mean = unlist(model$mean),
-                     q2.5 = unlist(model$q2.5),
-                     q97.5 = unlist(model$q97.5))
+    pd <- data.frame(mean = unlist(model.out$mean),
+                     q2.5 = unlist(model.out$q2.5),
+                     q97.5 = unlist(model.out$q97.5))
   } else {
-    logI_rescaled <- t(apply(model$sims.list$logI, 1, function(x) x - x[rescaleYr]))
+    logI_rescaled <- t(apply(model.out$sims.list$logI, 1, function(x) x - x[rescaleYr]))
     pd <- data.frame(mean = apply(logI_rescaled, 2, mean),
                      q2.5 = apply(logI_rescaled, 2, quantile, probs = 0.025),
                      q97.5 = apply(logI_rescaled, 2, quantile, probs = 0.975),
@@ -203,7 +207,7 @@ bma <- function (data,
   names(pd) <- c("Year", "Index", "lower2.5", "upper97.5")
   pd$Year <- as.numeric(pd$Year)
   
-  if(incl.model) attr(pd, 'model') <- model
+  if(incl.model) attr(pd, 'model') <- model.out
   
   return(pd)
 }
