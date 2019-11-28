@@ -79,6 +79,10 @@ bma <- function (data,
   if(min(data$index, na.rm = T) >= 0)
     print("Warning: No negative index values detected. Are you sure you transformed the data?")
   
+  # check whether the data contain any infinite values
+  if(any(is.infinite(data$index)))
+    stop('Dataset contains Infinite values. Fix this before proceeding')
+  
   # This is not my preferrred behaviour
   if(!m.scale %in% c('loge', 'log10', 'logit')) stop("m.scale must be 'loge', 'log10', or 'logit'")
   
