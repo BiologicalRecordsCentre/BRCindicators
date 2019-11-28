@@ -9,11 +9,11 @@ GAM_smoothing(values, years = 1:length(values), plot = FALSE, ...)
 \arguments{
 \item{values}{A numeric vector that will be smoothed}
 
+\item{years}{Optional, the years that \code{value} corresponds
+to as a numeric vector.}
+
 \item{plot}{If \code{TRUE} a plot is generated showing the smoothed
 spline.}
-
-\item{year}{Optional, the years that \code{value} corresponds
-to as a numeric vector.}
 }
 \value{
 The smoothed/predicted values are returned as well as the 

@@ -25,7 +25,7 @@ get_bmaBUGScode <- function(option="smooth",
          {stop(paste("model type not know. Must be one of 'smooth', 'random_walk',",
                      "'uniform', 'uniform_noeta', 'FNgr', 'smooth_stoch',",
                      "'smooth_det', 'FNgr2', 'smooth_stoch2', 'smooth_det2', 'smooth_det_sigtheta'"))})
-  
+
   if(print.screen) cat(model_code, sep = '\n')
   if(save.local) writeLines(text = model_code, con = "bma_BUGS_code.txt")
   return(model_code)
