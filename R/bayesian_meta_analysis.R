@@ -45,11 +45,11 @@
 #' # Create some example data in the format required
 #' data <- data.frame(species = rep(letters, each = 50),
 #'                    year = rep(1:50, length(letters)),
-#'                    index = runif(n = 50 * length(letters), min = 0, max = 1),
+#'                    index = logit(runif(n = 50 * length(letters), min = 0, max = 1)),
 #'                    se = runif(n = 50 * length(letters), min = 0.01, max = .1))
 #' 
 #' # Run the Bayesian meta-analysis
-#' bma_indicator <- bma(data, model="Smooth")
+#' bma_indicator <- bma(data, model="Smooth", m.scale="logit")
 #' 
 #' # Plot the resulting indicator
 #' plot_indicator(indicator = bma_indicator[,'Index'],
