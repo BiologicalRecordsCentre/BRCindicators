@@ -4,12 +4,16 @@
 \alias{summarise_occDet}
 \title{Summarise Occupancy model output}
 \usage{
-summarise_occDet(input_dir, verbose = TRUE)
+summarise_occDet(input_dir, region = NULL, verbose = TRUE)
 }
 \arguments{
 \item{input_dir}{The directory where all the .rdata files are located.
 This will be the same as the \code{output_dir} arguement given
 to occDetModel in sparta when creating the output.}
+
+\item{region}{If the model output contains regional estimates specify the region
+name here to extract estimates from that region only (e.g."ENGLAND"). If NULL
+the estimate based on all sites will be used instead.}
 
 \item{verbose}{If \code{TRUE} then progress is printed to screen.}
 }

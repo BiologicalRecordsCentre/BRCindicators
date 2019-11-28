@@ -4,7 +4,7 @@
 \alias{get_bmaBUGScode}
 \title{Extract BMA BUGS code}
 \usage{
-get_bmaBUGScode(option = "Smooth", print.screen = FALSE,
+get_bmaBUGScode(option = "smooth", print.screen = FALSE,
   save.local = FALSE)
 }
 \arguments{
