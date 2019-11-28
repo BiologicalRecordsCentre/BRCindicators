@@ -88,7 +88,7 @@ bma_model_Smooth <- function(incl.2deriv = FALSE){
     }}
   
   for (s in 1:nsp){
-    for (t in 1:(FY[s]-1){
+    for (t in 1:(FY[s]-1)){
       spindex[s,t] <- spindex[s,t+1] - spgrowth[s,t]
     }}
 
