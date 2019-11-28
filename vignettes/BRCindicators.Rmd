@@ -445,8 +445,7 @@ myArray[myArray < 0] <- 0
 str(myArray)
 ```
 
-`lambda_indicator` takes in an array of data, a three-dimensional matrix. The dimensions of this array represent species, years, and iterations.
-
+`lambda_indicator` takes in an array of data, a three-dimensional matrix. The dimensions of this array represent species, years, and iterations. Each row represents a species and each column a year. The third dimension of the array contains the iterations. Essentially each slice contains occupancy estimates for each species year combination for a single iteration and the overall array contains as many slices as there are iterations.
 
 ```{r lambda_2}
 # Run the lambda_interpolation method on this data
@@ -469,7 +468,7 @@ plot_indicator(myIndicator$summary[,'indicator'],
                myIndicator$summary[,c('lower' ,'upper')])
 ```
 
-Note that there are a range of threshold functions that allow you to adjust which data points are used in the indicator. There are options to remove species year estimates based on their standard deviaction, rHat value and based on the number of years a species is present in the dataset. Note that the rhat threshold can only be used if you are using a directory path as you input rather than an array.
+Note that there are a range of threshold functions that allow you to adjust which data points are used in the indicator. There are options to remove species year estimates based on their standard deviaction, Rhat value and based on the number of years a species is present in the dataset. Note that the Rhat threshold can only be used if you are using a directory path as you input rather than an array.
 
 # Creating a custom pipeline function
 
