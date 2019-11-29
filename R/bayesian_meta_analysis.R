@@ -49,7 +49,7 @@
 #'                    se = runif(n = 50 * length(letters), min = 0.01, max = .1))
 #' 
 #' # Run the Bayesian meta-analysis
-#' bma_indicator <- bma(data, model="Smooth", m.scale="logit")
+#' bma_indicator <- bma(data, model="smooth", m.scale="logit")
 #' 
 #' # Plot the resulting indicator
 #' plot_indicator(indicator = bma_indicator[,'Index'],
@@ -58,7 +58,7 @@
 
 bma <- function (data,
                  plot = TRUE,
-                 model = 'Smooth',
+                 model = 'smooth',
                  parallel = FALSE,
                  incl.model = TRUE,
                  n.iter = 1e4,
@@ -115,7 +115,7 @@ bma <- function (data,
   #                                   no = max(se, na.rm = TRUE))
   # }
   
-  if(model %in% c('smooth_stoch', 'smooth_det', 'smooth_det_sigtheta',
+  if(model %in% c('smooth', 'smooth_stoch', 'smooth_det', 'smooth_det_sigtheta',
                   'smooth_stoch2', 'smooth_det2')){
     ZX <- makeZX(num.knots = num.knots,
                  covariate = seq(min(data$year),
@@ -137,13 +137,13 @@ bma <- function (data,
   
   # Setup parameters to monitor
   params = c("tau.spi", "logI", "sigma.obs")
-  if(model %in% c('smooth_stoch', 'smooth_det', 'smooth_det_sigtheta')) params <- c(params, "logI.raw")
+  if(model %in% c('smooth', 'smooth_stoch', 'smooth_det', 'smooth_det_sigtheta')) params <- c(params, "logI.raw")
   if(model %in% c('random_walk', 'uniform', 'uniform_noeta')) params <- c(params, "tau.eta")
   if(model %in% c('random_walk')) params <- c(params, "tau.I")
-  if(model %in% c('smooth_stoch', 'smooth_det', 'FNgr','smooth_det_sigtheta',
+  if(model %in% c('smooth', 'smooth_stoch', 'smooth_det', 'FNgr','smooth_det_sigtheta',
                   'smooth_stoch2', 'smooth_det2', 'FNgr2')) params <- c(params, "logLambda", "spgrowth", "logI2")
-  if(model %in% c('smooth_stoch', 'smooth_det', 'FNgr', 'smooth_det_sigtheta')) params <- c(params, "tau.sg")
-  if(model %in% c('smooth_stoch', 'smooth_det','smooth_stoch2', 'smooth_det2','smooth_det_sigtheta')) params <- c(params, "beta", "taub")
+  if(model %in% c('smooth', 'smooth_stoch', 'smooth_det', 'FNgr', 'smooth_det_sigtheta')) params <- c(params, "tau.sg")
+  if(model %in% c('smooth', 'smooth_stoch', 'smooth_det','smooth_stoch2', 'smooth_det2','smooth_det_sigtheta')) params <- c(params, "beta", "taub")
   if(save.sppars) {
     params <- c(params, "spindex")
   } else {

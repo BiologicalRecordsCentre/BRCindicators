@@ -4,7 +4,7 @@
 \alias{bma}
 \title{Bayesian Meta-analysis}
 \usage{
-bma(data, plot = TRUE, model = "Smooth", parallel = FALSE,
+bma(data, plot = TRUE, model = "smooth", parallel = FALSE,
   incl.model = TRUE, n.iter = 10000, m.scale = "loge",
   num.knots = 12, rescaleYr = 1, n.thin = 5, save.sppars = TRUE)
 }
@@ -66,7 +66,7 @@ data <- data.frame(species = rep(letters, each = 50),
                    se = runif(n = 50 * length(letters), min = 0.01, max = .1))
 
 # Run the Bayesian meta-analysis
-bma_indicator <- bma(data, model="Smooth", m.scale="logit")
+bma_indicator <- bma(data, model="smooth", m.scale="logit")
 
 # Plot the resulting indicator
 plot_indicator(indicator = bma_indicator[,'Index'],
