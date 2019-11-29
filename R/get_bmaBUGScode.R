@@ -1,15 +1,15 @@
 #' Extract BMA BUGS code
 #' 
-#' @description Gets a copy of the BUGS code and writes it 
+#' @description Gets a copy of the BUGS code and writes it to the screen and (optionally) to a text file
 #' @param option text string defining which particular variant is desired 
 #' @param print.screen Logical, should the code be printed to the console?
 #' @param save.local Logical, should text file of the BUGS code be produced?
 #' @export
 #' @examples
 #' get_bmaBUGScode(option="smooth", print.screen=TRUE, save.local=FALSE)
-#' get_bmaBUGScode(option="bma_model_smooth_det", print.screen=TRUE, save.local=FALSE)
-#' get_bmaBUGScode(option="bma_model_smooth_det2", print.screen=TRUE, save.local=FALSE)
-#' get_bmaBUGScode(option="bma_model_smooth_det_sigtheta", print.screen=TRUE, save.local=FALSE)
+#' get_bmaBUGScode(option="smooth_det", print.screen=TRUE, save.local=FALSE)
+#' get_bmaBUGScode(option="smooth_det2", print.screen=TRUE, save.local=FALSE)
+#' get_bmaBUGScode(option="smooth_det_sigtheta", print.screen=TRUE, save.local=FALSE)
 
 get_bmaBUGScode <- function(option="smooth", 
                             print.screen = FALSE,
