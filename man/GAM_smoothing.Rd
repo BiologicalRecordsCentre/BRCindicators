@@ -14,6 +14,8 @@ to as a numeric vector.}
 
 \item{plot}{If \code{TRUE} a plot is generated showing the smoothed
 spline.}
+
+\item{...}{other arguements passed to \code{mgcv::gam}}
 }
 \value{
 The smoothed/predicted values are returned as well as the 

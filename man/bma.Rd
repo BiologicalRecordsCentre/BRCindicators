@@ -4,12 +4,12 @@
 \alias{bma}
 \title{Bayesian Meta-analysis}
 \usage{
-bma(data, plot = TRUE, model = "random_walk", parallel = FALSE,
+bma(data, plot = TRUE, model = "smooth", parallel = FALSE,
   incl.model = TRUE, n.iter = 10000, m.scale = "loge",
   num.knots = 12, rescaleYr = 1, n.thin = 5, save.sppars = TRUE)
 }
 \arguments{
-\item{data}{a data.frame with 4 columns in this order: species, year, index, se (standard error)}
+\item{data}{a data.frame with 4 columns in this order: species, year, index, se (standard error). Index values are assumed to be on the unbounded (logarithmic scale)}
 
 \item{plot}{Logical, should a trace plot be plotted?}
 
@@ -28,22 +28,23 @@ Here you specify which log scale the data is on ('loge', 'log10', or 'logit'). D
 
 \item{num.knots}{If using either of the smooth models this specifies the number of knots.}
 
+\item{rescaleYr}{Logical, should all iterations be scaled so that the first year is equal? If TRUE
+year one will have 0 error.}
+
 \item{n.thin}{Thinning rate for the Markov chains. Defaults to 5.}
 
 \item{save.sppars}{Logical. Should the species-specific parameters be monitored? Defaults to TRUE}
-
-\item{rescaleYr1}{Logical, should all iterations be scaled so that the first year is equal? If TRUE
-year one will have 0 error.}
 }
 \value{
 Returns a dataframe with 4 columns: Year, Index, lower2.5, upper97.5. The last two columns are the credible intervals
 }
 \description{
-Use a bayesian meta-analysis to create an indicator from species index values and standard error.
+Use a Bayesian meta-analysis to create an indicator from species index values, optionally incorporating standard error.
 }
 \details{
 There are a number of model to choose from:
 \itemize{
+ \item{\code{"smooth"}}{default .. details?}
  \item{\code{"random_walk"}}{ - Also known as BMA3.}
  \item{\code{"uniform"}}{ - Also known as BMA2.}
  \item{\code{"uniform_noeta"}}{ - Also known as BMA1.}
@@ -61,13 +62,18 @@ There are a number of model to choose from:
 # Create some example data in the format required
 data <- data.frame(species = rep(letters, each = 50),
                    year = rep(1:50, length(letters)),
-                   index = runif(n = 50 * length(letters), min = 0, max = 1),
+                   index = rnorm(n = 50 * length(letters), mean = 0, sd = 1),
                    se = runif(n = 50 * length(letters), min = 0.01, max = .1))
 
 # Run the Bayesian meta-analysis
-bma_indicator <- bma(data)
+bma_indicator <- bma(data, model="smooth", m.scale="logit")
 
 # Plot the resulting indicator
 plot_indicator(indicator = bma_indicator[,'Index'],
                CIs = bma_indicator[,c(3,4)])
+}
+\references{
+Freeman, S.N., Isaac, N.J.B., Besbeas, P.T., Dennis, E.B. & Morgan, B.J.T. (2019) 
+            A generic method for estimating and smoothing multispecies biodiversity indices, robust to intermittent data. 
+            \emph{JABES}, in revision.
 }
