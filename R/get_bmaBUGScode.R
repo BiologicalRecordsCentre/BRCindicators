@@ -2,9 +2,11 @@
 #' 
 #' @description Gets a copy of the BUGS code and writes it 
 #' @param option text string defining which particular variant is desired 
+#' @param print.screen Logical, should the code be printed to the console?
+#' @param save.local Logical, should text file of the BUGS code be produced?
 #' @export
 #' @examples
-#' extract_bmaBUGScode(option="Smooth", print.screen=TRUE, save.local=FALSE)
+#' get_bmaBUGScode(option="smooth", print.screen=TRUE, save.local=FALSE)
 
 get_bmaBUGScode <- function(option="smooth", 
                                 print.screen = FALSE,

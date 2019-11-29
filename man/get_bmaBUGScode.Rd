@@ -9,10 +9,14 @@ get_bmaBUGScode(option = "smooth", print.screen = FALSE,
 }
 \arguments{
 \item{option}{text string defining which particular variant is desired}
+
+\item{print.screen}{Logical, should the code be printed to the console?}
+
+\item{save.local}{Logical, should text file of the BUGS code be produced?}
 }
 \description{
 Gets a copy of the BUGS code and writes it
 }
 \examples{
-extract_bmaBUGScode(option="Smooth", print.screen=TRUE, save.local=FALSE)
+get_bmaBUGScode(option="smooth", print.screen=TRUE, save.local=FALSE)
 }
