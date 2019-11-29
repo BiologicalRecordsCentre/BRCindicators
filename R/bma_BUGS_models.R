@@ -90,10 +90,10 @@ bma_model_Smooth <- function(incl.2deriv = FALSE){
   for (s in 1:nsp){
     for (t in 1:(FY[s]-1)){
       spindex[s,t] <- spindex[s,t+1] - spgrowth[s,t]
-    }}
+    }
 
-  #spindex[s,FY[s]] ~ dnorm(0, 0.0001) + estimate[s,FY[s]]
-  spindex[s,FY[s]] <- estimate[s,FY[s]] # we assume the first year is known without error
+    #spindex[s,FY[s]] ~ dnorm(0, 0.0001) + estimate[s,FY[s]]
+    spindex[s,FY[s]] <- estimate[s,FY[s]] # we assume the first year is known without error
 
     for (t in (FY[s]+1):(nyears)){
       spindex[s,t] <- estimate[s,FY[s]] + sum(spgrowth[s,FY[s]:(t-1)])
