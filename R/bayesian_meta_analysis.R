@@ -126,7 +126,7 @@ bma <- function (data,
   }
 
   
-  if(model %in% c('smooth_stoch2', 'smooth_det2', 'smooth_det_sigtheta', 'FNgr2')){
+  if(model %in% c('smooth', 'smooth_stoch2', 'smooth_det2', 'smooth_det_sigtheta', 'FNgr2')){
     # using row.names should ensure the same order in the bugs data
     FY <- sapply(row.names(index), FUN = function(x){
       min(data$year[!is.na(data$index) & data$species == x])
