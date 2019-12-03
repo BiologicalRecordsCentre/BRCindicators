@@ -38,6 +38,26 @@
 
 ################################################################################
 
+smoothing <- function() {'
+    ######################### Smoothing done here   #######################
+
+    beta[1] ~ dnorm(0, 0.000001)
+    beta[2] ~ dnorm(0, 0.000001)
+    taub ~ dgamma(0.000001, 0.000001)
+    for(k in 1:num.knots){b[k]~dnorm(0,taub)}
+  
+    for (t in 1:(nyears - 1)){
+      logLambda[t] <- m[t]
+      m[t] <- mfe[t] + mre[t]
+      mfe[t] <- beta[1] * X[t,1] + beta[2] * X[t,2]
+      for (k in 1:num.knots){
+        temp[t,k] <- b[k] * Z[t,k]
+      }
+      mre[t]<-sum(temp[t,1:num.knots])
+    }  
+  '
+}
+
 ################################################################################
 
 bma_model_Smooth <- function(incl.2deriv = FALSE, 
@@ -83,26 +103,6 @@ bma_model_Smooth <- function(incl.2deriv = FALSE,
       obsErrors),
       collapse = "\n"
     ))
-  }
-  
-  smoothing <- function() {'
-    ######################### Smoothing done here   #######################
-
-    beta[1] ~ dnorm(0, 0.000001)
-    beta[2] ~ dnorm(0, 0.000001)
-    taub ~ dgamma(0.000001, 0.000001)
-    for(k in 1:num.knots){b[k]~dnorm(0,taub)}
-  
-    for (t in 1:(nyears - 1)){
-      logLambda[t] <- m[t]
-      m[t] <- mfe[t] + mre[t]
-      mfe[t] <- beta[1] * X[t,1] + beta[2] * X[t,2]
-      for (k in 1:num.knots){
-        temp[t,k] <- b[k] * Z[t,k]
-      }
-      mre[t]<-sum(temp[t,1:num.knots])
-    }  
-  '
   }
   
   likelihood <- function(seFromData = FALSE, Y1perfect = TRUE) {
