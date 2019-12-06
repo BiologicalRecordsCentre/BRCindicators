@@ -5,7 +5,7 @@
 \title{Extract BMA BUGS code}
 \usage{
 get_bmaBUGScode(option = "smooth", print.screen = FALSE,
-  save.local = FALSE)
+  save.local = FALSE, incl.2deriv = FALSE, seFromData = FALSE)
 }
 \arguments{
 \item{option}{text string defining which particular variant is desired}
@@ -15,8 +15,11 @@ get_bmaBUGScode(option = "smooth", print.screen = FALSE,
 \item{save.local}{Logical, should text file of the BUGS code be produced?}
 }
 \description{
-Gets a copy of the BUGS code and writes it
+Gets a copy of the BUGS code and writes it to the screen and (optionally) to a text file
 }
 \examples{
 get_bmaBUGScode(option="smooth", print.screen=TRUE, save.local=FALSE)
+get_bmaBUGScode(option="smooth_det", print.screen=TRUE, save.local=FALSE)
+get_bmaBUGScode(option="smooth_det2", print.screen=TRUE, save.local=FALSE)
+get_bmaBUGScode(option="smooth_det_sigtheta", print.screen=TRUE, save.local=FALSE)
 }
