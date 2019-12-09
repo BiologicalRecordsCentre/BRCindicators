@@ -4,9 +4,19 @@
 \alias{bma}
 \title{Bayesian Meta-analysis}
 \usage{
-bma(data, plot = TRUE, model = "smooth", parallel = FALSE,
-  incl.model = TRUE, n.iter = 10000, m.scale = "loge",
-  num.knots = 12, rescaleYr = 1, n.thin = 5, save.sppars = TRUE)
+bma(
+  data,
+  plot = TRUE,
+  model = "smooth",
+  parallel = FALSE,
+  incl.model = TRUE,
+  n.iter = 10000,
+  m.scale = "loge",
+  num.knots = 12,
+  rescaleYr = 1,
+  n.thin = 5,
+  save.sppars = TRUE
+)
 }
 \arguments{
 \item{data}{a data.frame with 4 columns in this order: species, year, index, se (standard error). Index values are assumed to be on the unbounded (logarithmic scale)}

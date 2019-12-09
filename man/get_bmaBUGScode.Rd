@@ -4,8 +4,13 @@
 \alias{get_bmaBUGScode}
 \title{Extract BMA BUGS code}
 \usage{
-get_bmaBUGScode(option = "smooth", print.screen = FALSE,
-  save.local = FALSE, incl.2deriv = FALSE, seFromData = FALSE)
+get_bmaBUGScode(
+  option = "smooth",
+  print.screen = FALSE,
+  save.local = FALSE,
+  incl.2deriv = FALSE,
+  seFromData = FALSE
+)
 }
 \arguments{
 \item{option}{text string defining which particular variant is desired}
