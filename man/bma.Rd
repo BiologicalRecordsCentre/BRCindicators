@@ -6,10 +6,13 @@
 \usage{
 bma(data, plot = TRUE, model = "smooth", parallel = FALSE,
   incl.model = TRUE, n.iter = 10000, m.scale = "loge",
-  num.knots = 12, rescaleYr = 1, n.thin = 5, save.sppars = TRUE)
+  num.knots = 12, rescaleYr = 1, n.thin = 5, seFromData = FALSE,
+  Y1perfect = TRUE, incl.2deriv = FALSE, save.sppars = TRUE,
+  q = c(0.025, 0.975))
 }
 \arguments{
-\item{data}{a data.frame with 4 columns in this order: species, year, index, se (standard error). Index values are assumed to be on the unbounded (logarithmic scale)}
+\item{data}{a data.frame with 3-4 columns in this order: `species`, `year`, `index`, `se` (standard error). The `se` column is optional 
+NB: Index values are assumed to be on the unbounded (logarithmic scale)}
 
 \item{plot}{Logical, should a trace plot be plotted?}
 
@@ -44,17 +47,17 @@ Use a Bayesian meta-analysis to create an indicator from species index values, o
 \details{
 There are a number of model to choose from:
 \itemize{
- \item{\code{"smooth"}}{default .. details?}
- \item{\code{"random_walk"}}{ - Also known as BMA3.}
- \item{\code{"uniform"}}{ - Also known as BMA2.}
- \item{\code{"uniform_noeta"}}{ - Also known as BMA1.}
- \item{\code{"FNgr"}}{ - Indicator defined by Growth rates, as in Freeman & Newson.}
- \item{\code{"smooth_stoch"}}{ - Indicator defined by Growth rates, with Ruppert smoother (stochastic version).}
- \item{\code{"smooth_det"}}{ - Indicator defined by Growth rates, with Ruppert smoother (deterministic version).}
- \item{\code{"FNgr2"}}{ - Variant where species can join the series late and error on the first year is 0 (check with Nick and Steve).}
- \item{\code{"smooth_stoch2"}}{ - Variant where species can join the series late and error on the first year is 0 (check with Nick and Steve).}
- \item{\code{"smooth_det2"}}{ - Variant where species can join the series late and error on the first year is 0 (check with Nick and Steve).}
- \item{\code{"smooth_det_sigtheta"}}{ - Variant of det2 in which standard errors are assumed constant (check with Nick and Steve).}
+ \item{\code{"smooth"}}{The default option. Indicator defined by Growth rates, with Ruppert smoother, allowing for species to join late. Error on the first year of each species' time-series is assumed to be zero. The indicator is the expected value of the geometric mean across species (with missing species imputed). 
+ Includes three options:}
+\itemize{
+\item{\code{"seFromData"}}{Should the standard errors be read in from data (`TRUE`) or estimated (`FALSE`)}
+\item{\code{"Y1perfect"}}{Should the first year of a species' index be assumed known without error (`TRUE`)}
+\item{\code{"incl.2deriv"}}{Include estimation of second derivatives on the indicator (`TRUE`)}
+}
+ \item{\code{"smooth_JABES"}}{Equivalent to smooth with `seFromData = TRUE` and `Y1perfect = TRUE`. This is the version implemented in the JABES paper.}
+ \item{\code{"smooth_det2"}}{Equivalent to smooth with `seFromData = TRUE` and `Y1perfect = FALSE`. Retained for backwards compatability.}
+ \item{\code{"smooth_det_sigtheta"}}{Equivalent to smooth with `seFromData = FALSE` and `Y1perfect = FALSE`. Retained for backwards compatability.}
+ \item{\code{"smooth_det"}}{Specific variant of smooth_det2 - under review. Likely to be deprecated}
 }
 }
 \examples{

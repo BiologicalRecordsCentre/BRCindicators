@@ -2,7 +2,8 @@
 #' 
 #' @description Use a Bayesian meta-analysis to create an indicator from species index values, optionally incorporating standard error.
 #' 
-#' @param data a data.frame with 4 columns in this order: species, year, index, se (standard error). Index values are assumed to be on the unbounded (logarithmic scale)
+#' @param data a data.frame with 3-4 columns in this order: `species`, `year`, `index`, `se` (standard error). The `se` column is optional 
+#' NB: Index values are assumed to be on the unbounded (logarithmic scale)
 #' @param plot Logical, should a trace plot be plotted?
 #' @param model The type of model to be used. See details.
 #' @param parallel if \code{TRUE} the model chains will be run in parallel using one fewer cores than
@@ -19,18 +20,19 @@
 #' @param save.sppars Logical. Should the species-specific parameters be monitored? Defaults to TRUE 
 #' @details There are a number of model to choose from:
 #' \itemize{
-#'  \item{\code{"smooth"}}{default .. details?}
-#'  \item{\code{"random_walk"}}{ - Also known as BMA3.}
-#'  \item{\code{"uniform"}}{ - Also known as BMA2.}
-#'  \item{\code{"uniform_noeta"}}{ - Also known as BMA1.}
-#'  \item{\code{"FNgr"}}{ - Indicator defined by Growth rates, as in Freeman & Newson.}
-#'  \item{\code{"smooth_stoch"}}{ - Indicator defined by Growth rates, with Ruppert smoother (stochastic version).}
-#'  \item{\code{"smooth_det"}}{ - Indicator defined by Growth rates, with Ruppert smoother (deterministic version).}
-#'  \item{\code{"FNgr2"}}{ - Variant where species can join the series late and error on the first year is 0 (check with Nick and Steve).}
-#'  \item{\code{"smooth_stoch2"}}{ - Variant where species can join the series late and error on the first year is 0 (check with Nick and Steve).}
-#'  \item{\code{"smooth_det2"}}{ - Variant where species can join the series late and error on the first year is 0 (check with Nick and Steve).}
-#'  \item{\code{"smooth_det_sigtheta"}}{ - Variant of det2 in which standard errors are assumed constant (check with Nick and Steve).}
+#'  \item{\code{"smooth"}}{The default option. Indicator defined by Growth rates, with Ruppert smoother, allowing for species to join late. Error on the first year of each species' time-series is assumed to be zero. The indicator is the expected value of the geometric mean across species (with missing species imputed). 
+#'  Includes three options:}
+#' \itemize{
+#' \item{\code{"seFromData"}}{Should the standard errors be read in from data (`TRUE`) or estimated (`FALSE`)}
+#' \item{\code{"Y1perfect"}}{Should the first year of a species' index be assumed known without error (`TRUE`)}
+#' \item{\code{"incl.2deriv"}}{Include estimation of second derivatives on the indicator (`TRUE`)}
 #' }
+#'  \item{\code{"smooth_JABES"}}{Equivalent to smooth with `seFromData = TRUE` and `Y1perfect = TRUE`. This is the version implemented in the JABES paper.}
+#'  \item{\code{"smooth_det2"}}{Equivalent to smooth with `seFromData = TRUE` and `Y1perfect = FALSE`. Retained for backwards compatability.}
+#'  \item{\code{"smooth_det_sigtheta"}}{Equivalent to smooth with `seFromData = FALSE` and `Y1perfect = FALSE`. Retained for backwards compatability.}
+#'  \item{\code{"smooth_det"}}{Specific variant of smooth_det2 - under review. Likely to be deprecated}
+#' }
+#' 
 #' @return Returns a dataframe with 4 columns: Year, Index, lower2.5, upper97.5. The last two columns are the credible intervals
 #' @import reshape2
 #' @import jagsUI
@@ -66,14 +68,48 @@ bma <- function (data,
                  num.knots = 12,
                  rescaleYr = 1,
                  n.thin = 5,
-                 save.sppars = TRUE){
+                 seFromData = FALSE,
+                 Y1perfect = TRUE,
+                 incl.2deriv = FALSE,
+                 save.sppars = TRUE,
+                 q = c(0.025, 0.975)){
   
   if (!identical(colnames(data)[1:3], c("species", "year", "index"))) {
     stop('data column names should be: "species", "year", "index"')
   }
   
-  if(colnames(data)[4] != "se" | ncol(data) < 4) # add a set of NAs
+  if(colnames(data)[4] != "se" | ncol(data) < 4) {# add a set of NAs
     data$se <- NA
+    if(seFromData) {
+      stop("Error: Standard errors have not been provided")
+    }
+  }
+  
+  switch(tolower(model),
+         smooth_jabes = {# this is the version SF ran for the paper
+           model = "smooth"
+           seFromData = FALSE
+           Y1perfect = TRUE},
+         smooth_det2 = {# this is the version NI tested for ISEC 
+           model = "smooth"
+           seFromData = TRUE
+           Y1perfect = FALSE},
+         smooth_det_sigtheta = {# this is the version NI ran for Scottish indicators
+           model = "smooth"
+           seFromData=FALSE
+           Y1perfect = FALSE},
+         smooth_det = {
+           seFromData = TRUE
+           Y1perfect = FALSE
+         },
+         random_walk = stop("Random walk model has been deprecated"),
+         uniform = stop("Uniform model has been deprecated"),
+         uniform_noeta = stop("Uniform model has been deprecated"),
+         fngr = stop("This model option has been deprecated"),
+         smooth_stoch = {stop("This model option has been deprecated")},
+         fngr2 = stop("This model option has been deprecated"),
+         smooth_stoch2 = stop("This model option has been deprecated")
+         )
   
   # do a quick check for whether the index values have been transformed
   if(min(data$index, na.rm = T) >= 0)
@@ -87,36 +123,35 @@ bma <- function (data,
   if(!m.scale %in% c('loge', 'log10', 'logit')) stop("m.scale must be 'loge', 'log10', or 'logit'")
   
   # pick the correct model
-  model_code <- get_bmaBUGScode(option = model)
-  
+  model_code <- get_bmaBUGScode(option = model, 
+                                incl.2deriv=incl.2deriv,
+                                seFromData = seFromData, 
+                                Y1perfect = Y1perfect)
+
   # save it to a temp file 
   bugs_path <- tempfile()
   writeLines(text = model_code, con = bugs_path)
 
   # include an option here to standardise the data to some value in year 1 
   
-  # we assume that the index values are already on the unbounded (log) scale  
+  # we assume that the index values are already on the unbounded (log) scale (we checked for negative values above)  
   index <- (acast(data, species ~ year, value.var = "index"))
-  
-  se <- acast(data, species ~ year, value.var = "se")
   
   # Setup BUGS data
   bugs_data <- list(nsp = nrow(index),
                     nyears = ncol(index),
-                    estimate = index, 
-                    sigma.obs = se,
-                    max_se = ifelse(test = all(is.na(se)),
-                                    yes = 10,
-                                    no = max(se, na.rm = TRUE))) 
+                    estimate = index
+                    ) 
   
-  # if(model %in% c('random_walk', 'uniform', 'uniform_noeta', 'FNgr', 'smooth_stoch', 'smooth_det')){
-  #   bugs_data[['max_se']] <- ifelse(test = all(is.na(se)),
-  #                                   yes = 10,
-  #                                   no = max(se, na.rm = TRUE))
-  # }
+  if(seFromData) {
+    se <- acast(data, species ~ year, value.var = "se")
+    bugs_data$sigma.obs <- se
+    bugs_data$max_se = ifelse(test = all(is.na(se)),
+                    yes = 10,
+                    no = max(se, na.rm = TRUE))
+  }
   
-  if(model %in% c('smooth', 'smooth_stoch', 'smooth_det', 'smooth_det_sigtheta',
-                  'smooth_stoch2', 'smooth_det2')){
+  if(model %in% c('smooth', 'smooth_stoch', 'smooth_det', 'smooth_stoch2')){
     ZX <- makeZX(num.knots = num.knots,
                  covariate = seq(min(data$year),
                                  max(data$year)))
@@ -126,29 +161,31 @@ bma <- function (data,
   }
 
   
-  if(model %in% c('smooth', 'smooth_stoch2', 'smooth_det2', 'smooth_det_sigtheta', 'FNgr2')){
+  if(model %in% c('smooth', 'smooth_stoch2', 'FNgr2')){
     # using row.names should ensure the same order in the bugs data
     FY <- sapply(row.names(index), FUN = function(x){
       min(data$year[!is.na(data$index) & data$species == x])
     })
-
-    bugs_data[['FY']] <- FY
+    bugs_data[['FY']] <- FY - min(FY) + 1 # set lowest value to 1
+    
   }
   
   # Setup parameters to monitor
   params = c("tau.spi", "logI", "sigma.obs")
-  if(model %in% c('smooth', 'smooth_stoch', 'smooth_det', 'smooth_det_sigtheta')) params <- c(params, "logI.raw")
+  if(model %in% c('smooth', 'smooth_stoch', 'smooth_det')) params <- c(params, "logI.raw")
   if(model %in% c('random_walk', 'uniform', 'uniform_noeta')) params <- c(params, "tau.eta")
   if(model %in% c('random_walk')) params <- c(params, "tau.I")
-  if(model %in% c('smooth', 'smooth_stoch', 'smooth_det', 'FNgr','smooth_det_sigtheta',
-                  'smooth_stoch2', 'smooth_det2', 'FNgr2')) params <- c(params, "logLambda", "spgrowth", "logI2")
-  if(model %in% c('smooth', 'smooth_stoch', 'smooth_det', 'FNgr', 'smooth_det_sigtheta')) params <- c(params, "tau.sg")
-  if(model %in% c('smooth', 'smooth_stoch', 'smooth_det','smooth_stoch2', 'smooth_det2','smooth_det_sigtheta')) params <- c(params, "beta", "taub")
+  if(model %in% c('smooth', 'smooth_stoch', 'smooth_det', 'FNgr',
+                  'smooth_stoch2', 'FNgr2')) params <- c(params, "logLambda", "spgrowth", "logI2")
+  if(model %in% c('smooth', 'smooth_stoch', 'smooth_det', 'FNgr')) params <- c(params, "tau.sg")
+  if(model %in% c('smooth', 'smooth_stoch', 'smooth_det','smooth_stoch2')) params <- c(params, "beta", "taub")
+  if(!seFromData) params <- c(params, "theta")
   if(save.sppars) {
     params <- c(params, "spindex")
   } else {
     params <- params[!params %in% c("spgrowth", "sigma.obs")]
   }
+  if(incl.2deriv) params <- c(params, "t2dash")
   
   model.out <- jagsUI::jags(data = bugs_data,
                             inits = NULL,
@@ -183,9 +220,10 @@ bma <- function (data,
   } else {
     logI_rescaled <- t(apply(model.out$sims.list$logI, 1, function(x) x - x[rescaleYr]))
     pd <- data.frame(mean = apply(logI_rescaled, 2, mean),
-                     q2.5 = apply(logI_rescaled, 2, quantile, probs = 0.025),
-                     q97.5 = apply(logI_rescaled, 2, quantile, probs = 0.975),
+                     lowerCI = apply(logI_rescaled, 2, quantile, probs = q[1]),
+                     upperCI = apply(logI_rescaled, 2, quantile, probs = q[2]),
                      row.names = paste0('logI', 1:ncol(logI_rescaled)))
+    if(q[1] == 0.025 & q[2] == 0.975) names(pd)[2:3] <- c("q2.5", "q97.5")
   }
   # convert the logI back to the measurement scale  
   unb2b <- function(x, m.scale){
@@ -209,7 +247,7 @@ bma <- function (data,
   pd <- dcast(melt(as.matrix(pd)), Var1 ~ 
                 Var2)
   names(pd) <- c("Year", "Index", "lower2.5", "upper97.5")
-  pd$Year <- as.numeric(pd$Year)
+  pd$Year <- as.numeric(pd$Year) + min(data$year) - 1 
   
   if(incl.model) attr(pd, 'model') <- model.out
   

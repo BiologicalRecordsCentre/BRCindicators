@@ -198,6 +198,7 @@ bma_model_Smooth <- function(incl.2deriv = FALSE,
 
 
 ################################################################################
+
 # OPTIONS UNDER REVIEW
 
 bma_model_smooth_det <- function(){
