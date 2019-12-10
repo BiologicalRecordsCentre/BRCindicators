@@ -4,9 +4,12 @@
 \alias{trend_assessment}
 \title{Assess trends for indicator}
 \usage{
-trend_assessment(lambda_output,
+trend_assessment(
+  lambda_output,
   start_year = min(lambda_output$summary$year),
-  end_year = max(lambda_output$summary$year), species_stat = "mean")
+  end_year = max(lambda_output$summary$year),
+  species_stat = "mean"
+)
 }
 \arguments{
 \item{lambda_output}{An object returned by lambda_interpolation}

@@ -4,8 +4,12 @@
 \alias{bootstrap_indicator}
 \title{Bootstrapping indicator}
 \usage{
-bootstrap_indicator(Data, iterations = 10000, CI_limits = c(0.025,
-  0.975), verbose = TRUE)
+bootstrap_indicator(
+  Data,
+  iterations = 10000,
+  CI_limits = c(0.025, 0.975),
+  verbose = TRUE
+)
 }
 \arguments{
 \item{Data}{A matrix where each named column give the species' values
