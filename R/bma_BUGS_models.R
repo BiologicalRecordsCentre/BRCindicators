@@ -168,7 +168,7 @@ bma_model_Smooth <- function(incl.2deriv = FALSE,
   
   ##########
   
-  derivatives <- ifelse(incl.2deriv, "", {'
+  derivatives <- ifelse(!incl.2deriv, "", {'
     #########################  second derivatives #######################
   
   I <- logI2

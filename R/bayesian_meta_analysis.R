@@ -4,7 +4,7 @@
 #' 
 #' @param data a data.frame with 3-4 columns in this order: `species`, `year`, `index`, `se` (standard error). The `se` column is optional 
 #' NB: Index values are assumed to be on the unbounded (logarithmic scale)
-#' @param plot Logical, should a trace plot be plotted?
+#' @param plot Logical, should a trace plot be plotted to diagnose the model output?
 #' @param model The type of model to be used. See details.
 #' @param parallel if \code{TRUE} the model chains will be run in parallel using one fewer cores than
 #' are available on the computer. NOTE: this will typically not work for parallel use on cluster PCs.
