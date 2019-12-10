@@ -4,9 +4,15 @@
 \alias{CompositeTrend}
 \title{CompositeTrend function}
 \usage{
-CompositeTrend(indata, output_path,
-  trend_choice = "arithmetic_logit_occ", group_name,
-  save_iterations = "yes", TrendScale = NULL, plot_output = TRUE)
+CompositeTrend(
+  indata,
+  output_path,
+  trend_choice = "arithmetic_logit_occ",
+  group_name,
+  save_iterations = "yes",
+  TrendScale = NULL,
+  plot_output = TRUE
+)
 }
 \arguments{
 \item{indata}{The file path to an .rdata file containing a dataframe

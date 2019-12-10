@@ -4,11 +4,23 @@
 \alias{bma}
 \title{Bayesian Meta-analysis}
 \usage{
-bma(data, plot = TRUE, model = "smooth", parallel = FALSE,
-  incl.model = TRUE, n.iter = 10000, m.scale = "loge",
-  num.knots = 12, rescaleYr = 1, n.thin = 5, seFromData = FALSE,
-  Y1perfect = TRUE, incl.2deriv = FALSE, save.sppars = TRUE,
-  q = c(0.025, 0.975))
+bma(
+  data,
+  plot = TRUE,
+  model = "smooth",
+  parallel = FALSE,
+  incl.model = TRUE,
+  n.iter = 10000,
+  m.scale = "loge",
+  num.knots = 12,
+  rescaleYr = 1,
+  n.thin = 5,
+  seFromData = FALSE,
+  Y1perfect = TRUE,
+  incl.2deriv = FALSE,
+  save.sppars = TRUE,
+  q = c(0.025, 0.975)
+)
 }
 \arguments{
 \item{data}{a data.frame with 3-4 columns in this order: `species`, `year`, `index`, `se` (standard error). The `se` column is optional 

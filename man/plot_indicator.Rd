@@ -4,8 +4,14 @@
 \alias{plot_indicator}
 \title{Plot indicator}
 \usage{
-plot_indicator(indicator, CIs, year = 1:length(indicator),
-  index = indicator[1], smoothed_line = NULL, main = "")
+plot_indicator(
+  indicator,
+  CIs,
+  year = 1:length(indicator),
+  index = indicator[1],
+  smoothed_line = NULL,
+  main = ""
+)
 }
 \arguments{
 \item{indicator}{A numeric vector, one value for each year}

@@ -7,10 +7,22 @@
 https://www.cbs.nl/en-gb/society/nature-and-environment/indices-and-trends--trim--/msi-tool
 }
 \usage{
-msi_tool(wd = getwd(), inputFile, jobname = "MSI_job", nsim = 1000,
-  SEbaseyear = NULL, plotbaseyear = NULL, index_smooth = "SMOOTH",
-  span = 0.75, lastyears = 10, maxCV = 3, changepoint = NULL,
-  truncfac = 10, TRUNC = 1, plot = TRUE)
+msi_tool(
+  wd = getwd(),
+  inputFile,
+  jobname = "MSI_job",
+  nsim = 1000,
+  SEbaseyear = NULL,
+  plotbaseyear = NULL,
+  index_smooth = "SMOOTH",
+  span = 0.75,
+  lastyears = 10,
+  maxCV = 3,
+  changepoint = NULL,
+  truncfac = 10,
+  TRUNC = 1,
+  plot = TRUE
+)
 }
 \arguments{
 \item{wd}{The path for input and ouput files}

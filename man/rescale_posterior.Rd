@@ -4,9 +4,17 @@
 \alias{rescale_posterior}
 \title{Rescale species values for indicator}
 \usage{
-rescale_posterior(input_dir, subset_table = NULL, index = 100,
-  max = 10000, min = 1, year_limit = 10, upperQuantile = 0.975,
-  lowerQuantile = 0.025, verbose = TRUE)
+rescale_posterior(
+  input_dir,
+  subset_table = NULL,
+  index = 100,
+  max = 10000,
+  min = 1,
+  year_limit = 10,
+  upperQuantile = 0.975,
+  lowerQuantile = 0.025,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{input_dir}{the location of occupancy model output files}
