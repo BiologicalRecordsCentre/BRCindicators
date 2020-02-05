@@ -76,7 +76,7 @@ data <- data.frame(species = rep(letters, each = 50),
                    se = runif(n = 50 * length(letters), min = 0.01, max = .1))
 
 # Run the Bayesian meta-analysis
-bma_indicator <- bma(data, model="smooth", m.scale="logit")
+bma_indicator <- bma(data, model="smooth", m.scale="logit", n.iter=100)
 
 # Plot the resulting indicator
 plot_indicator(indicator = bma_indicator[,'Index'],
