@@ -14,14 +14,19 @@ bma(
   m.scale = "loge",
   num.knots = 12,
   rescaleYr = 1,
+  seFromData = FALSE,
+  Y1perfect = TRUE,
+  incl.2deriv = FALSE,
+  save.sppars = TRUE,
   n.thin = 5,
-  save.sppars = TRUE
+  q = c(0.025, 0.975)
 )
 }
 \arguments{
-\item{data}{a data.frame with 4 columns in this order: species, year, index, se (standard error). Index values are assumed to be on the unbounded (logarithmic scale)}
+\item{data}{a data.frame with 3-4 columns in this order: `species`, `year`, `index`, `se` (standard error). The `se` column is optional 
+NB: Index values are assumed to be on the unbounded (logarithmic scale)}
 
-\item{plot}{Logical, should a trace plot be plotted?}
+\item{plot}{Logical, should a trace plot be plotted to diagnose the model output?}
 
 \item{model}{The type of model to be used. See details.}
 
@@ -41,9 +46,17 @@ Here you specify which log scale the data is on ('loge', 'log10', or 'logit'). D
 \item{rescaleYr}{Logical, should all iterations be scaled so that the first year is equal? If TRUE
 year one will have 0 error.}
 
-\item{n.thin}{Thinning rate for the Markov chains. Defaults to 5.}
+\item{seFromData}{Logical. Should the standard errors be read in from data (`TRUE`) or estimated (`FALSE`)?  Defaults to `FALSE`}
+
+\item{Y1perfect}{Logical. Should the first year of a species' index be assumed known without error (`TRUE`)? Defaults to `TRUE`}
+
+\item{incl.2deriv}{Logical. Option to include estimation of second derivatives on the indicator (`TRUE`)? Defaults to `FALSE`}
 
 \item{save.sppars}{Logical. Should the species-specific parameters be monitored? Defaults to TRUE}
+
+\item{n.thin}{Thinning rate for the Markov chains. Defaults to 5.}
+
+\item{q}{defines the quantiles of the posterior distribution to report. Defaults to c(0.025, 0.975), i.e. the 95% credible intervals}
 }
 \value{
 Returns a dataframe with 4 columns: Year, Index, lower2.5, upper97.5. The last two columns are the credible intervals
@@ -52,20 +65,7 @@ Returns a dataframe with 4 columns: Year, Index, lower2.5, upper97.5. The last t
 Use a Bayesian meta-analysis to create an indicator from species index values, optionally incorporating standard error.
 }
 \details{
-There are a number of model to choose from:
-\itemize{
- \item{\code{"smooth"}}{default .. details?}
- \item{\code{"random_walk"}}{ - Also known as BMA3.}
- \item{\code{"uniform"}}{ - Also known as BMA2.}
- \item{\code{"uniform_noeta"}}{ - Also known as BMA1.}
- \item{\code{"FNgr"}}{ - Indicator defined by Growth rates, as in Freeman & Newson.}
- \item{\code{"smooth_stoch"}}{ - Indicator defined by Growth rates, with Ruppert smoother (stochastic version).}
- \item{\code{"smooth_det"}}{ - Indicator defined by Growth rates, with Ruppert smoother (deterministic version).}
- \item{\code{"FNgr2"}}{ - Variant where species can join the series late and error on the first year is 0 (check with Nick and Steve).}
- \item{\code{"smooth_stoch2"}}{ - Variant where species can join the series late and error on the first year is 0 (check with Nick and Steve).}
- \item{\code{"smooth_det2"}}{ - Variant where species can join the series late and error on the first year is 0 (check with Nick and Steve).}
- \item{\code{"smooth_det_sigtheta"}}{ - Variant of det2 in which standard errors are assumed constant (check with Nick and Steve).}
-}
+
 }
 \examples{
 
