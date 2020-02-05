@@ -16,20 +16,18 @@
 #' @param num.knots If using either of the smooth models this specifies the number of knots.
 #' @param rescaleYr Logical, should all iterations be scaled so that the first year is equal? If TRUE
 #' year one will have 0 error.
+#' @param seFromData Logical. Should the standard errors be read in from data (`TRUE`) or estimated (`FALSE`)?  Defaults to `FALSE` 
+#' @param Y1perfect Logical. Should the first year of a species' index be assumed known without error (`TRUE`)? Defaults to `TRUE` 
+#' @param incl.2deriv Logical. Option to include estimation of second derivatives on the indicator (`TRUE`)? Defaults to `FALSE` 
 #' @param n.thin Thinning rate for the Markov chains. Defaults to 5.
 #' @param save.sppars Logical. Should the species-specific parameters be monitored? Defaults to TRUE 
+#' @param q defines the quantiles of the posterior distribution to report. Defaults to c(0.025, 0.975), i.e. the 95% credible intervals
 #' @details There are a number of model to choose from:
 #' \itemize{
 #'  \item{\code{"smooth"}}{The default option. Indicator defined by Growth rates, with Ruppert smoother, allowing for species to join late. Error on the first year of each species' time-series is assumed to be zero. The indicator is the expected value of the geometric mean across species (with missing species imputed). 
-#'  Includes three options:}
-#' \itemize{
-#' \item{\code{"seFromData"}}{Should the standard errors be read in from data (`TRUE`) or estimated (`FALSE`)}
-#' \item{\code{"Y1perfect"}}{Should the first year of a species' index be assumed known without error (`TRUE`)}
-#' \item{\code{"incl.2deriv"}}{Include estimation of second derivatives on the indicator (`TRUE`)}
-#' }
-#'  \item{\code{"smooth_JABES"}}{Equivalent to smooth with `seFromData = TRUE` and `Y1perfect = TRUE`. This is the version implemented in the JABES paper.}
-#'  \item{\code{"smooth_det2"}}{Equivalent to smooth with `seFromData = TRUE` and `Y1perfect = FALSE`. Retained for backwards compatability.}
-#'  \item{\code{"smooth_det_sigtheta"}}{Equivalent to smooth with `seFromData = FALSE` and `Y1perfect = FALSE`. Retained for backwards compatability.}
+#'  \item{\code{"smooth_JABES"}}{Equivalent to smooth with `seFromData = TRUE` and `Y1perfect = TRUE`. This is the version implemented in the JABES paper. Choosing this option will overwrite user-entered options for `seFromData` and `Y1perfect`.}
+#'  \item{\code{"smooth_det2"}}{Equivalent to smooth with `seFromData = TRUE` and `Y1perfect = FALSE`. Retained for backwards compatability. Choosing this option will overwrite user-entered options for `seFromData` and `Y1perfect`.}
+#'  \item{\code{"smooth_det_sigtheta"}}{Equivalent to smooth with `seFromData = FALSE` and `Y1perfect = FALSE`. Retained for backwards compatability. Choosing this option will overwrite user-entered options for `seFromData` and `Y1perfect`.}
 #'  \item{\code{"smooth_det"}}{Specific variant of smooth_det2 - under review. Likely to be deprecated}
 #' }
 #' 
@@ -67,11 +65,11 @@ bma <- function (data,
                  m.scale = 'loge',
                  num.knots = 12,
                  rescaleYr = 1,
-                 n.thin = 5,
                  seFromData = FALSE,
                  Y1perfect = TRUE,
                  incl.2deriv = FALSE,
                  save.sppars = TRUE,
+                 n.thin = 5,
                  q = c(0.025, 0.975)){
   
   if (!identical(colnames(data)[1:3], c("species", "year", "index"))) {
@@ -106,9 +104,10 @@ bma <- function (data,
          uniform = stop("Uniform model has been deprecated"),
          uniform_noeta = stop("Uniform model has been deprecated"),
          fngr = stop("This model option has been deprecated"),
-         smooth_stoch = {stop("This model option has been deprecated")},
+         smooth_stoch = stop("This model option has been deprecated"),
          fngr2 = stop("This model option has been deprecated"),
-         smooth_stoch2 = stop("This model option has been deprecated")
+         smooth_stoch2 = stop("This model option has been deprecated"),
+         stop(paste("Model type not known. Check the help file for details"))
          )
   
   # do a quick check for whether the index values have been transformed
