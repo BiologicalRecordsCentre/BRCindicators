@@ -32,7 +32,6 @@
 #'  }
 #' @return Returns a dataframe with 4 columns: Year, Index, lower2.5, upper97.5. The last two columns are the credible intervals
 #' @import reshape2
-#' @import jagsUI
 #' @importFrom boot inv.logit
 #' @importFrom coda mcmc.list as.mcmc
 #' @references Freeman, S.N., Isaac, N.J.B., Besbeas, P.T., Dennis, E.B. & Morgan, B.J.T. (2019) 
@@ -69,6 +68,12 @@ bma <- function (data,
                  save.sppars = TRUE,
                  n.thin = 5,
                  q = c(0.025, 0.975)){
+  
+  # Check if jagsUI is installed
+  if (!requireNamespace("jagsUI", quietly = TRUE)) {
+    stop("Package 'jagsUI' is needed for the 'bma' function to work. Please insatll this from CRAN. You will also be required to install JAGS, which you can download from https://sourceforge.net/projects/mcmc-jags/files/JAGS/",
+         call. = FALSE)
+  }
   
   if (!identical(colnames(data)[1:3], c("species", "year", "index"))) {
     stop('data column names should be: "species", "year", "index"')
