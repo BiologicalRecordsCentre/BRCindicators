@@ -39,16 +39,16 @@
 #'             \emph{JABES}, in revision.
 #' @export
 #' @examples 
-#' Create some example data in the format required
+#' # Create some example data in the format required
 #' data <- data.frame(species = rep(letters, each = 50),
 #'                    year = rep(1:50, length(letters)),
 #'                    index = rnorm(n = 50 * length(letters), mean = 0, sd = 1),
 #'                    se = runif(n = 50 * length(letters), min = 0.01, max = .1))
 #' 
-#' Run the Bayesian meta-analysis
+#' # Run the Bayesian meta-analysis
 #' bma_indicator <- bma(data, model="smooth", m.scale="logit")
 #' 
-#' Plot the resulting indicator
+#' # Plot the resulting indicator
 #' plot_indicator(indicator = bma_indicator[,'Index'],
 #'                CIs = bma_indicator[,c(3,4)])
 
