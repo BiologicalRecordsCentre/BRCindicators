@@ -47,7 +47,7 @@
 #' # Run the Bayesian meta-analysis
 #' bma_indicator <- bma(data, model="smooth", m.scale="logit")
 #' 
-#' Plot the resulting indicator
+#' # Plot the resulting indicator
 #' plot_indicator(indicator = bma_indicator[,'Index'],
 #'                CIs = bma_indicator[,c(3,4)])
 
