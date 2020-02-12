@@ -4,7 +4,13 @@
 \name{butterflies_hs}
 \alias{butterflies_hs}
 \title{Data - UK Butterfly Monitoring Scheme - Habitat Specialists}
-\format{An object of class \code{data.frame} with 1000 rows and 4 columns.}
+\format{There are four columns of data:
+\itemize{
+ \item{\code{"species"}} {The species' name (Latin binomial)}
+ \item{\code{"year"}} {year to which the index value refers (integer)}
+ \item{\code{"index"}} {A "collated" index of abundance on the log10 scale. The time-series for each species is fixed to have a mean of exactly 2. Since 10^2 = 100, the time-series are centered on a value of 100.}
+ \item{\code{"se"}} {standard errors on the index value (on the log10 scale), as estimated by the underlying statistical model.}
+ }}
 \source{
 \url{https://catalogue.ceh.ac.uk/documents/ace3c3ef-df89-40b9-ba8b-106997fd6d9c}
 }
@@ -12,12 +18,7 @@
 data(butterflies_hs)
 }
 \description{
-This dataset from the UK Butterfly monitoring scheme has data for 26 species regarded as habitat specialists.
-The data contains: species, Latin name of the butterfly species; year, integer
-from 1976-2017; index, the index of abundance on the log10 scale. The
-time-series for each species is fixed to have a mean of exactly 2.
-Since 10^2 = 100, the time-series are centered on a value of 100; se, standard
-error in the index value (on the log scale)
+This dataset from the UK Butterfly Monitoring Scheme has national abundance indices for 26 species regarded as habitat specialists from 1976-2017.
 }
 \examples{
 data(butterflies_hs)

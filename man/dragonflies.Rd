@@ -4,7 +4,15 @@
 \name{dragonflies}
 \alias{dragonflies}
 \title{Data - British Dragonfly Society, UK}
-\format{An object of class \code{data.frame} with 2070 rows and 6 columns.}
+\format{There are six columns of data:
+\itemize{
+ \item{\code{"species"}} {The species' name (Latin binomial)}
+ \item{\code{"year"}} {year to which the index value refers (integer)}
+ \item{\code{"Index"}} {A national index of occupancy, defined as the proportion of occupied 1 km grid cells.}
+ \item{\code{"index"}} {A national index of occupancy on the logit (log odds) scale.}
+ \item{\code{"se"}} {Standard deviation of the posterior distribution of logit occupancy}
+ \item{\code{"inAtlas"}} {Logical. Identifies the 38 the species was included in the 2014 Atlas of Dragonflies in Britain and Ireland.} 
+ }}
 \source{
 \url{https://doi.org/10.1038/s41597-019-0269-1}
 }
@@ -12,15 +20,9 @@
 data(dragonflies)
 }
 \description{
-This dataset from the British Dragonfly Society, UK, has data for
-UK dragonfly species
-The data contains: species, latin names for drangonfly species; year, integer
-from 1970-2015; index, the index of occupancy (the proportion of occupied
-sites). This value is the mean of the posterior distribution; index_logit,
-the index of occupancy on the logit scale. This value is the mean of the
-posterior distribution; sd standard deviation of the posterior distribution
-of logit occupancy; inAtlas, logical, Was a trend estimate for
-this species included in the 2014 Atlas of dragonflies?
+This dataset contains annual occupancy estimates for 45 species of dragonflies and damselflies in the UK, 1970-2015.
+The models are based on biological records data from the British Dragonfly Society.
+The data are derived from Bayesian occupancy detection models, described in Outhwaite et al (2019).
 }
 \examples{
 data(dragonflies)

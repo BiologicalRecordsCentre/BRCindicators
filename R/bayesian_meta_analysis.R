@@ -1,7 +1,6 @@
 #' Bayesian Meta-analysis
 #' 
 #' @description Use a Bayesian meta-analysis to create an indicator from species index values, optionally incorporating standard error.
-#' 
 #' @param data a data.frame with 3-4 columns in this order: `species`, `year`, `index`, `se` (standard error). The `se` column is optional 
 #' NB: Index values are assumed to be on the unbounded (logarithmic scale)
 #' @param plot Logical, should a trace plot be plotted to diagnose the model output?
@@ -21,16 +20,15 @@
 #' @param incl.2deriv Logical. Option to include estimation of second derivatives on the indicator (`TRUE`)? Defaults to `FALSE` 
 #' @param n.thin Thinning rate for the Markov chains. Defaults to 5.
 #' @param save.sppars Logical. Should the species-specific parameters be monitored? Defaults to TRUE 
-#' @param q defines the quantiles of the posterior distribution to report. Defaults to c(0.025, 0.975), i.e. the 95% credible intervals
+#' @param q defines the quantiles of the posterior distribution to report. Defaults to c(0.025, 0.975), i.e. the 95th percentile credible intervals
 #' @details There are a number of model to choose from:
 #' \itemize{
-#'  \item{\code{"smooth"}}{The default option. Indicator defined by Growth rates, with Ruppert smoother, allowing for species to join late. Error on the first year of each species' time-series is assumed to be zero. The indicator is the expected value of the geometric mean across species (with missing species imputed). 
-#'  \item{\code{"smooth_JABES"}}{Equivalent to smooth with `seFromData = TRUE` and `Y1perfect = TRUE`. This is the version implemented in the JABES paper. Choosing this option will overwrite user-entered options for `seFromData` and `Y1perfect`.}
-#'  \item{\code{"smooth_det2"}}{Equivalent to smooth with `seFromData = TRUE` and `Y1perfect = FALSE`. Retained for backwards compatability. Choosing this option will overwrite user-entered options for `seFromData` and `Y1perfect`.}
-#'  \item{\code{"smooth_det_sigtheta"}}{Equivalent to smooth with `seFromData = FALSE` and `Y1perfect = FALSE`. Retained for backwards compatability. Choosing this option will overwrite user-entered options for `seFromData` and `Y1perfect`.}
-#'  \item{\code{"smooth_det"}}{Specific variant of smooth_det2 - under review. Likely to be deprecated}
-#' }
-#' 
+#'  \item{\code{"smooth"}}{ The default option. Indicator defined by Growth rates, with Ruppert smoother, allowing for species to join late. Error on the first year of each species' time-series is assumed to be zero. The indicator is the expected value of the geometric mean across species (with missing species imputed). 
+#'  Includes three options: `seFromData` `Y1perfect` and `incl.2deriv`. See bayesian_meta_analysis for mode details. Using the default values `seFromData = FALSE` and `Y1perfect = TRUE` are the options used in Freeman  \emph{et al.} (2020).}
+#'  \item{\code{"smooth_det2"}}{ Equivalent to smooth with `seFromData = TRUE` and `Y1perfect = FALSE`. Retained for backwards compatability. Choosing this option will overwrite user-entered options for `seFromData` and `Y1perfect`.}
+#'  \item{\code{"smooth_det_sigtheta"}}{ Equivalent to smooth with `seFromData = FALSE` and `Y1perfect = FALSE`. Retained for backwards compatability. Choosing this option will overwrite user-entered options for `seFromData` and `Y1perfect`.}
+#'  \item{\code{"smooth_det"}}{ Specific variant of smooth_det2 - under review. Likely to be deprecated}
+#'  }
 #' @return Returns a dataframe with 4 columns: Year, Index, lower2.5, upper97.5. The last two columns are the credible intervals
 #' @import reshape2
 #' @importFrom boot inv.logit
@@ -40,7 +38,6 @@
 #'             \emph{JABES}, in revision.
 #' @export
 #' @examples 
-#' 
 #' # Create some example data in the format required
 #' data <- data.frame(species = rep(letters, each = 50),
 #'                    year = rep(1:50, length(letters)),
@@ -89,6 +86,7 @@ bma <- function (data,
   }
   
   switch(tolower(model),
+         smooth = {}, # the default
          smooth_jabes = {# this is the version SF ran for the paper
            model = "smooth"
            seFromData = FALSE
