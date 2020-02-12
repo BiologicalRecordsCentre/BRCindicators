@@ -13,7 +13,7 @@
   # the ranwalk, uniform & uniform_noeta were written by Nick Isaac
   # FNgr, SmoothStoch & SmoothDet were written by Stephen Freeman
   # Isaac and Freeman used different syntax: I have harmonized some terms
-    # Terms in Freeman's code that have been changed to match syntax in Isaac's code:
+  # Terms in Freeman's code that have been changed to match syntax in Isaac's code:
       # logI is used for the multispecies indicator on the log scale (in place of 'logI2' or 'sindicator')
       # logLambda is used for the multispecies log growth rate (in place of 'growth')
       # estimate is used for the estimated log abundance (in place of 'species')
@@ -147,7 +147,7 @@ bma_model_Smooth <- function(incl.2deriv = FALSE,
         tau.obs[s,t] <- pow(theta, -2)
       }}"
     }
-    if(seFromData) part3 <- gsub(part3, patt="theta", repl="sigma.obs[s,t]")
+    if(seFromData) part3 <- gsub(part3, pattern ="theta", replacement ="sigma.obs[s,t]")
     
     return(paste(c(
       "    ###################  Define likelihood  ###########################",

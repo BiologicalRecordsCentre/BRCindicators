@@ -20,8 +20,6 @@
 
 summarise_occDet <-  function(input_dir, region = NULL, verbose = TRUE){
     
-    library(reshape2)
-
     # get files from the input directory
     files <- list.files(path = paste(input_dir), ignore.case = TRUE, pattern = '\\.rdata$') # list of the files to loop through
     
