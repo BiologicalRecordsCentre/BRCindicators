@@ -1,8 +1,8 @@
 # BRCindicators
 
   <!-- badges: start -->
-  [![Travis build status](https://travis-ci.org/AugustT/BRCindicators.svg?branch=master)](https://travis-ci.org/AugustT/BRCindicators)
-  [![Codecov test coverage](https://codecov.io/gh/AugustT/BRCindicators/branch/master/graph/badge.svg)](https://codecov.io/gh/AugustT/BRCindicators?branch=master)
+  [![Travis build status](https://travis-ci.org/BiologicalRecordsCentre/BRCindicators.svg?branch=master)](https://travis-ci.org/BiologicalRecordsCentre/BRCindicators)
+  [![Codecov test coverage](https://codecov.io/gh/biologicalrecordscentre/BRCindicators/branch/master/graph/badge.svg)](https://codecov.io/gh/biologicalrecordscentre/BRCindicators?branch=master)
   <!-- badges: end -->
 
 The functions in BRCindicators work with yearly estimates of species abundance or occurrence and aggregate them into an scaled indicator value with bootstrapped confidence intervals 
