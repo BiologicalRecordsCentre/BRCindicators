@@ -31,6 +31,7 @@
 #' @param verbose If TRUE progress is written to console
 #' @return A list with two elements, a summary (data.frame) and the rescaled data
 #' (list)
+#' @importFrom reshape2 dcast   
 #' @export 
 rescale_posterior <-  function(input_dir, subset_table = NULL,
                                index = 100, max = 10000,
@@ -41,8 +42,6 @@ rescale_posterior <-  function(input_dir, subset_table = NULL,
                                verbose = TRUE){
   
   # Read in all the data as a list
-  library(reshape2)
-
   # get files from the input directory
   files <- list.files(path = paste(input_dir), ignore.case = TRUE, pattern = '\\.rdata$') # list of the files to loop through
   
