@@ -8,7 +8,7 @@
 #' \itemize{
 #'  \item{\code{"species"}} {The species' name (Latin binomial)}
 #'  \item{\code{"year"}} {The year to which the index value refers (integer)}
-#'  \item{\code{"index"}} {A "collated" index of abundance on the log10 scale. The time-series for each species is fixed to have a mean of exactly 2. Since 10^2 = 100, the time-series are centered on a value of 100.}
+#'  \item{\code{"collated_index"}} {A "collated" index of abundance on the log10 scale. The time-series for each species is fixed to have a mean of exactly 2. Since 10^2 = 100, the time-series are centered on a value of 100.}
 #'  \item{\code{"se"}} {standard errors on the index value (on the log10 scale), as estimated by the underlying statistical model.}
 #'  }
 #' @references Botham, M.S.; Brereton, T.; Harris, S.; Harrower, C.; Middlebrook, I.; Randle, Z.; Roy, D.B. (2019). United Kingdom Butterfly Monitoring Scheme: collated indices 2017. NERC Environmental Information Data Centre. \url{https://catalogue.ceh.ac.uk/documents/ace3c3ef-df89-40b9-ba8b-106997fd6d9c}

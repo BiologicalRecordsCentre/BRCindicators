@@ -8,7 +8,7 @@
 \itemize{
  \item{\code{"species"}} {The species' name (Latin binomial)}
  \item{\code{"year"}} {The year to which the index value refers (integer)}
- \item{\code{"index"}} {A "collated" index of abundance on the log10 scale. The time-series for each species is fixed to have a mean of exactly 2. Since 10^2 = 100, the time-series are centered on a value of 100.}
+ \item{\code{"collated_index"}} {A "collated" index of abundance on the log10 scale. The time-series for each species is fixed to have a mean of exactly 2. Since 10^2 = 100, the time-series are centered on a value of 100.}
  \item{\code{"se"}} {standard errors on the index value (on the log10 scale), as estimated by the underlying statistical model.}
  }}
 \source{
