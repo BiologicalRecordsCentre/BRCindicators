@@ -88,7 +88,7 @@ data <- data.frame(species = rep(letters, each = 50),
 bma_indicator <- bma(data, model="smooth", m.scale="logit", n.iter=100)
 
 # Plot the resulting indicator
-plot_indicator(indicator = bma_indicator[,'Index'],
+plot_indicator(indicator = bma_indicator[,'Index.Mprime'],
                CIs = bma_indicator[,c(3,4)])
 }
 \references{

@@ -49,7 +49,7 @@
 #' bma_indicator <- bma(data, model="smooth", m.scale="logit", n.iter=100)
 #' 
 #' # Plot the resulting indicator
-#' plot_indicator(indicator = bma_indicator[,'Index'],
+#' plot_indicator(indicator = bma_indicator[,'Index.Mprime'],
 #'                CIs = bma_indicator[,c(3,4)])
 
 
@@ -191,13 +191,13 @@ bma <- function (data,
     
   }
   
-  # Setup parameters to monitor. NB Most of the model options have been deprecated
-  params = c("tau.spi", "logI", "sigma.obs")
-  if(model %in% c('smooth_stoch', 'smooth_det')) params <- c(params, "logI.raw")
-  if(model %in% c('random_walk', 'uniform', 'uniform_noeta')) params <- c(params, "tau.eta")
-  if(model %in% c('random_walk')) params <- c(params, "tau.I")
+  # Setup parameters to monitor. NB Most of the model options have been deprecated, so much of this code is redundant
+  params = c("tau.spi")#, "sigma.obs")
+  if(model == 'smooth') params <- c(params, "Mprime")
+  #if(model %in% c('random_walk', 'uniform', 'uniform_noeta')) params <- c(params, "tau.eta")
+  #if(model %in% c('random_walk')) params <- c(params, "tau.I")
   if(model %in% c('smooth', 'smooth_stoch', 'smooth_det', 'FNgr',
-                  'smooth_stoch2', 'FNgr2')) params <- c(params, "logLambda", "spgrowth", "logI2")
+                  'smooth_stoch2', 'FNgr2')) params <- c(params, "logLambda", "spgrowth", "M")
   if(model %in% c('smooth_stoch', 'smooth_det', 'FNgr')) params <- c(params, "tau.sg")
   if(model %in% c('smooth', 'smooth_stoch', 'smooth_det','smooth_stoch2')) params <- c(params, "beta", "taub")
   if(!seFromData) params <- c(params, "theta")
@@ -224,7 +224,7 @@ bma <- function (data,
     array_sim <- model.out$samples
     comb.samples <- mcmc.list(lapply(1:3, FUN = function(x, 
                                                          array_sim) {
-      year_ests <- colnames(array_sim[[x]])[grepl("^logI\\[",  # changed from I
+      year_ests <- colnames(array_sim[[x]])[grepl("^Mprime\\[",  # changed from I
                                                   colnames(array_sim[[x]]))]
       ar_temp <- array_sim[[x]][,c(head(year_ests, 1), tail(year_ests,1))]
       colnames(ar_temp) <- c("First year", "Last year")
@@ -233,44 +233,63 @@ bma <- function (data,
     plot(comb.samples)
   }
   
-  # rescale year 1/ or not
-  if(rescaleYr == 0){ 
-    pd <- data.frame(mean = unlist(model.out$mean),
-                     q2.5 = unlist(model.out$q2.5),
-                     q97.5 = unlist(model.out$q97.5))
-  } else {
-    logI_rescaled <- t(apply(model.out$sims.list$logI, 1, function(x) x - x[rescaleYr]))
+  # SCALING FUNCTION
+  scale_indicator <- function(logI){
+    # rescale year 1/ or not
+    if(rescaleYr == 0 ){
+      logI_rescaled <- logI
+    } else {
+      logI_rescaled <- t(apply(logI, 1, function(x) x - x[rescaleYr]))
+    }
+    
     pd <- data.frame(mean = apply(logI_rescaled, 2, mean),
                      lowerCI = apply(logI_rescaled, 2, quantile, probs = q[1]),
                      upperCI = apply(logI_rescaled, 2, quantile, probs = q[2]),
-                     row.names = paste0('logI', 1:ncol(logI_rescaled)))
+                     row.names = paste0('Mprime', 1:ncol(logI_rescaled)))
     if(q[1] == 0.025 & q[2] == 0.975) names(pd)[2:3] <- c("q2.5", "q97.5")
-  }
-  # convert the logI back to the measurement scale  
-  unb2b <- function(x, m.scale){
-    switch(m.scale, 
-           loge = x <- exp(x),
-           log10 = x <- 10^x,
-           logit = x <- exp(x), # Counter-intuitively, since we want geometric mean odds
-           #logit = {x <- boot::inv.logit(as.matrix(x))}, # this would give occupancy, which is hard to interpret
-           warning(paste(m.scale, 'unknown, no back-transformation applied')))
-    return(x)
-  }
-  pd <- unb2b(pd[grepl("^logI[[:digit:]]+",dimnames(pd)[[1]]),], m.scale)
-  
-  rescale_bayesian_indicator <- function(x, centering = "firstyr") {
-    if (centering == "firstyr") {
-      x <- x/x[1, 1]
+    
+    # convert the logI back to the measurement scale  
+    unb2b <- function(x, m.scale){
+      switch(m.scale, 
+             loge = x <- exp(x),
+             log10 = x <- 10^x,
+             logit = x <- exp(x), # Counter-intuitively, since we want geometric mean odds
+             #logit = {x <- boot::inv.logit(as.matrix(x))}, # this would give occupancy, which is hard to interpret
+             warning(paste(m.scale, 'unknown, no back-transformation applied')))
+      return(x)
     }
-    100 * x
+    #  pd <- unb2b(pd[grepl("^Mprime[[:digit:]]+",dimnames(pd)[[1]]),], m.scale) # PROBLEM HERE
+    pd <- unb2b(pd, m.scale)
+    
+    # rescale to 100 in the first year
+    rescale_bayesian_indicator <- function(x, centering = "firstyr") {
+      if (centering == "firstyr") {
+        x <- x/x[1, 1]
+      }
+      100 * x
+    }
+    pd <- rescale_bayesian_indicator(pd, centering = "firstyr")
+    pd$Year <- as.numeric(gsub("[A-z]", repl="", dimnames(pd)[[1]]))
+    pd$Year <- as.numeric(pd$Year) + min(data$year) - 1
+    return(pd)
   }
-  pd <- rescale_bayesian_indicator(pd, centering = "firstyr")
-  pd <- dcast(melt(as.matrix(pd)), Var1 ~ 
-                Var2)
-  names(pd) <- c("Year", "Index", "lower2.5", "upper97.5")
-  pd$Year <- as.numeric(pd$Year) + min(data$year) - 1 
   
-  if(incl.model) attr(pd, 'model') <- model.out
+  MSI1 <- MSI2 <- NULL
+  if("Mprime" %in% params) {
+    MSI1 <- scale_indicator(logI = model.out$sims.list$Mprime)
+  }
+  if("M" %in% params) {
+    MSI2 <- scale_indicator(logI = model.out$sims.list$M)
+  }
+
+  MSI <- merge(MSI1, MSI2, by="Year")  # this will fail for smooth_det
   
-  return(pd)
+  # rename the output columns
+  names(MSI) <- gsub(names(MSI), pattern="x", replacement = "Mprime")
+  names(MSI) <- gsub(names(MSI), pattern="y", replacement = "M")
+  names(MSI) <- gsub(names(MSI), pattern="mean", replacement = "Index")
+  
+  if(incl.model) attr(MSI, 'model') <- model.out
+  
+  return(MSI)
 }

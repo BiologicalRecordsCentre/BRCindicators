@@ -14,6 +14,6 @@ test_that("runs without error", {
   bma_indicator <- bma(data, model="smooth", m.scale="logit", n.iter=100)
   
   expect_is(bma_indicator, 'data.frame')
-  expect_equal(ncol(bma_indicator), 4)
+  expect_equal(ncol(bma_indicator), 7)
   
 })
