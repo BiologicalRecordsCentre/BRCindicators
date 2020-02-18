@@ -16,10 +16,11 @@ bma(
   rescaleYr = 1,
   seFromData = FALSE,
   Y1perfect = TRUE,
+  rescale_indices = NULL,
   incl.2deriv = FALSE,
   save.sppars = TRUE,
   n.thin = 5,
-  q = c(0.025, 0.975)
+  CI = 95
 )
 }
 \arguments{
@@ -50,13 +51,15 @@ year one will have 0 error.}
 
 \item{Y1perfect}{Logical. Should the first year of a species' index be assumed known without error (`TRUE`)? Defaults to `TRUE`}
 
+\item{rescale_indices}{Integer. A value for standardising each species time-series to start at a common value (e.g. 0). Defaults to NULL (i.e. no standardisation)}
+
 \item{incl.2deriv}{Logical. Option to include estimation of second derivatives on the indicator (`TRUE`)? Defaults to `FALSE`}
 
 \item{save.sppars}{Logical. Should the species-specific parameters be monitored? Defaults to TRUE}
 
 \item{n.thin}{Thinning rate for the Markov chains. Defaults to 5.}
 
-\item{q}{defines the quantiles of the posterior distribution to report. Defaults to c(0.025, 0.975), i.e. the 95th percentile credible intervals}
+\item{CI}{defines the credible intervals of the posterior distribution to report. Defaults the 95th percentile}
 }
 \value{
 Returns a dataframe with 4 columns: Year, Index, lower2.5, upper97.5. The last two columns are the credible intervals
@@ -85,7 +88,7 @@ data <- data.frame(species = rep(letters, each = 50),
 bma_indicator <- bma(data, model="smooth", m.scale="logit", n.iter=100)
 
 # Plot the resulting indicator
-plot_indicator(indicator = bma_indicator[,'Index'],
+plot_indicator(indicator = bma_indicator[,'Index.Mprime'],
                CIs = bma_indicator[,c(3,4)])
 }
 \references{

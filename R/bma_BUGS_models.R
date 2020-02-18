@@ -5,6 +5,9 @@
 
 ################################################################################
 
+# 14/2/20: Harmonizing variable names with equations in Freeman et al.
+      # M now used for indicator based on growth rates (in place of Mprime2)
+      # Mprime now used for geometric mean (in place of Mprime)
 # 29/11/19: fully meta-coded the remaining options
 # 15/10/19: We're streamlining the options for the BMA. 
       # functions now return the model text, rather than writing a temp file
@@ -14,7 +17,7 @@
   # FNgr, SmoothStoch & SmoothDet were written by Stephen Freeman
   # Isaac and Freeman used different syntax: I have harmonized some terms
   # Terms in Freeman's code that have been changed to match syntax in Isaac's code:
-      # logI is used for the multispecies indicator on the log scale (in place of 'logI2' or 'sindicator')
+      # Mprime is used for the multispecies indicator on the log scale (in place of'sindicator')
       # logLambda is used for the multispecies log growth rate (in place of 'growth')
       # estimate is used for the estimated log abundance (in place of 'species')
       # tau.sg used instead of taus
@@ -70,9 +73,9 @@ bma_model_Smooth <- function(incl.2deriv = FALSE,
   # this version is suitable for datasets where species have zero SE in year 1
   # and some species area allowed to join late
   # Therefore the indicator must be plotted with zero error in year 1 
-  # uncertainty in logI2[1] doesn't measure the same thing as uncertainty in other years 
+  # uncertainty in M[1] doesn't measure the same thing as uncertainty in other years 
   # tau.spi is on the growth rates, not the index
-  # logI is now estimated without uncertainty due to interspecific variation
+  # Mprime is now estimated without uncertainty due to interspecific variation
   # standard errors can be read from a file or fixed
 
   ########### functions
@@ -108,10 +111,10 @@ bma_model_Smooth <- function(incl.2deriv = FALSE,
   likelihood <- function(seFromData = FALSE, Y1perfect = TRUE) {
     # option: is the first year assumed to be known without error, or not?
     part1 <- "
-    logI2[1] <- 0 
+    M[1] <- 0 
   
     for (t in 2:nyears){
-      logI2[t] <- logI2[t-1] + logLambda[t-1]
+      M[t] <- M[t-1] + logLambda[t-1]
     }"
     
     part2 <-"
@@ -162,7 +165,7 @@ bma_model_Smooth <- function(incl.2deriv = FALSE,
   ####################  geomean of expected values ######################
   
   for (t in 1:nyears){
-    logI[t] <- sum(spindex[,t])/nsp
+    Mprime[t] <- sum(spindex[,t])/nsp
   }'
   }
   
@@ -171,7 +174,7 @@ bma_model_Smooth <- function(incl.2deriv = FALSE,
   derivatives <- ifelse(!incl.2deriv, "", {'
     #########################  second derivatives #######################
   
-  I <- logI2
+  I <- M
   t2dash[2] <- (I[2+1] - 2*I[2] + I[2-1])/1
   t2dash[nyears-1] <- (I[nyears] - 2*I[nyears-1] + I[nyears-2])/1
   t2dash[3] <- (-I[5]+16*I[4]-30*I[3]+16*I[2]-I[1] )/12
@@ -222,13 +225,13 @@ bma_model_smooth_det <- function(){
     }}
   
   for (s in 1:nsp){
-    spindex[s,1]~dnorm(logI.raw[1],tau.spi)
+    spindex[s,1]~dnorm(Mprime.raw[1],tau.spi)
   }
   
   ###################  Define likelihood  #######################
   
   for (t in 1:(nyears-1)){
-    logLambda[t] <- logI.raw[t+1] - logI.raw[t]
+    logLambda[t] <- Mprime.raw[t+1] - Mprime.raw[t]
   }
   
   for (s in 1:nsp){
@@ -250,7 +253,7 @@ bma_model_smooth_det <- function(){
     }
   }
   
-  logI <- m
+  M <- m
   
   #########################  end likelihood ###########################
   '
@@ -280,9 +283,9 @@ bma_model_FNgr2 <- function(){
   # this version is suitable for datasets where species have zero SE in year 1
   # and some species are allowed to join late
   # Therefore the indicator must be plotted with zero error in year 1 
-  # uncertainty in logI2[1] doesn't measure the same thing as uncertainty in other years 
+  # uncertainty in M[1] doesn't measure the same thing as uncertainty in other years 
   # tau.spi is on the growth rates, not the index
-  # logI is now estimated without uncertainty due to interspecific variation
+  # Mprime is now estimated without uncertainty due to interspecific variation
   
   model <- '
   model {
@@ -299,15 +302,15 @@ bma_model_FNgr2 <- function(){
      sigma.obs[s,t] ~ dunif(0, max_se) # for the missing values
   }} 
 
-  logI2[1] <- 0
+  M[1] <- 0
   for (t in 2:(nyears)){
-    logI2[t] ~ dnorm(0,0.000001)
+    M[t] ~ dnorm(0,0.000001)
   }
   
   ###################  Define likelihood  #######################
   
   for (t in 1:(nyears-1)){
-    logLambda[t] <- logI2[t+1] - logI2[t]
+    logLambda[t] <- M[t+1] - M[t]
   }
   
   for (s in 1:nsp){
@@ -327,7 +330,7 @@ bma_model_FNgr2 <- function(){
   
   #mean of the species indices  
   for (t in 1:nyears) {
-    logI[t] <- sum(spindex[,t])/nsp
+    Mprime[t] <- sum(spindex[,t])/nsp
   }
 
   #########################  end likelihood ###########################
@@ -346,9 +349,9 @@ bma_model_smooth_stoch2 <- function(){
   # this version is suitable for datasets where species have zero SE in year 1
   # and some species area allowed to join late
   # Therefore the indicator must be plotted with zero error in year 1 
-  # uncertainty in logI2[1] doesn't measure the same thing as uncertainty in other years 
+  # uncertainty in M[1] doesn't measure the same thing as uncertainty in other years 
   # tau.spi is on the growth rates, not the index
-  # logI is now estimated without uncertainty due to interspecific variation
+  # Mprime is now estimated without uncertainty due to interspecific variation
   
   model <- '
   model {
@@ -365,7 +368,7 @@ bma_model_smooth_stoch2 <- function(){
      sigma.obs[s,t] ~ dunif(0, max_se) # for the missing values
   }}
   
-  logI2[1] <- 0
+  M[1] <- 0
 
   ########### Smoothing done here   #############
   
@@ -388,7 +391,7 @@ bma_model_smooth_stoch2 <- function(){
   ###################  Define likelihood  #######################
   
   for (t in 2:nyears){
-    logI2[t] <- logI2[t-1] + logLambda[t-1]
+    M[t] <- M[t-1] + logLambda[t-1]
   }
   
   for (s in 1:nsp){
@@ -408,7 +411,7 @@ bma_model_smooth_stoch2 <- function(){
 
   #indicator is mean of the estimated species indices  
   for (t in 1:nyears) {
-    logI[t] <- sum(spindex[,t])/nsp
+    Mprime[t] <- sum(spindex[,t])/nsp
   }
 
 
@@ -443,7 +446,7 @@ bma_model_smooth_stoch <- function(){
   }}
   
   for (s in 1:nsp){
-    spindex[s,1] ~ dnorm(logI.raw[1], tau.spi)
+    spindex[s,1] ~ dnorm(Mprime.raw[1], tau.spi)
   }
   
   ########### Smoothing done here   #############
@@ -455,7 +458,7 @@ bma_model_smooth_stoch <- function(){
   for(k in 1:num.knots){b[k] ~ dnorm(0,taub)}
   
   for (t in 1:(nyears)){
-    logI.raw[t] ~ dnorm(m[t], taueps)
+    Mprime.raw[t] ~ dnorm(m[t], taueps)
     m[t] <- mfe[t] + mre[t]
     mfe[t] <- beta[1] * X[t,1] + beta[2] * X[t,2]
     for (k in 1:num.knots){
@@ -467,7 +470,7 @@ bma_model_smooth_stoch <- function(){
   ###################  Define likelihood  #######################
   
   for (t in 1:(nyears-1)){
-  logLambda[t] <- logI.raw[t+1] - logI.raw[t]
+  logLambda[t] <- Mprime.raw[t+1] - Mprime.raw[t]
   }
   
   for (s in 1:nsp){
@@ -486,7 +489,7 @@ bma_model_smooth_stoch <- function(){
       tau.obs[s,t] <- pow(sigma.obs[s,t], -2)
   }}
   
-  logI <- m
+  M <- m
   
   #########################  end likelihood ###########################
   
@@ -520,16 +523,16 @@ bma_model_FNgr <- function(){
     }}
 
   for (s in 1:nsp){
-    spindex[s,1] ~ dnorm(logI[1], tau.spi)
+    spindex[s,1] ~ dnorm(Mprime[1], tau.spi)
   }
   
   for (t in 1:(nyears)){
-    logI[t] ~ dnorm(0,0.000001)
+    Mprime[t] ~ dnorm(0,0.000001)
   }
   
   ###################  Define likelihood  #######################
   
-  for (t in 1:(nyears-1)){logLambda[t] <- logI[t+1] - logI[t]}
+  for (t in 1:(nyears-1)){logLambda[t] <- Mprime[t+1] - Mprime[t]}
   
   for (s in 1:nsp){
     for (t in 1:(nyears-1)){
@@ -568,7 +571,7 @@ bma_model_uniform_noeta <- function(){
   for (s in 1:nsp){b0[s] ~ dnorm(0, tau.spi)}
   
   # one value per year
-  for (t in 1:nyears){logI[t] ~ dunif(-10, 10)}
+  for (t in 1:nyears){Mprime[t] ~ dunif(-10, 10)}
   
   # one value per site-species
   for (s in 1:nsp){   
@@ -591,7 +594,7 @@ bma_model_uniform_noeta <- function(){
   
   #spindex is the true unknown species index this year (on the log scale)
   # its a simple linear function of the year and species effects, with "process error"
-  spindex[s,t] <- b0[s] + logI[t]
+  spindex[s,t] <- b0[s] + Mprime[t]
   }}
 
   #########################  end likelihood ###########################
@@ -613,7 +616,7 @@ bma_model_uniform <- function(){
   for (s in 1:nsp){b0[s] ~ dnorm(0, tau.spi)}
   
   # one value per year
-  for (t in 1:nyears){logI[t] ~ dunif(-10, 10)}
+  for (t in 1:nyears){Mprime[t] ~ dunif(-10, 10)}
   
   # one value per site-species
   for (s in 1:nsp){   
@@ -636,7 +639,7 @@ bma_model_uniform <- function(){
   
   #spindex is the true unknown species index this year (on the log scale)
   # its a simple linear function of the year and species effects, with "process error"
-  spindex[s,t] <- b0[s] + logI[t] + eta[s,t]
+  spindex[s,t] <- b0[s] + Mprime[t] + eta[s,t]
   }}
 
   #########################  end likelihood ###########################
@@ -658,8 +661,8 @@ model {
   for (s in 1:nsp){b0[s] ~ dnorm(0, tau.spi)}
   
   # one value per year
-  logI[1] ~ dnorm(0, 0.0001)
-  for (t in 2:nyears){logI[t] ~ dnorm(logI[t-1], tau.I)}
+  Mprime[1] ~ dnorm(0, 0.0001)
+  for (t in 2:nyears){Mprime[t] ~ dnorm(Mprime[t-1], tau.I)}
   
   # one value per site-species
   for (s in 1:nsp){   
@@ -683,7 +686,7 @@ model {
   
   #spindex is the true unknown species index this year (on the log scale)
   # its a simple linear function of the year and species effects, with "process error"
-  spindex[s,t] <- b0[s] + logI[t] + eta[s,t]
+  spindex[s,t] <- b0[s] + Mprime[t] + eta[s,t]
 
   }}
 

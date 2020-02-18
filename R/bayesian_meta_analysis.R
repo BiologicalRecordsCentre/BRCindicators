@@ -17,10 +17,11 @@
 #' year one will have 0 error.
 #' @param seFromData Logical. Should the standard errors be read in from data (`TRUE`) or estimated (`FALSE`)?  Defaults to `FALSE` 
 #' @param Y1perfect Logical. Should the first year of a species' index be assumed known without error (`TRUE`)? Defaults to `TRUE` 
+#' @param rescale_indices Integer. A value for standardising each species time-series to start at a common value (e.g. 0). Defaults to NULL (i.e. no standardisation)
 #' @param incl.2deriv Logical. Option to include estimation of second derivatives on the indicator (`TRUE`)? Defaults to `FALSE` 
 #' @param n.thin Thinning rate for the Markov chains. Defaults to 5.
 #' @param save.sppars Logical. Should the species-specific parameters be monitored? Defaults to TRUE 
-#' @param q defines the quantiles of the posterior distribution to report. Defaults to c(0.025, 0.975), i.e. the 95th percentile credible intervals
+#' @param CI defines the credible intervals of the posterior distribution to report. Defaults the 95th percentile
 #' @details There are a number of model to choose from:
 #' \itemize{
 #'  \item{\code{"smooth"}}{ The default option. Indicator defined by Growth rates, with Ruppert smoother, allowing for species to join late. Error on the first year of each species' time-series is assumed to be zero. The indicator is the expected value of the geometric mean across species (with missing species imputed). 
@@ -48,7 +49,7 @@
 #' bma_indicator <- bma(data, model="smooth", m.scale="logit", n.iter=100)
 #' 
 #' # Plot the resulting indicator
-#' plot_indicator(indicator = bma_indicator[,'Index'],
+#' plot_indicator(indicator = bma_indicator[,'Index.Mprime'],
 #'                CIs = bma_indicator[,c(3,4)])
 
 
@@ -63,10 +64,11 @@ bma <- function (data,
                  rescaleYr = 1,
                  seFromData = FALSE,
                  Y1perfect = TRUE,
+                 rescale_indices = NULL,
                  incl.2deriv = FALSE,
                  save.sppars = TRUE,
                  n.thin = 5,
-                 q = c(0.025, 0.975)){
+                 CI = 95){
   
   # Check if jagsUI is installed
   if (!requireNamespace("jagsUI", quietly = TRUE)) {
@@ -124,6 +126,15 @@ bma <- function (data,
   # This is not my preferrred behaviour
   if(!m.scale %in% c('loge', 'log10', 'logit')) stop("m.scale must be 'loge', 'log10', or 'logit'")
   
+  # convert the CI into quantiles
+  # first check that CI is sensible
+  if((CI > 100) | (CI <= 0)) stop("Credible intervals must be between 0 and 100")
+  CI2q <- function(CI) {
+    q <- (1 - CI/100)/2
+    return(c(q, 1-q))
+  }
+  q <- CI2q(CI)
+  
   # pick the correct model
   model_code <- get_bmaBUGScode(option = model, 
                                 incl.2deriv=incl.2deriv,
@@ -137,7 +148,15 @@ bma <- function (data,
   # include an option here to standardise the data to some value in year 1 
   
   # we assume that the index values are already on the unbounded (log) scale (we checked for negative values above)  
-  index <- (acast(data, species ~ year, value.var = "index"))
+  index <- acast(data, species ~ year, value.var = "index")
+    
+  if(!is.null(rescale_indices)){
+    # the user has specified that each species' time series should be scaled to start at a common value.
+    # since the data are on the unbounded (log or logit) scale, we standardise them by addition/subtraction, rather than multiplication (as in rescale_species())
+    # recall that rescale_indices has to be an integer
+    index <- t(apply(index, 1, function(x) rescale_indices + x - x[1]))
+  }
+    
   
   # Setup BUGS data
   bugs_data <- list(nsp = nrow(index),
@@ -172,14 +191,14 @@ bma <- function (data,
     
   }
   
-  # Setup parameters to monitor
-  params = c("tau.spi", "logI", "sigma.obs")
-  if(model %in% c('smooth', 'smooth_stoch', 'smooth_det')) params <- c(params, "logI.raw")
-  if(model %in% c('random_walk', 'uniform', 'uniform_noeta')) params <- c(params, "tau.eta")
-  if(model %in% c('random_walk')) params <- c(params, "tau.I")
+  # Setup parameters to monitor. NB Most of the model options have been deprecated, so much of this code is redundant
+  params = c("tau.spi")#, "sigma.obs")
+  if(model == 'smooth') params <- c(params, "Mprime")
+  #if(model %in% c('random_walk', 'uniform', 'uniform_noeta')) params <- c(params, "tau.eta")
+  #if(model %in% c('random_walk')) params <- c(params, "tau.I")
   if(model %in% c('smooth', 'smooth_stoch', 'smooth_det', 'FNgr',
-                  'smooth_stoch2', 'FNgr2')) params <- c(params, "logLambda", "spgrowth", "logI2")
-  if(model %in% c('smooth', 'smooth_stoch', 'smooth_det', 'FNgr')) params <- c(params, "tau.sg")
+                  'smooth_stoch2', 'FNgr2')) params <- c(params, "logLambda", "spgrowth", "M")
+  if(model %in% c('smooth_stoch', 'smooth_det', 'FNgr')) params <- c(params, "tau.sg")
   if(model %in% c('smooth', 'smooth_stoch', 'smooth_det','smooth_stoch2')) params <- c(params, "beta", "taub")
   if(!seFromData) params <- c(params, "theta")
   if(save.sppars) {
@@ -205,7 +224,7 @@ bma <- function (data,
     array_sim <- model.out$samples
     comb.samples <- mcmc.list(lapply(1:3, FUN = function(x, 
                                                          array_sim) {
-      year_ests <- colnames(array_sim[[x]])[grepl("^logI\\[",  # changed from I
+      year_ests <- colnames(array_sim[[x]])[grepl("^Mprime\\[",  # changed from I
                                                   colnames(array_sim[[x]]))]
       ar_temp <- array_sim[[x]][,c(head(year_ests, 1), tail(year_ests,1))]
       colnames(ar_temp) <- c("First year", "Last year")
@@ -214,44 +233,63 @@ bma <- function (data,
     plot(comb.samples)
   }
   
-  # rescale year 1/ or not
-  if(rescaleYr == 0){ 
-    pd <- data.frame(mean = unlist(model.out$mean),
-                     q2.5 = unlist(model.out$q2.5),
-                     q97.5 = unlist(model.out$q97.5))
-  } else {
-    logI_rescaled <- t(apply(model.out$sims.list$logI, 1, function(x) x - x[rescaleYr]))
+  # SCALING FUNCTION
+  scale_indicator <- function(logI){
+    # rescale year 1/ or not
+    if(rescaleYr == 0 ){
+      logI_rescaled <- logI
+    } else {
+      logI_rescaled <- t(apply(logI, 1, function(x) x - x[rescaleYr]))
+    }
+    
     pd <- data.frame(mean = apply(logI_rescaled, 2, mean),
                      lowerCI = apply(logI_rescaled, 2, quantile, probs = q[1]),
                      upperCI = apply(logI_rescaled, 2, quantile, probs = q[2]),
-                     row.names = paste0('logI', 1:ncol(logI_rescaled)))
+                     row.names = paste0('Mprime', 1:ncol(logI_rescaled)))
     if(q[1] == 0.025 & q[2] == 0.975) names(pd)[2:3] <- c("q2.5", "q97.5")
-  }
-  # convert the logI back to the measurement scale  
-  unb2b <- function(x, m.scale){
-    switch(m.scale, 
-           loge = x <- exp(x),
-           log10 = x <- 10^x,
-           logit = x <- exp(x), # Counter-intuitively, since we want geometric mean odds
-           #logit = {x <- boot::inv.logit(as.matrix(x))}, # this would give occupancy, which is hard to interpret
-           warning(paste(m.scale, 'unknown, no back-transformation applied')))
-    return(x)
-  }
-  pd <- unb2b(pd[grepl("^logI[[:digit:]]+",dimnames(pd)[[1]]),], m.scale)
-  
-  rescale_bayesian_indicator <- function(x, centering = "firstyr") {
-    if (centering == "firstyr") {
-      x <- x/x[1, 1]
+    
+    # convert the logI back to the measurement scale  
+    unb2b <- function(x, m.scale){
+      switch(m.scale, 
+             loge = x <- exp(x),
+             log10 = x <- 10^x,
+             logit = x <- exp(x), # Counter-intuitively, since we want geometric mean odds
+             #logit = {x <- boot::inv.logit(as.matrix(x))}, # this would give occupancy, which is hard to interpret
+             warning(paste(m.scale, 'unknown, no back-transformation applied')))
+      return(x)
     }
-    100 * x
+    #  pd <- unb2b(pd[grepl("^Mprime[[:digit:]]+",dimnames(pd)[[1]]),], m.scale) # PROBLEM HERE
+    pd <- unb2b(pd, m.scale)
+    
+    # rescale to 100 in the first year
+    rescale_bayesian_indicator <- function(x, centering = "firstyr") {
+      if (centering == "firstyr") {
+        x <- x/x[1, 1]
+      }
+      100 * x
+    }
+    pd <- rescale_bayesian_indicator(pd, centering = "firstyr")
+    pd$Year <- as.numeric(gsub("[A-z]", repl="", dimnames(pd)[[1]]))
+    pd$Year <- as.numeric(pd$Year) + min(data$year) - 1
+    return(pd)
   }
-  pd <- rescale_bayesian_indicator(pd, centering = "firstyr")
-  pd <- dcast(melt(as.matrix(pd)), Var1 ~ 
-                Var2)
-  names(pd) <- c("Year", "Index", "lower2.5", "upper97.5")
-  pd$Year <- as.numeric(pd$Year) + min(data$year) - 1 
   
-  if(incl.model) attr(pd, 'model') <- model.out
+  MSI1 <- MSI2 <- NULL
+  if("Mprime" %in% params) {
+    MSI1 <- scale_indicator(logI = model.out$sims.list$Mprime)
+  }
+  if("M" %in% params) {
+    MSI2 <- scale_indicator(logI = model.out$sims.list$M)
+  }
+
+  MSI <- merge(MSI1, MSI2, by="Year")  # this will fail for smooth_det
   
-  return(pd)
+  # rename the output columns
+  names(MSI) <- gsub(names(MSI), pattern="x", replacement = "Mprime")
+  names(MSI) <- gsub(names(MSI), pattern="y", replacement = "M")
+  names(MSI) <- gsub(names(MSI), pattern="mean", replacement = "Index")
+  
+  if(incl.model) attr(MSI, 'model') <- model.out
+  
+  return(MSI)
 }
