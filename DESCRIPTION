@@ -1,8 +1,8 @@
 Package: BRCindicators
 Type: Package
 Title: Creating biodiversity indicators for species occurrence data
-Version: 1.3
-Date: 2017-12-08
+Version: 1.4
+Date: 2020-02-18
 Authors@R: c(person("Tom", "August", role = c("aut", "cre"), email = "tomaug@ceh.ac.uk"),
              person("Gary", "Powney", role = c("aut")),
              person("Charlie", "Outhwaite", role = c("aut")),
