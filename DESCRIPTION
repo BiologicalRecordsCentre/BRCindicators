@@ -1,13 +1,14 @@
 Package: BRCindicators
 Type: Package
-Title: Creating biodiversity indicators for species occurrence data
-Version: 1.4
+Title: Creating multispecies biodiversity indicators
+Version: 1.3.3
 Date: 2020-02-18
 Authors@R: c(person("Tom", "August", role = c("aut", "cre"), email = "tomaug@ceh.ac.uk"),
              person("Gary", "Powney", role = c("aut")),
              person("Charlie", "Outhwaite", role = c("aut")),
              person("Jack", "Hatfield", role = c("aut")),
              person("Mark", "Logie", role = c("aut")),
+             person("Stephen", "Freeman", role = c("aut")),
              person("Nick", "Isaac", role = c("aut")))
 Maintainer: Tom August <tomaug@ceh.ac.uk>
 Description: This package contains a number of functions used to create

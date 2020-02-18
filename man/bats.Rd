@@ -9,7 +9,7 @@
  \item{\code{"species"}} {The species' name (an abbreviation of the common name)}
  \item{\code{"year"}} {year to which the index value refers (integer)}
  \item{\code{"collated_index"}} {A national index of abundance. The time-series for each species is fixed to have a value of 100 in the second year of data.}
- \item{\code{"index"}} {A national index of abundance on the natural log scale.}
+ \item{\code{"index"}} {The national index of abundance on the natural log scale.}
  }}
 \source{
 \url{https://doi.org/10.1016/j.biocon.2014.11.022}

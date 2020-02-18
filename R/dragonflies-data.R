@@ -10,7 +10,8 @@
 #'  \item{\code{"species"}} {The species' name (Latin binomial)}
 #'  \item{\code{"year"}} {year to which the index value refers (integer)}
 #'  \item{\code{"occupancy"}} {A national index of occupancy, defined as the proportion of occupied 1 km grid cells.}
-#'  \item{\code{"index"}} {A national index of occupancy on the logit (log odds) scale.}
+#'  \item{\code{"index"}} {The national index of occupancy on the logit (log odds) scale.}
+
 #'  \item{\code{"se"}} {Standard deviation of the posterior distribution of logit occupancy}
 #'  \item{\code{"inAtlas"}} {Logical. Identifies the 38 the species was included in the 2014 Atlas of Dragonflies in Britain and Ireland.} 
 #'  }
