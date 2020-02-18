@@ -38,11 +38,6 @@ To create an indicator we first need to have species trends, let's create some u
 If you already have yearly estimates of abundance or occurrence for your species you can skip this stage. Here we show how you can create these estimates from raw species observation data using sparta.
 
 ```{r set_up, eval=FALSE}
-# Install the package from CRAN
-# THIS WILL WORK ONLY AFTER THE PACKAGE IS PUBLISHED
-install.packages('sparta')
-
-# Or install the development version from GitHub
 library(devtools)
 install_github('biologicalrecordscentre/sparta')
 ```
