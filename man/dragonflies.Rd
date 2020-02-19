@@ -10,8 +10,7 @@
  \item{\code{"year"}} {year to which the index value refers (integer)}
  \item{\code{"occupancy"}} {A national index of occupancy, defined as the proportion of occupied 1 km grid cells.}
  \item{\code{"index"}} {The national index of occupancy on the logit (log odds) scale.}
- \item{\code{"index"}} {A national index of occupancy on the logit (log odds) scale.}
- \item{\code{"se"}} {Standard deviation of the posterior distribution of logit occupancy}
+ \item{\code{"se"}} {Standard error of the posterior distribution of logit occupancy}
  \item{\code{"inAtlas"}} {Logical. Identifies the 38 the species was included in the 2014 Atlas of Dragonflies in Britain and Ireland.} 
  }}
 \source{
@@ -22,6 +21,7 @@ data(dragonflies)
 }
 \description{
 This dataset contains annual occupancy estimates for 45 species of dragonflies and damselflies in the UK, 1970-2015.
+There are 2039 rows: 44 species have an estimate for every year, but the Small red-eyed damselfly has no estimates prior to 2001 (the first year in which it was recorded in UK).
 The models are based on biological records data from the British Dragonfly Society.
 The data are derived from Bayesian occupancy detection models, described in Outhwaite et al (2019).
 }
