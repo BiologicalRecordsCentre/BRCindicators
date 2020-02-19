@@ -1,6 +1,7 @@
 #' @name bats
 #' @title Data - National Bat Monitoring Programme, UK
 #' @description This dataset from the National Bat Monitoring Programme, has national (UK) abundance indices for eight bat species from 1998-2014. For more information see Barlow et al (2015).
+#' There are 129 lines of data: six of the eight species have an abundance estimate for every year, but two species (Natterer's and Brown Long-eared) enter the series late.
 #' @docType data
 #' @usage data(bats)
 #' @format 
