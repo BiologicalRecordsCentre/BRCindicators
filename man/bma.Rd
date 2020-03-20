@@ -11,15 +11,17 @@ bma(
   parallel = FALSE,
   incl.model = TRUE,
   n.iter = 10000,
+  n.thin = 5,
   m.scale = "loge",
   num.knots = 12,
-  rescaleYr = 1,
   seFromData = FALSE,
   Y1perfect = TRUE,
   rescale_indices = NULL,
-  incl.2deriv = FALSE,
+  rescaleYr = 1,
+  baseline = 100,
+  errorY1 = FALSE,
   save.sppars = TRUE,
-  n.thin = 5,
+  incl.2deriv = FALSE,
   CI = 95
 )
 }
@@ -39,13 +41,12 @@ are available on the computer. NOTE: this will typically not work for parallel u
 \item{n.iter}{The number of iterations of the model to run. Defaults to 10,000 to avoid long run times
 though much longer runs are usually required to reach convergence}
 
+\item{n.thin}{Thinning rate for the Markov chains. Defaults to 5.}
+
 \item{m.scale}{The measurement scale of the data. The scale of the data is assumed to be logarithmic.
 Here you specify which log scale the data is on ('loge', 'log10', or 'logit'). Defaults to 'loge'.}
 
 \item{num.knots}{If using either of the smooth models this specifies the number of knots.}
-
-\item{rescaleYr}{Logical, should all iterations be scaled so that the first year is equal? If TRUE
-year one will have 0 error.}
 
 \item{seFromData}{Logical. Should the standard errors be read in from data (`TRUE`) or estimated (`FALSE`)?  Defaults to `FALSE`}
 
@@ -53,11 +54,15 @@ year one will have 0 error.}
 
 \item{rescale_indices}{Integer. A value for standardising each species time-series to start at a common value (e.g. 0). Defaults to NULL (i.e. no standardisation)}
 
-\item{incl.2deriv}{Logical. Option to include estimation of second derivatives on the indicator (`TRUE`)? Defaults to `FALSE`}
+\item{rescaleYr}{Integer. To which year should the indicator use as a reference value (i.e. baseline). Values greater than the number of years in the dataset will be set to the final year. Defaults to 1 (the first year)}
+
+\item{baseline}{Integer. What is the value of the indicator in the baseline year (defaults to 100)}
+
+\item{errorY1}{Logical. Should the indicator be presented with (`TRUE`) or without (`FALSE`) uncertainty in the baseline year. Defaults to `FALSE`.}
 
 \item{save.sppars}{Logical. Should the species-specific parameters be monitored? Defaults to TRUE}
 
-\item{n.thin}{Thinning rate for the Markov chains. Defaults to 5.}
+\item{incl.2deriv}{Logical. Option to include estimation of second derivatives on the indicator (`TRUE`)? Defaults to `FALSE`}
 
 \item{CI}{defines the credible intervals of the posterior distribution to report. Defaults the 95th percentile}
 }
