@@ -23,6 +23,7 @@
 #' @param incl.2deriv Logical. Option to include estimation of second derivatives on the indicator (`TRUE`)? Defaults to `FALSE` 
 #' @param save.sppars Logical. Should the species-specific parameters be monitored? Defaults to TRUE 
 #' @param CI defines the credible intervals of the posterior distribution to report. Defaults the 95th percentile
+#' @param seed Option to set a custom seed to initialize JAGS chains, for reproducibility. Should be an integer. This argument will be deprecated in the next version, but you can always set the outside the function yourself.
 #' @details There are a number of model to choose from:
 #' \itemize{
 #'  \item{\code{"smooth"}}{ The default option. Indicator defined by Growth rates, with Ruppert smoother, allowing for species to join late. Error on the first year of each species' time-series is assumed to be zero. The indicator is the expected value of the geometric mean across species (with missing species imputed). 
@@ -71,7 +72,8 @@ bma <- function (data,
                  errorY1 = FALSE,
                  save.sppars = TRUE,
                  incl.2deriv = FALSE,
-                 CI = 95){
+                 CI = 95,
+                 seed = NULL){
   
   # Check if jagsUI is installed
   if (!requireNamespace("jagsUI", quietly = TRUE)) {
@@ -212,7 +214,8 @@ bma <- function (data,
                             n.chains = 3,
                             n.thin = n.thin,
                             n.iter = n.iter,
-                            n.burnin = floor(n.iter/2))
+                            n.burnin = floor(n.iter/2),
+                            seed = seed)
   
   if (plot==TRUE) {
     array_sim <- model.out$samples
