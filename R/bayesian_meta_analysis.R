@@ -177,18 +177,16 @@ bma <- function (data,
   
   if(model %in% c('smooth', 'smooth_stoch2', 'FNgr2')){
     # using row.names should ensure the same order in the bugs data
-    FY <- sapply(row.names(index), FUN = function(x){
-      min(data$year[!is.na(data$index) & data$species == x])
-    })
-    bugs_data[['FY']] <- FY - min(FY) + 1 # set lowest value to 1
-    
+    #FY <- sapply(row.names(index), FUN = function(x){
+    #  min(data$year[!is.na(data$index) & data$species == x])
+    #})
+    #bugs_data[['FY']] <- FY - min(FY) + 1 # set lowest value to 1
+    bugs_data[['FY']] <- apply(index, 1, function(x) min(which(!is.na(x)))) # simpler alternative
   }
   
   # Setup parameters to monitor. NB Most of the model options have been deprecated, so much of this code is redundant
-  params = c("tau.spi")#, "sigma.obs")
+  params = c("tau.spi")
   if(model == 'smooth') params <- c(params, "Mprime")
-  #if(model %in% c('random_walk', 'uniform', 'uniform_noeta')) params <- c(params, "tau.eta")
-  #if(model %in% c('random_walk')) params <- c(params, "tau.I")
   if(model %in% c('smooth', 'smooth_stoch', 'smooth_det', 'FNgr',
                   'smooth_stoch2', 'FNgr2')) params <- c(params, "logLambda", "spgrowth", "M")
   if(model %in% c('smooth_stoch', 'smooth_det', 'FNgr')) params <- c(params, "tau.sg")
