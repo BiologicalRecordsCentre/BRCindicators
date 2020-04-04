@@ -22,7 +22,8 @@ bma(
   errorY1 = FALSE,
   save.sppars = TRUE,
   incl.2deriv = FALSE,
-  CI = 95
+  CI = 95,
+  seed = NULL
 )
 }
 \arguments{
@@ -65,6 +66,8 @@ Here you specify which log scale the data is on ('loge', 'log10', or 'logit'). D
 \item{incl.2deriv}{Logical. Option to include estimation of second derivatives on the indicator (`TRUE`)? Defaults to `FALSE`}
 
 \item{CI}{defines the credible intervals of the posterior distribution to report. Defaults the 95th percentile}
+
+\item{seed}{Option to set a custom seed to initialize JAGS chains, for reproducibility. Should be an integer. This argument will be deprecated in the next version, but you can always set the outside the function yourself.}
 }
 \value{
 Returns a dataframe with 4 columns: Year, Index, lower2.5, upper97.5. The last two columns are the credible intervals
@@ -79,7 +82,6 @@ There are a number of model to choose from:
  Includes three options: `seFromData` `Y1perfect` and `incl.2deriv`. See bayesian_meta_analysis for mode details. Using the default values `seFromData = FALSE` and `Y1perfect = TRUE` are the options used in Freeman  \emph{et al.} (2020).}
  \item{\code{"smooth_det2"}}{ Equivalent to smooth with `seFromData = TRUE` and `Y1perfect = FALSE`. Retained for backwards compatability. Choosing this option will overwrite user-entered options for `seFromData` and `Y1perfect`.}
  \item{\code{"smooth_det_sigtheta"}}{ Equivalent to smooth with `seFromData = FALSE` and `Y1perfect = FALSE`. Retained for backwards compatability. Choosing this option will overwrite user-entered options for `seFromData` and `Y1perfect`.}
- \item{\code{"smooth_det"}}{ Specific variant of smooth_det2 - under review. Likely to be deprecated}
  }
 }
 \examples{

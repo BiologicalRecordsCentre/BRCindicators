@@ -30,7 +30,6 @@
 #'  Includes three options: `seFromData` `Y1perfect` and `incl.2deriv`. See bayesian_meta_analysis for mode details. Using the default values `seFromData = FALSE` and `Y1perfect = TRUE` are the options used in Freeman  \emph{et al.} (2020).}
 #'  \item{\code{"smooth_det2"}}{ Equivalent to smooth with `seFromData = TRUE` and `Y1perfect = FALSE`. Retained for backwards compatability. Choosing this option will overwrite user-entered options for `seFromData` and `Y1perfect`.}
 #'  \item{\code{"smooth_det_sigtheta"}}{ Equivalent to smooth with `seFromData = FALSE` and `Y1perfect = FALSE`. Retained for backwards compatability. Choosing this option will overwrite user-entered options for `seFromData` and `Y1perfect`.}
-#'  \item{\code{"smooth_det"}}{ Specific variant of smooth_det2 - under review. Likely to be deprecated}
 #'  }
 #' @return Returns a dataframe with 4 columns: Year, Index, lower2.5, upper97.5. The last two columns are the credible intervals
 #' @import reshape2
@@ -106,10 +105,7 @@ bma <- function (data,
            model = "smooth"
            seFromData=FALSE
            Y1perfect = FALSE},
-         smooth_det = {
-           seFromData = TRUE
-           Y1perfect = FALSE
-         },
+         smooth_det = stop("smooth_det model has been deprecated"),
          random_walk = stop("Random walk model has been deprecated"),
          uniform = stop("Uniform model has been deprecated"),
          uniform_noeta = stop("Uniform model has been deprecated"),
@@ -196,6 +192,7 @@ bma <- function (data,
                   'smooth_stoch2', 'FNgr2')) params <- c(params, "logLambda", "spgrowth", "M")
   if(model %in% c('smooth_stoch', 'smooth_det', 'FNgr')) params <- c(params, "tau.sg")
   if(model %in% c('smooth', 'smooth_stoch', 'smooth_det','smooth_stoch2')) params <- c(params, "beta", "taub")
+  if(incl.2deriv) params <- c(params, "t2dash")
   if(!seFromData) params <- c(params, "theta")
   if(save.sppars) {
     params <- c(params, "spindex")

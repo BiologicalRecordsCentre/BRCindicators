@@ -13,7 +13,7 @@
 #'  Includes three options: `seFromData` `Y1perfect` and `incl.2deriv`. See bayesian_meta_analysis for mode details. Using the default values `seFromData = FALSE` and `Y1perfect = TRUE` are the options used in Freeman  \emph{et al.} (2020).}
 #'  \item{\code{"smooth_det2"}}{ Equivalent to smooth with `seFromData = TRUE` and `Y1perfect = FALSE`. Retained for backwards compatability. Choosing this option will overwrite user-entered options for `seFromData` and `Y1perfect`.}
 #'  \item{\code{"smooth_det_sigtheta"}}{ Equivalent to smooth with `seFromData = FALSE` and `Y1perfect = FALSE`. Retained for backwards compatability. Choosing this option will overwrite user-entered options for `seFromData` and `Y1perfect`.}
-#'  \item{\code{"smooth_det"}}{ Specific variant of smooth_det2 - under review. Likely to be deprecated}
+#'  \item{\code{"smooth_det"}}{ Specific variant of smooth_det2 - deprecated but retained here for backward compatibility}
 #'  }
 #' @export
 #' @examples
@@ -46,8 +46,8 @@ get_bmaBUGScode <- function(option="smooth",
                                                   incl.2deriv, 
                                                   seFromData=FALSE,
                                                   Y1perfect = FALSE)},
-         smooth_det = {model_code <- bma_model_smooth_det()},
          # Deprecated options can still be called directly from this function
+         smooth_det = {model_code <- bma_model_smooth_det()},
          random_walk = model_code <- bma_model_ranwalk(),
          uniform = model_code <- bma_model_uniform(),
          uniform_noeta = model_code <- bma_model_uniform_noeta(),

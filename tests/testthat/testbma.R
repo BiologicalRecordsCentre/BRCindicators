@@ -5,7 +5,7 @@ set.seed(123)
 # Create data for testing
 data <- data.frame(species = rep(letters, each = 50),
                    year = rep(1:50, length(letters)),
-                   index = rnorm(n = 50 * length(letters), mean = 0, sd = 1),
+                   index = rnorm(n = 50 * length(letters), mean = 0, sd = 1), # on the unbounded scale
                    se = runif(n = 50 * length(letters), min = 0.01, max = .1))
 temp <- tempfile()
 
@@ -95,19 +95,6 @@ test_that("degraded data", {
 
 test_that("model options", {
   
-  # bma_indicator_det <- bma(data,
-  #                      model = "smooth_det",
-  #                      m.scale = "logit",
-  #                      n.iter = 100,
-  #                      seed =  123)
-  # 
-  # # test a data frame is returned..
-  # expect_is(bma_indicator_det, 'data.frame') 
-  # # it has hte right elements ...
-  # expect_equal(names(bma_indicator_det),
-  #              c("Year", "Index.Mprime", "lowerCI.Mprime", "upperCI.Mprime", 
-  #                "Index.M", "lowerCI.M", "upperCI.M"))
-  
   set.seed(123)
   sink(temp)
   bma_indicator_smooth_det2 <- bma(data,
@@ -150,7 +137,7 @@ test_that("model options", {
   
   # test a data frame is returned..
   expect_is(bma_indicatorsmooth_det_sigtheta, 'data.frame')
-  # it has hte right elements ...
+  # it has the right elements ...
   expect_equal(names(bma_indicatorsmooth_det_sigtheta),
                c("Year", "Index.Mprime", "lowerCI.Mprime", "upperCI.Mprime",
                  "Index.M", "lowerCI.M", "upperCI.M"))
