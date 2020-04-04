@@ -146,7 +146,8 @@ bma <- function (data,
     # the user has specified that each species' time series should be scaled to start at a common value.
     # since the data are on the unbounded (log or logit) scale, we standardise them by addition/subtraction, rather than multiplication (as in rescale_species())
     # recall that rescale_indices has to be an integer
-    index <- t(apply(index, 1, function(x) rescale_indices + x - x[1]))
+    # without mising data this would be easy, but we have to identify the first year in each species' timeseries
+    index <- t(apply(index, 1, function(x) rescale_indices + x - x[min(which(!is.na(x)))]))
   }
     
   
