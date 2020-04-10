@@ -31,13 +31,15 @@
 #'  \item{\code{"smooth_det2"}}{ Equivalent to smooth with `seFromData = TRUE` and `Y1perfect = FALSE`. Retained for backwards compatability. Choosing this option will overwrite user-entered options for `seFromData` and `Y1perfect`.}
 #'  \item{\code{"smooth_det_sigtheta"}}{ Equivalent to smooth with `seFromData = FALSE` and `Y1perfect = FALSE`. Retained for backwards compatability. Choosing this option will overwrite user-entered options for `seFromData` and `Y1perfect`.}
 #'  }
-#' @return Returns a dataframe with 4 columns: Year, Index, lower2.5, upper97.5. The last two columns are the credible intervals
+#' @return Returns a dataframe with 7 columns: Year, Index.Mprime, lowerCI.Mprime, upperCI.Mprime, Index.M, lowerCI.M and, upperCI.M. 
+#' Columns headed `M` and `Mprime` are means of the M and M' parameters  as defined in Freeman et al (2020). The 'upper' and 'lower' columns are the credible intervals, the width of which is defined by the `CI` argument.
+#' Note that M and M' are alternate ways of calculating the multispecies indicator: their means are nearly always virtually identical, but the uncertainty in M is usually much wider than in M'. See Freeman et al (2020) for more details.
 #' @import reshape2
 #' @importFrom boot inv.logit
 #' @importFrom coda mcmc.list as.mcmc
-#' @references Freeman, S.N., Isaac, N.J.B., Besbeas, P.T., Dennis, E.B. & Morgan, B.J.T. (2019) 
+#' @references Freeman, S.N., Isaac, N.J.B., Besbeas, P.T., Dennis, E.B. & Morgan, B.J.T. (2020) 
 #'             A generic method for estimating and smoothing multispecies biodiversity indices, robust to intermittent data. 
-#'             \emph{JABES}, in revision.
+#'             \emph{Journal of Agricultural Biological and Environmental Statistics}, in revision.
 #' @export
 #' @examples 
 #' # Create some example data in the format required

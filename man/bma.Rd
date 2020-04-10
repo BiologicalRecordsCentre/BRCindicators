@@ -70,7 +70,9 @@ Here you specify which log scale the data is on ('loge', 'log10', or 'logit'). D
 \item{seed}{Option to set a custom seed to initialize JAGS chains, for reproducibility. Should be an integer. This argument will be deprecated in the next version, but you can always set the outside the function yourself.}
 }
 \value{
-Returns a dataframe with 4 columns: Year, Index, lower2.5, upper97.5. The last two columns are the credible intervals
+Returns a dataframe with 7 columns: Year, Index.Mprime, lowerCI.Mprime, upperCI.Mprime, Index.M, lowerCI.M and, upperCI.M. 
+Columns headed `M` and `Mprime` are means of the M and M' parameters  as defined in Freeman et al (2020). The 'upper' and 'lower' columns are the credible intervals, the width of which is defined by the `CI` argument.
+Note that M and M' are alternate ways of calculating the multispecies indicator: their means are nearly always virtually identical, but the uncertainty in M is usually much wider than in M'. See Freeman et al (2020) for more details.
 }
 \description{
 Use a Bayesian meta-analysis to create an indicator from species index values, optionally incorporating standard error.
@@ -99,7 +101,7 @@ plot_indicator(indicator = bma_indicator[,'Index.Mprime'],
                CIs = bma_indicator[,c(3,4)])
 }
 \references{
-Freeman, S.N., Isaac, N.J.B., Besbeas, P.T., Dennis, E.B. & Morgan, B.J.T. (2019) 
+Freeman, S.N., Isaac, N.J.B., Besbeas, P.T., Dennis, E.B. & Morgan, B.J.T. (2020) 
             A generic method for estimating and smoothing multispecies biodiversity indices, robust to intermittent data. 
-            \emph{JABES}, in revision.
+            \emph{Journal of Agricultural Biological and Environmental Statistics}, in revision.
 }
