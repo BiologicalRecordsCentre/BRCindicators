@@ -4,7 +4,8 @@
 \name{dragonflies}
 \alias{dragonflies}
 \title{Data - British Dragonfly Society, UK}
-\format{There are six columns of data:
+\format{
+There are six columns of data:
 \itemize{
  \item{\code{"species"}} {The species' name (Latin binomial)}
  \item{\code{"year"}} {year to which the index value refers (integer)}
@@ -12,7 +13,8 @@
  \item{\code{"index"}} {The national index of occupancy on the logit (log odds) scale.}
  \item{\code{"se"}} {Standard error of the posterior distribution of logit occupancy}
  \item{\code{"inAtlas"}} {Logical. Identifies the 38 the species was included in the 2014 Atlas of Dragonflies in Britain and Ireland.} 
- }}
+ }
+}
 \source{
 \url{https://doi.org/10.1038/s41597-019-0269-1}
 }
