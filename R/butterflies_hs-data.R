@@ -1,6 +1,7 @@
 #' @name butterflies_hs
 #' @title Data - UK Butterfly Monitoring Scheme - Habitat Specialists
 #' @description This dataset from the UK Butterfly Monitoring Scheme has national abundance indices for 26 species regarded as habitat specialists from 1976-2017.
+#' There are 1000 rows of data. Ten species have a complete time-series (42 years of data); 15 species join late (9 in the 1970s, 3 in the 1980s and 3 in the 1990s); the Swallowtail (Papilio machaon) spans the full range of years but has no data for 1978.
 #' @docType data
 #' @format 
 #' There are four columns of data:
