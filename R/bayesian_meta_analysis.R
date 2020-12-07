@@ -6,7 +6,8 @@
 #' @param plot Logical, should a trace plot be plotted to diagnose the model output?
 #' @param model The type of model to be used. See details.
 #' @param parallel if \code{TRUE} the model chains will be run in parallel using one fewer cores than
-#' are available on the computer. NOTE: this will typically not work for parallel use on cluster PCs.
+#' are available on the computer as default. NOTE: this will typically not work for parallel use on cluster PCs.
+#' @param n.cores if running the code in parallel this option specifies the number of cores to use. 
 #' @param incl.model if \code{TRUE} the model is added as an attribute of the object returned
 #' @param n.iter The number of iterations of the model to run. Defaults to 10,000 to avoid long run times
 #' though much longer runs are usually required to reach convergence
@@ -60,6 +61,7 @@ bma <- function (data,
                  plot = TRUE,
                  model = 'smooth',
                  parallel = FALSE,
+                 n.cores = parallel::detectCores()-1,
                  incl.model = TRUE,
                  n.iter = 1e4,
                  n.thin = 5,
@@ -206,7 +208,7 @@ bma <- function (data,
                             inits = NULL,
                             param = params,
                             parallel = parallel,
-                            n.cores = parallel::detectCores()-1,
+                            n.cores = n.cores,
                             model.file = bugs_path,
                             store.data = TRUE,
                             n.chains = 3,
