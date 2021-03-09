@@ -9,6 +9,7 @@ bma(
   plot = TRUE,
   model = "smooth",
   parallel = FALSE,
+  n.cores = parallel::detectCores() - 1,
   incl.model = TRUE,
   n.iter = 10000,
   n.thin = 5,
@@ -35,7 +36,9 @@ NB: Index values are assumed to be on the unbounded (logarithmic scale)}
 \item{model}{The type of model to be used. See details.}
 
 \item{parallel}{if \code{TRUE} the model chains will be run in parallel using one fewer cores than
-are available on the computer. NOTE: this will typically not work for parallel use on cluster PCs.}
+are available on the computer as default. NOTE: this will typically not work for parallel use on cluster PCs.}
+
+\item{n.cores}{if running the code in parallel this option specifies the number of cores to use.}
 
 \item{incl.model}{if \code{TRUE} the model is added as an attribute of the object returned}
 
