@@ -17,8 +17,7 @@ test_that("simple run", {
   bma_indicator <- bma(data,
                        model = "smooth",
                        m.scale = "logit",
-                       n.iter = 100,
-                       seed = 123)
+                       n.iter = 100)
   sink()
   # test a data frame is returned..
   expect_is(bma_indicator, 'data.frame') 
@@ -81,11 +80,11 @@ test_that("degraded data", {
   data2 <- data2[1:(nrow(data2)-1),]
   
   sink(temp)
+  set.seed(123)
   bma_indicator <- bma(data2,
                        model = "smooth",
                        m.scale = "logit",
-                       n.iter = 100,
-                       seed = 123)
+                       n.iter = 100)
   sink()
   
   expect_is(bma_indicator, 'data.frame')
@@ -95,11 +94,11 @@ test_that("degraded data", {
 
 test_that("model options", {
   
+  # set.seed(123)
   # bma_indicator_det <- bma(data,
   #                      model = "smooth_det",
   #                      m.scale = "logit",
-  #                      n.iter = 100,
-  #                      seed =  123)
+  #                      n.iter = 100)
   # 
   # # test a data frame is returned..
   # expect_is(bma_indicator_det, 'data.frame') 
@@ -108,13 +107,12 @@ test_that("model options", {
   #              c("Year", "Index.Mprime", "lowerCI.Mprime", "upperCI.Mprime", 
   #                "Index.M", "lowerCI.M", "upperCI.M"))
   
-  set.seed(123)
   sink(temp)
+  set.seed(123)
   bma_indicator_smooth_det2 <- bma(data,
                        model = "smooth_det2",
                        m.scale = "logit",
-                       n.iter = 100,
-                       seed = 123)
+                       n.iter = 100)
   sink()
   
   # test a data frame is returned..
@@ -138,14 +136,12 @@ test_that("model options", {
                  126.238820288326, 128.289739888977, 129.315919102855, 129.111127561621, 
                  127.494892855453))
   
-  set.seed(123)
-  
   sink(temp)
+  set.seed(123)
   bma_indicatorsmooth_det_sigtheta <- bma(data,
                        model = "smooth_det_sigtheta",
                        m.scale = "logit",
-                       n.iter = 100,
-                       seed = 123)
+                       n.iter = 100)
   sink()
   
   # test a data frame is returned..
@@ -180,7 +176,6 @@ test_that("different parameters", {
                                model = "smooth",
                                m.scale = "logit",
                                n.iter = 100,
-                               seed = 123, 
                                seFromData = TRUE,
                                rescale_indices = 2,
                                rescaleYr = 5,
@@ -199,8 +194,7 @@ test_that("different parameters", {
   bma_indicator_params2 <- bma(data,
                                model = "smooth",
                                m.scale = "logit",
-                               n.iter = 100,
-                               seed = 123, 
+                               n.iter = 100, 
                                Y1perfect = FALSE)
   sink()
   expect_is(bma_indicator_params2, 'data.frame')
