@@ -4,13 +4,15 @@
 \name{butterflies_wc}
 \alias{butterflies_wc}
 \title{Data - UK Butterfly Monitoring Scheme - Wider Countryside Species}
-\format{There are four columns of data:
+\format{
+There are four columns of data:
 \itemize{
  \item{\code{"species"}} {The species' name (Latin binomial)}
  \item{\code{"year"}} {The year to which the index value refers (integer)}
  \item{\code{"collated_index"}} {A "collated" index of abundance on the log10 scale. The time-series for each species is fixed to have a mean of exactly 2. Since 10^2 = 100, the time-series are centered on a value of 100.}
  \item{\code{"se"}} {standard errors on the index value (on the log10 scale), as estimated by the underlying statistical model.}
- }}
+ }
+}
 \source{
 \url{https://catalogue.ceh.ac.uk/documents/ace3c3ef-df89-40b9-ba8b-106997fd6d9c}
 }
@@ -19,6 +21,7 @@ data(butterflies_wc)
 }
 \description{
 This dataset from the UK Butterfly Monitoring Scheme has national abundance indices for 24 species regarded as wider countryside species from 1976-2017.
+There are 1005 lines of data, reflecting late entry into the time series for the Scotch Argus (Erebia aethops). Time-series for the other 23 species are complete.
 }
 \examples{
 data(butterflies_wc)

@@ -42,7 +42,7 @@
 ################################################################################
 
 smoothing <- function() {'
-    ######################### Smoothing done here   #######################
+    ######################### Smoothing #######################
 
     beta[1] ~ dnorm(0, 0.000001)
     beta[2] ~ dnorm(0, 0.000001)
@@ -84,20 +84,20 @@ bma_model_Smooth <- function(incl.2deriv = FALSE,
     process_errors <- '
   # process errors
   tau.spi <- pow(sigma.spi,-2)
-  sigma.spi ~ dunif(0,30)'
+  sigma.spi ~ dunif(0.0001,30)'
     
     if(seFromData){
       obsErrors <- '
   # observation errors: one value per site-species
   for (s in 1:nsp){
    for (t in 1:nyears){
-    sigma.obs[s,t] ~ dunif(0, max_se) # for the missing values
+    sigma.obs[s,t] ~ dunif(0.0001, max_se) # for the missing values
   }}
     '
     } else {
       obsErrors <- '
   # observation error is constant
-  theta ~ dunif(0,10)'
+  theta ~ dunif(0.0001,10)'
     }
     
     return(paste(c(
@@ -175,6 +175,7 @@ bma_model_Smooth <- function(incl.2deriv = FALSE,
     #########################  second derivatives #######################
   
   I <- M
+  t2dash[1] <- 0
   t2dash[2] <- (I[2+1] - 2*I[2] + I[2-1])/1
   t2dash[nyears-1] <- (I[nyears] - 2*I[nyears-1] + I[nyears-2])/1
   t2dash[3] <- (-I[5]+16*I[4]-30*I[3]+16*I[2]-I[1] )/12
@@ -201,8 +202,9 @@ bma_model_Smooth <- function(incl.2deriv = FALSE,
 
 
 ################################################################################
-
-# OPTIONS UNDER REVIEW
+################################################################################
+# BEGIN DEPRECATED OPTIONS
+################################################################################
 
 bma_model_smooth_det <- function(){
   # Indicator defined by Growth rates, with Ruppert smoother (deterministic version)
@@ -210,12 +212,15 @@ bma_model_smooth_det <- function(){
   # Also known as "smooth_indicator_1" in Steve's email of 2/11/17
   # this version takes standard errors on year 1 estimates. 
   # If actually zero then the model invents them (this is a fudge)
-
+  # THIS VERSION CONTAINS AN ERROR - to fix
+   
   model <- '
   ###################  Define priors
   # process errors
-  tau.spi<-pow(sigma.spi,-2)
-  sigma.spi~dunif(0,30)
+  tau.spi <- pow(sigma.spi,-2)
+  sigma.spi ~ dunif(0,30)
+  tau.sg <- pow(sigma.sg,-2)
+  sigma.sg ~ dunif(0,1000)
 
   # observation errors
   # one value per site-species
@@ -266,12 +271,6 @@ bma_model_smooth_det <- function(){
   return(model)
 }
 
-
-
-
-################################################################################
-################################################################################
-# BEGIN DEPRECATED OPTIONS
 ################################################################################
 
 bma_model_FNgr2 <- function(){

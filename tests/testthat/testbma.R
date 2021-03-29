@@ -5,7 +5,7 @@ set.seed(123)
 # Create data for testing
 data <- data.frame(species = rep(letters, each = 50),
                    year = rep(1:50, length(letters)),
-                   index = rnorm(n = 50 * length(letters), mean = 0, sd = 1),
+                   index = rnorm(n = 50 * length(letters), mean = 0, sd = 1), # on the unbounded scale
                    se = runif(n = 50 * length(letters), min = 0.01, max = .1))
 temp <- tempfile()
 
@@ -107,7 +107,7 @@ test_that("model options", {
   # expect_equal(names(bma_indicator_det),
   #              c("Year", "Index.Mprime", "lowerCI.Mprime", "upperCI.Mprime", 
   #                "Index.M", "lowerCI.M", "upperCI.M"))
-  
+
   sink(temp)
   bma_indicator_smooth_det2 <- bma(data,
                        model = "smooth_det2",

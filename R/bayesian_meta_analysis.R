@@ -6,7 +6,8 @@
 #' @param plot Logical, should a trace plot be plotted to diagnose the model output?
 #' @param model The type of model to be used. See details.
 #' @param parallel if \code{TRUE} the model chains will be run in parallel using one fewer cores than
-#' are available on the computer. NOTE: this will typically not work for parallel use on cluster PCs.
+#' are available on the computer as default. NOTE: this will typically not work for parallel use on cluster PCs.
+#' @param n.cores if running the code in parallel this option specifies the number of cores to use. 
 #' @param incl.model if \code{TRUE} the model is added as an attribute of the object returned
 #' @param n.iter The number of iterations of the model to run. Defaults to 10,000 to avoid long run times
 #' though much longer runs are usually required to reach convergence
@@ -30,15 +31,16 @@
 #'  Includes three options: `seFromData` `Y1perfect` and `incl.2deriv`. See bayesian_meta_analysis for mode details. Using the default values `seFromData = FALSE` and `Y1perfect = TRUE` are the options used in Freeman  \emph{et al.} (2020).}
 #'  \item{\code{"smooth_det2"}}{ Equivalent to smooth with `seFromData = TRUE` and `Y1perfect = FALSE`. Retained for backwards compatability. Choosing this option will overwrite user-entered options for `seFromData` and `Y1perfect`.}
 #'  \item{\code{"smooth_det_sigtheta"}}{ Equivalent to smooth with `seFromData = FALSE` and `Y1perfect = FALSE`. Retained for backwards compatability. Choosing this option will overwrite user-entered options for `seFromData` and `Y1perfect`.}
-#'  \item{\code{"smooth_det"}}{ Specific variant of smooth_det2 - under review. Likely to be deprecated}
 #'  }
-#' @return Returns a dataframe with 4 columns: Year, Index, lower2.5, upper97.5. The last two columns are the credible intervals
+#' @return Returns a dataframe with 7 columns: Year, Index.Mprime, lowerCI.Mprime, upperCI.Mprime, Index.M, lowerCI.M and, upperCI.M. 
+#' Columns headed `M` and `Mprime` are means of the M and M' parameters  as defined in Freeman et al (2020). The 'upper' and 'lower' columns are the credible intervals, the width of which is defined by the `CI` argument.
+#' Note that M and M' are alternate ways of calculating the multispecies indicator: their means are nearly always virtually identical, but the uncertainty in M is usually much wider than in M'. See Freeman et al (2020) for more details.
 #' @import reshape2
 #' @importFrom boot inv.logit
 #' @importFrom coda mcmc.list as.mcmc
-#' @references Freeman, S.N., Isaac, N.J.B., Besbeas, P.T., Dennis, E.B. & Morgan, B.J.T. (2019) 
+#' @references Freeman, S.N., Isaac, N.J.B., Besbeas, P.T., Dennis, E.B. & Morgan, B.J.T. (2020) 
 #'             A generic method for estimating and smoothing multispecies biodiversity indices, robust to intermittent data. 
-#'             \emph{JABES}, in revision.
+#'             \emph{Journal of Agricultural Biological and Environmental Statistics}, in revision.
 #' @export
 #' @examples 
 #' # Create some example data in the format required
@@ -59,6 +61,7 @@ bma <- function (data,
                  plot = TRUE,
                  model = 'smooth',
                  parallel = FALSE,
+                 n.cores = parallel::detectCores()-1,
                  incl.model = TRUE,
                  n.iter = 1e4,
                  n.thin = 5,
@@ -108,10 +111,7 @@ bma <- function (data,
            model = "smooth"
            seFromData=FALSE
            Y1perfect = FALSE},
-         smooth_det = {
-           seFromData = TRUE
-           Y1perfect = FALSE
-         },
+         smooth_det = stop("smooth_det model has been deprecated"),
          random_walk = stop("Random walk model has been deprecated"),
          uniform = stop("Uniform model has been deprecated"),
          uniform_noeta = stop("Uniform model has been deprecated"),
@@ -152,7 +152,8 @@ bma <- function (data,
     # the user has specified that each species' time series should be scaled to start at a common value.
     # since the data are on the unbounded (log or logit) scale, we standardise them by addition/subtraction, rather than multiplication (as in rescale_species())
     # recall that rescale_indices has to be an integer
-    index <- t(apply(index, 1, function(x) rescale_indices + x - x[1]))
+    # without mising data this would be easy, but we have to identify the first year in each species' timeseries
+    index <- t(apply(index, 1, function(x) rescale_indices + x - x[min(which(!is.na(x)))]))
   }
     
   
@@ -182,22 +183,21 @@ bma <- function (data,
   
   if(model %in% c('smooth', 'smooth_stoch2', 'FNgr2')){
     # using row.names should ensure the same order in the bugs data
-    FY <- sapply(row.names(index), FUN = function(x){
-      min(data$year[!is.na(data$index) & data$species == x])
-    })
-    bugs_data[['FY']] <- FY - min(FY) + 1 # set lowest value to 1
-    
+    #FY <- sapply(row.names(index), FUN = function(x){
+    #  min(data$year[!is.na(data$index) & data$species == x])
+    #})
+    #bugs_data[['FY']] <- FY - min(FY) + 1 # set lowest value to 1
+    bugs_data[['FY']] <- apply(index, 1, function(x) min(which(!is.na(x)))) # simpler alternative
   }
   
   # Setup parameters to monitor. NB Most of the model options have been deprecated, so much of this code is redundant
-  params = c("tau.spi")#, "sigma.obs")
+  params = c("tau.spi")
   if(model == 'smooth') params <- c(params, "Mprime")
-  #if(model %in% c('random_walk', 'uniform', 'uniform_noeta')) params <- c(params, "tau.eta")
-  #if(model %in% c('random_walk')) params <- c(params, "tau.I")
   if(model %in% c('smooth', 'smooth_stoch', 'smooth_det', 'FNgr',
                   'smooth_stoch2', 'FNgr2')) params <- c(params, "logLambda", "spgrowth", "M")
   if(model %in% c('smooth_stoch', 'smooth_det', 'FNgr')) params <- c(params, "tau.sg")
   if(model %in% c('smooth', 'smooth_stoch', 'smooth_det','smooth_stoch2')) params <- c(params, "beta", "taub")
+  if(incl.2deriv) params <- c(params, "t2dash")
   if(!seFromData) params <- c(params, "theta")
   if(save.sppars) {
     params <- c(params, "spindex")
@@ -211,7 +211,7 @@ bma <- function (data,
                             inits = NULL,
                             param = params,
                             parallel = parallel,
-                            n.cores = parallel::detectCores()-1,
+                            n.cores = n.cores,
                             model.file = bugs_path,
                             store.data = TRUE,
                             n.chains = 3,
