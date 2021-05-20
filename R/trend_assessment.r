@@ -69,7 +69,6 @@ trend_assessment <- function(dat,
                                     plot = FALSE)
     
     ind_assessment <- indicator_assessment(summary_table = dat$summary,
-                                           method = method,
                                            start_year = start_year,
                                            end_year = end_year)
     
@@ -90,7 +89,6 @@ trend_assessment <- function(dat,
                                     plot = FALSE)
     
     ind_assessment <- indicator_assessment(summary_table = dat,
-                                           method = method,
                                            start_year = start_year,
                                            end_year = end_year)
     
