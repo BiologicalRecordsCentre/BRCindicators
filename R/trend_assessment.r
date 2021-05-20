@@ -47,7 +47,7 @@
 #' trend_assessment(myIndicator)
 
 trend_assessment <- function(dat,
-                             method,
+                             method = "lambda",
                              start_year,
                              end_year,
                              species_stat = 'mean'){
