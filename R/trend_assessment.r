@@ -1,11 +1,12 @@
 #' Assess trends for indicator
 #' 
-#' @description  This assessment covers both the indicator and the constituant species.
+#' @description  This assessment covers both the indicator and the constituent species.
 #' An assessment is made of the indicator over the time period given, examining whether
-#' the initial indicator value falls within the credibal inverval of the final year.
+#' the initial indicator value falls within the credible interval of the final year.
 #' Over the same time period the change in each species is assessed and reported.
 #' 
-#' @param lambda_output An object returned by lambda_interpolation
+#' @param dat An object returned by lambda_interpolation or bma
+#' @param method Which indicator method was used to produce the data. One of "lambda" or "bma".
 #' @param start_year (Optional) a numeric value, defaults to the first year
 #' @param end_year (Optional) a numeric value, defaults to the last year
 #' @param species_stat (Optional) character, the statistic used to average across a species
@@ -45,22 +46,57 @@
 #' # Plot the trend stack
 #' trend_assessment(myIndicator)
 
-trend_assessment <- function(lambda_output,
-                             start_year = min(lambda_output$summary$year),
-                             end_year = max(lambda_output$summary$year),
+trend_assessment <- function(dat,
+                             method,
+                             start_year,
+                             end_year,
                              species_stat = 'mean'){
   
-  sp_assess <- species_assessment(LogLambda = lambda_output$LogLambda,
-                                  start_year = start_year + 1,
-                                  end_year = end_year,
-                                  species_stat = species_stat,
-                                  plot = TRUE)
+  # Sense check
+  if(!method %in% c("lambda", "bma")) stop("Method must be one of 'lambda' or 'bma'")
   
-  ind_assessment <- indicator_assessment(summary_table = lambda_output$summary,
-                                         start_year = start_year,
-                                         end_year = end_year)
-  
-  return(list(species_assessment = sp_assess,
-              indicator_asssessment = ind_assessment))
+  if(method == "lambda") {
+    
+    # lambda method
+    start_year <- min(dat$summary$year)
+    end_year <- max(dat$summary$year)
+    
+    sp_assess <- species_assessment(dat = dat$LogLambda,
+                                    method = method,
+                                    start_year = start_year + 1,
+                                    end_year = end_year,
+                                    species_stat = species_stat,
+                                    plot = FALSE)
+    
+    ind_assessment <- indicator_assessment(summary_table = dat$summary,
+                                           method = method,
+                                           start_year = start_year,
+                                           end_year = end_year)
+    
+    return(list(species_assessment = sp_assess,
+                indicator_asssessment = ind_assessment))
+    
+  } else {
+    
+    # bma method
+    start_year <- min(dat$year)
+    end_year <- max(dat$year)
+    
+    sp_assess <- species_assessment(dat = dat,
+                                    method = method,
+                                    start_year = start_year,
+                                    end_year = end_year,
+                                    species_stat = species_stat,
+                                    plot = FALSE)
+    
+    ind_assessment <- indicator_assessment(summary_table = dat,
+                                           method = method,
+                                           start_year = start_year,
+                                           end_year = end_year)
+    
+    return(list(species_assessment = sp_assess,
+                indicator_asssessment = ind_assessment))
+    
+  }
   
 }
