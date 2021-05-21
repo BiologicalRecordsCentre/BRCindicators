@@ -48,8 +48,8 @@
 
 trend_assessment <- function(dat,
                              method = "lambda",
-                             start_year,
-                             end_year,
+                             start_year = NULL,
+                             end_year = NULL,
                              species_stat = 'mean'){
   
   # Sense check
@@ -58,8 +58,8 @@ trend_assessment <- function(dat,
   if(method == "lambda") {
     
     # lambda method
-    start_year <- min(dat$summary$year)
-    end_year <- max(dat$summary$year)
+    if(is.null(start_year)) start_year <- min(dat$summary$year)
+    if(is.null(end_year)) end_year <- max(dat$summary$year)
     
     sp_assess <- species_assessment(dat = dat$LogLambda,
                                     method = method,
@@ -78,8 +78,8 @@ trend_assessment <- function(dat,
   } else {
     
     # bma method
-    start_year <- min(dat$year)
-    end_year <- max(dat$year)
+    if(is.null(start_year)) start_year <- min(dat$year)
+    if(is.null(end_year)) end_year <- max(dat$year)
     
     sp_assess <- species_assessment(dat = dat,
                                     method = method,
