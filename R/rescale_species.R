@@ -30,7 +30,7 @@ rescale_species <-  function(Data, index = 100, max = 10000,
       stop("names in weights don't match species names in data")
     else if(any(weights$weight < 0) | any(is.na(weights$weight)))
       stop("weights include negative or NA values")
-    else wt <- weights$weight
+    else wt <- weights$weight/mean(weights$weight[weights$weight<0]) # scale to mean of 1, ignoring zeros
   } else wt <- rep(1, dim(Data)[2]-1)
   
   # weighted geomean function
