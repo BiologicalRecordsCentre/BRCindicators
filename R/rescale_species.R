@@ -26,7 +26,7 @@ rescale_species <-  function(Data, index = 100, max = 10000,
   
   if(!is.null(weights)) {
     # first check the species names match up & weights don't have negative numbers or NAs
-    if(!all(indicator_scaled(gr)[[2]] == weights$Species)) 
+    if(!all(dimnames(Data)[[2]][-1] == weights$Species)) 
       stop("names in weights don't match species names in data")
     else if(any(weights$weight < 0) | any(is.na(weights$weight)))
       stop("weights include negative or NA values")
