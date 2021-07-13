@@ -138,7 +138,7 @@ rescale_species <-  function(Data, index = 100, max = 10000,
   indicator_scaled <- cbind(temp_indicator_scaled, indicator)
   
   # Format the columns
-  colnames(indicator_scaled)[ncol(indicator_scaled)] <- "indcator"
+  colnames(indicator_scaled)[ncol(indicator_scaled)] <- "indicator"
   indicator_scaled <- cbind(Data[, "year"], indicator_scaled)
   colnames(indicator_scaled)[1] <- "year"
   
