@@ -1,7 +1,7 @@
 # BRCindicators
 
   <!-- badges: start -->
-  [![Travis build status](https://travis-ci.org/BiologicalRecordsCentre/BRCindicators.svg?branch=master)](https://travis-ci.org/BiologicalRecordsCentre/BRCindicators)
+  [![Travis build status](https://travis-ci.com/BiologicalRecordsCentre/BRCindicators.svg?branch=master)](https://travis-ci.com/BiologicalRecordsCentre/BRCindicators)
   [![Codecov test coverage](https://codecov.io/gh/biologicalrecordscentre/BRCindicators/branch/master/graph/badge.svg)](https://codecov.io/gh/biologicalrecordscentre/BRCindicators?branch=master)
   <!-- badges: end -->
 
