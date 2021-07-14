@@ -1,7 +1,7 @@
 #' @name dragonflies
 #' @title Data - British Dragonfly Society, UK
 #' @description This dataset contains annual occupancy estimates for 45 species of dragonflies and damselflies in the UK, 1970-2015.
-#' There are 2039 rows: 44 species have an estimate for every year, but the Small red-eyed damselfly has no estimates prior to 2001 (the first year in which it was recorded in UK).
+#' There are 2039 rows: 44 species have an estimate for every year, but the Small red-eyed damselfly (Erythromma viridulum) has no estimates prior to 2001 (the first year in which it was recorded in UK).
 #' The models are based on biological records data from the British Dragonfly Society.
 #' The data are derived from Bayesian occupancy detection models, described in Outhwaite et al (2019).
 #' @usage data(dragonflies)

@@ -21,6 +21,7 @@ data(butterflies_wc)
 }
 \description{
 This dataset from the UK Butterfly Monitoring Scheme has national abundance indices for 24 species regarded as wider countryside species from 1976-2017.
+There are 1005 lines of data, reflecting late entry into the time series for the Scotch Argus (Erebia aethops). Time-series for the other 23 species are complete.
 }
 \examples{
 data(butterflies_wc)

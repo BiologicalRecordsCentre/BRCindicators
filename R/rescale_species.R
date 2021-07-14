@@ -13,14 +13,28 @@
 #'        this will be set equal to \code{max}.
 #' @param min The upper limit allowed for scaled values. Values greater than 
 #'        this will be set equal to \code{min}.
+#' @param weights an optional dataframe of weights for the species when calculating the geometric mean.
+#'        Must contain species names in first column and a weight in the second column. 
+#'        Returns an error if not all species are included.      
 #' @return A matrix. In each row we have the year, the species and the
 #'         scaled value. There is also an additional column, 'geomean' giving
 #'         the geometric mean for each year.
 #' @export
 
 rescale_species <-  function(Data, index = 100, max = 10000,
-                             min = 1){
-  geomean <- function(x) exp(mean(log(x), na.rm = T))
+                             min = 1, weights=NULL){
+  
+  if(!is.null(weights)) {
+    # first check the species names match up & weights don't have negative numbers or NAs
+    if(!all(dimnames(Data)[[2]][-1] == weights$Species)) 
+      stop("names in weights don't match species names in data")
+    else if(any(weights$weight < 0) | any(is.na(weights$weight)))
+      stop("weights include negative or NA values")
+    else wt <- weights$weight/mean(weights$weight[weights$weight>0]) # scale to mean of 1, ignoring zeros
+  } else wt <- rep(1, dim(Data)[2]-1)
+  
+  # weighted geomean function
+  geomean <- function(x) exp(mean(log(x)*wt, na.rm = T))
   
   if(!inherits(Data, 'matrix')){
     if(inherits(Data, 'data.frame')){
@@ -30,11 +44,15 @@ rescale_species <-  function(Data, index = 100, max = 10000,
     }
   } 
   
-  # Get the multipliers neede to achieved the index value
-  multipliers <- index / Data[1,2:ncol(Data)] 
+  # Get the multipliers needed to achieve the index value. 
+  #multipliers <- as.numeric(index / Data[1,2:ncol(Data)])
+  # change to scaling by 1, so that starting value is zero on log scale. This makes it easy to weight.
+  # This is the value in the first NA year
+  multipliers <- 1 / apply(Data[,2:ncol(Data)], 2, function(x) x[!is.na(x)][1])
   
-  # Apply these multipliers
-  indicator_scaled <- t(t(Data[,2:ncol(Data)]) * multipliers)
+  # Apply these multipliers to scale the data
+  #indicator_scaled <- t(t(Data[,2:ncol(Data)]) * multipliers) # returns only a vector, not 2D data
+  indicator_scaled <- t(apply(Data[,2:ncol(Data)], 1, function(x) x * multipliers))
 
   # Make values over max == max, and < min == min
   indicator_scaled[indicator_scaled < min & !is.na(indicator_scaled)] <- min
@@ -59,7 +77,7 @@ rescale_species <-  function(Data, index = 100, max = 10000,
   if(length(NAtop) > 1) NAtop <- names(sort(apply(X = Data[,NAtop], MARGIN = 2, FUN = firstYear)))
   
   if(length(NAtop) > 0){
-    # Deal with ones at the beggining first
+    # Deal with ones at the begining first
     for(i in 1:length(NAtop)){# Create a column of T/F if NA or not
       
       # Create a temporary dataframe for this species
@@ -113,8 +131,11 @@ rescale_species <-  function(Data, index = 100, max = 10000,
                             MARGIN = 2, FUN = fillTailNAs)
 
   
-  # Recalculate geomean and bind to the species indicies
-  indicator_scaled <- cbind(temp_indicator_scaled, apply(X = temp_indicator_scaled, MARGIN = 1, FUN = geomean))
+  # Recalculate geomean
+  indicator <- index * apply(X = temp_indicator_scaled, MARGIN = 1, FUN = geomean)
+  
+  # bind to the species indicies
+  indicator_scaled <- cbind(temp_indicator_scaled, indicator)
   
   # Format the columns
   colnames(indicator_scaled)[ncol(indicator_scaled)] <- "indicator"
