@@ -84,20 +84,20 @@ bma_model_Smooth <- function(incl.2deriv = FALSE,
     process_errors <- '
   # process errors
   tau.spi <- pow(sigma.spi,-2)
-  sigma.spi ~ dunif(0,30)'
+  sigma.spi ~ dunif(0.0001,30)'
     
     if(seFromData){
       obsErrors <- '
   # observation errors: one value per site-species
   for (s in 1:nsp){
    for (t in 1:nyears){
-    sigma.obs[s,t] ~ dunif(0, max_se) # for the missing values
+    sigma.obs[s,t] ~ dunif(0.0001, max_se) # for the missing values
   }}
     '
     } else {
       obsErrors <- '
   # observation error is constant
-  theta ~ dunif(0,10)'
+  theta ~ dunif(0.0001,10)'
     }
     
     return(paste(c(
