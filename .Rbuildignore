@@ -7,3 +7,4 @@ vignettes/BRCindicators_cache/
 misc/
 ^packrat/
 ^\.Rprofile$
+^\.github$
