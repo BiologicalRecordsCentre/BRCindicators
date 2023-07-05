@@ -5,14 +5,17 @@
 \title{Assess trends for indicator}
 \usage{
 trend_assessment(
-  lambda_output,
-  start_year = min(lambda_output$summary$year),
-  end_year = max(lambda_output$summary$year),
+  dat,
+  method = "lambda",
+  start_year = NULL,
+  end_year = NULL,
   species_stat = "mean"
 )
 }
 \arguments{
-\item{lambda_output}{An object returned by lambda_interpolation}
+\item{dat}{An object returned by lambda_interpolation or bma}
+
+\item{method}{Which indicator method was used to produce the data. One of "lambda" or "bma".}
 
 \item{start_year}{(Optional) a numeric value, defaults to the first year}
 
@@ -27,9 +30,9 @@ Returns a list of two elements, a summary of the species and indicator
 assessments. A plot of the species assessment is returned to the device.
 }
 \description{
-This assessment covers both the indicator and the constituant species.
+This assessment covers both the indicator and the constituent species.
 An assessment is made of the indicator over the time period given, examining whether
-the initial indicator value falls within the credibal inverval of the final year.
+the initial indicator value falls within the credible interval of the final year.
 Over the same time period the change in each species is assessed and reported.
 }
 \examples{
