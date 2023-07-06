@@ -59,16 +59,16 @@ msi_tool <- function(wd = getwd(),
   if(!inDataScale %in% c("natural", "log10", "loge")) 
     stop("Error: inDataScale must be either natural, log10 or loge")
 
-  rdata <- data
+  rdata <- data[,1:2]
     
   # convert the data back to the measurment/natural scale
   if(inDataScale == "log10"){
-    rdata$index <- 10^(rdata$index)
-    rdata$se <- with(data, se * index) # Delta method
+    rdata$index <- 10^(data$index)
+    rdata$se <- log(10) * data$se * rdata$index # Delta method
   }
   if(inDataScale == "loge"){
-    rdata$index <- exp(rdata$index)
-    rdata$se <- with(rdata, se * index) # Delta method
+    rdata$index <- exp(data$index)
+    rdata$se <- data$se * rdata$index # Delta method
   }
   
   # catch changepoint error
