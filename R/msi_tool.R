@@ -149,16 +149,16 @@ msi_tool <- function(wd = getwd(),
   INP5$se[INP5$index == TRUNC & !is.na(INP5$index)] <- 0
   
   # reset parameters
-  index <- as.vector(INP5["index"])
-  se <- as.vector(INP5["se"])
+  #index <- as.vector(INP5["index"])
+  #se <- as.vector(INP5["se"])
   nobs <- NROW(INP5)
   uspecies <- sort(unique(INP5$species))
   nspecies <- length(uspecies)
   year <- rep(uyear, nspecies)
   
   # Transform indices and standard deviations to log scale (Delta method)
-  LNindex <- as.vector(log(index))
-  LNse <- as.vector(se/index)
+  LNindex <- log(INP5["index"])
+  LNse <- with(INP5, se/index)
   
   #system.time({
   # Monte Carlo simulations of species indices
@@ -170,7 +170,7 @@ msi_tool <- function(wd = getwd(),
   #}
   #}) #41 seconds
   
-  suppressWarnings(MC <- t(mapply(FUN = rnorm, LNindex$index, LNse$se, MoreArgs = list(n=nsim))))
+  suppressWarnings(MC <- t(mapply(FUN = rnorm, LNindex, LNse, MoreArgs = list(n=nsim))))
   #0.102 seconds
   
   MC[MC < log(TRUNC)] <- log(TRUNC)
