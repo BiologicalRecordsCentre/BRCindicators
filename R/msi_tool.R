@@ -23,6 +23,7 @@
 #' @param span Span is the proportion of points to use in the weighted estimation of the smoothed line.
 #' Values close to 1 are more smoothed than values close to 0
 #' @param lastyears last X years of time series for which separate trend (short-term trends) should be calculated
+#' @param maxIndexCV minimum value of index for asssessing Coefficient of Variation (CV). Default is 10. 
 #' @param maxCV maximum allowed mean Coefficient of Variation (CV) of species indices (0.5 = 50%).
 #'Species with higher mean CV are excluded.
 #' @param changepoint compare trends before and after this year
@@ -43,6 +44,7 @@ msi_tool <- function(wd = getwd(),
                      index_smooth = "SMOOTH",
                      span = 0.75,
                      lastyears = 10,
+                     maxIndexCV = 10,
                      maxCV = 3,
                      changepoint = NULL,
                      truncfac = 10,
@@ -121,7 +123,7 @@ msi_tool <- function(wd = getwd(),
                                               rdata[,"year"]), ]
   
   # Calculate and plot mean CV for indices per species
-  CVtemp <- INP2[INP2$index >= 10, ] # select records with index >= 10 for CV calculation
+  CVtemp <- INP2[INP2$index >= maxIndexCV, ] # select records with index >= 10 for CV calculation
   CVtemp <- CVtemp[!is.na(CVtemp$index), ] # reject missing values
   CV1 <- CVtemp$se/CVtemp$index
   CV1[CV1== 0] <- NA
@@ -154,11 +156,11 @@ msi_tool <- function(wd = getwd(),
   nobs <- NROW(INP5)
   uspecies <- sort(unique(INP5$species))
   nspecies <- length(uspecies)
-  year <- rep(uyear, nspecies)
+  #year <- rep(uyear, nspecies)
   
   # Transform indices and standard deviations to log scale (Delta method)
-  LNindex <- log(INP5["index"])
-  LNse <- with(INP5, se/index)
+  INP5$LNindex <- log(INP5$index)
+  INP5$LNse <- with(INP5, se/index)
   
   #system.time({
   # Monte Carlo simulations of species indices
@@ -170,7 +172,7 @@ msi_tool <- function(wd = getwd(),
   #}
   #}) #41 seconds
   
-  suppressWarnings(MC <- t(mapply(FUN = rnorm, LNindex, LNse, MoreArgs = list(n=nsim))))
+  suppressWarnings(MC <- t(mapply(FUN = rnorm, INP5$LNindex, INP5$LNse, MoreArgs = list(n=nsim))))
   #0.102 seconds
   
   MC[MC < log(TRUNC)] <- log(TRUNC)
@@ -188,7 +190,8 @@ msi_tool <- function(wd = getwd(),
   
   CHAIN[CHAIN > log(truncfac)] <- log(truncfac)
   CHAIN[CHAIN < log(1/truncfac)] <- log(1/truncfac)
-  
+ 
+  year <- rep(uyear, nspecies)
   mnCHAIN <- matrix(NA, nyear, nsim)
   for (s in 1:nsim) {
     mnCHAIN[,s] <- tapply(CHAIN[,s], year, mean, na.rm=TRUE)
@@ -548,6 +551,7 @@ msi_tool <- function(wd = getwd(),
   
   return(list(RES=RES,
               sumStats = sumStats, 
+              data = INP5,
               changepoint = changepoint,
               simTrends = SIMTRENDS))
 }
