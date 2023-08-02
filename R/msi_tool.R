@@ -10,9 +10,10 @@
 #' and testing of the total change in a time series.
 #' 
 #' @param wd The path for input and ouput files
-#' @param inputFile The name of the input file. This must have columns species, year, index, se
+#' @param inputFile The name of the input file NOW DEPRECATED
+#' @param data A data frame with columns species, year, index, se
 #' in that order. The index value in the base year (which need not be the first year), should be set to 100
-#' with se of 0.
+#' with se of 0
 #' @param jobname Generic name for output files
 #' @param nsim Number of Monte Carlo simulations
 #' @param SEbaseyear Desired year to set MSI to 100 and SE to 0; usually the first year of the time series
@@ -22,17 +23,20 @@
 #' @param span Span is the proportion of points to use in the weighted estimation of the smoothed line.
 #' Values close to 1 are more smoothed than values close to 0
 #' @param lastyears last X years of time series for which separate trend (short-term trends) should be calculated
+#' @param maxIndexCV minimum value of index for asssessing Coefficient of Variation (CV). Default is 10. 
 #' @param maxCV maximum allowed mean Coefficient of Variation (CV) of species indices (0.5 = 50%).
 #'Species with higher mean CV are excluded.
 #' @param changepoint compare trends before and after this year
 #' @param truncfac truncation factor (=max year-to-year index ratio). Default for Living Planet Index = 10.
 #' @param TRUNC set all indices below TRUNC to this value and their SE to 0. TRUNC = 0 means no truncation.
 #' @param plot logical, should plots be created
+#' @param inDataScale character: on what scale is the input data. Options are "natural" (the default), "log10" or "loge"
 #' @source https://www.cbs.nl/en-gb/society/nature-and-environment/indices-and-trends--trim--/msi-tool
 #' @export
 
 msi_tool <- function(wd = getwd(),
-                     inputFile,
+                     # inputFile,
+                     data,
                      jobname = 'MSI_job',
                      nsim = 1000,
                      SEbaseyear = NULL,
@@ -40,17 +44,38 @@ msi_tool <- function(wd = getwd(),
                      index_smooth = "SMOOTH",
                      span = 0.75,
                      lastyears = 10,
+                     maxIndexCV = 10,
                      maxCV = 3,
                      changepoint = NULL,
                      truncfac = 10,
                      TRUNC = 1,
-                     plot = TRUE){
+                     plot = TRUE,
+                     inDataScale = "natural"){
   
-  org_wd <- getwd()
-  on.exit({setwd(org_wd)})
-  setwd(wd)
+  #org_wd <- getwd()
+  #on.exit({setwd(org_wd)})
+  #setwd(wd)
   
-  rdata <- read.csv(inputFile, stringsAsFactors = FALSE)
+  #rdata <- read.csv(inputFile, stringsAsFactors = FALSE)
+  
+  if(!inDataScale %in% c("natural", "log10", "loge")) 
+    stop("Error: inDataScale must be either natural, log10 or loge")
+
+  rdata <- data[,1:2]
+    
+  # convert the data back to the measurment/natural scale
+  if(inDataScale == "log10"){
+    rdata$index <- 10^(data$index)
+    rdata$se <- log(10) * data$se * rdata$index # Delta method
+  }
+  if(inDataScale == "loge"){
+    rdata$index <- exp(data$index)
+    rdata$se <- data$se * rdata$index # Delta method
+  }
+  if(inDataScale == "natural"){
+    rdata$index <- data$index
+    rdata$se <- data$se
+  }
   
   # catch changepoint error
   if(is.null(changepoint)) changepoint <- floor(max(rdata[,"year"]) - ((max(rdata[,"year"]) - min(rdata[,"year"]))/2))
@@ -68,9 +93,9 @@ msi_tool <- function(wd = getwd(),
   if(span > 1 | span < 0) stop('span must be between 0 and 1')
   
   # set names of output files
-  jobnameRESULTS <- paste (jobname, "_RESULTS.csv", sep = "")
-  jobnameTRENDS <- paste (jobname, "_TRENDS.csv", sep = "")
-  jobnameSIMTRENDS <- paste (jobname, "_SIMTRENDS.csv", sep = "")
+  #jobnameRESULTS <- paste (jobname, "_RESULTS.csv", sep = "")
+  #jobnameTRENDS <- paste (jobname, "_TRENDS.csv", sep = "")
+  #jobnameSIMTRENDS <- paste (jobname, "_SIMTRENDS.csv", sep = "")
   jobnameGRAPH <- paste (jobname, "_GRAPH.jpg", sep = "")
   
   # Define and calculate model parameters
@@ -99,10 +124,10 @@ msi_tool <- function(wd = getwd(),
                      year = rdata[,"year"],
                      index = rdata[,"index"],
                      se = rdata[,"se"])[order(rdata[,"species"],
-                                         rdata[,"year"]), ]
+                                              rdata[,"year"]), ]
   
   # Calculate and plot mean CV for indices per species
-  CVtemp <- INP2[INP2$index >= 10, ] # select records with index >= 10 for CV calculation
+  CVtemp <- INP2[INP2$index >= maxIndexCV, ] # select records with index >= 10 for CV calculation
   CVtemp <- CVtemp[!is.na(CVtemp$index), ] # reject missing values
   CV1 <- CVtemp$se/CVtemp$index
   CV1[CV1== 0] <- NA
@@ -116,8 +141,8 @@ msi_tool <- function(wd = getwd(),
          main=jobname, xlab="species code", ylab="meanCV")
   }
   
-  write.csv(data.frame(species = uspecies, mean_CV = mnCV),
-            file = 'species_CV_values.csv', row.names = FALSE)
+  #write.csv(data.frame(species = uspecies, mean_CV = mnCV),
+  #          file = 'species_CV_values.csv', row.names = FALSE)
   
   CV <- as.data.frame(rep(mnCV, each=nyear))
   
@@ -130,24 +155,30 @@ msi_tool <- function(wd = getwd(),
   INP5$se[INP5$index == TRUNC & !is.na(INP5$index)] <- 0
   
   # reset parameters
-  index <- as.vector(INP5["index"])
-  se <- as.vector(INP5["se"])
+  #index <- as.vector(INP5["index"])
+  #se <- as.vector(INP5["se"])
   nobs <- NROW(INP5)
   uspecies <- sort(unique(INP5$species))
   nspecies <- length(uspecies)
-  year <- rep(uyear, nspecies)
+  #year <- rep(uyear, nspecies)
   
   # Transform indices and standard deviations to log scale (Delta method)
-  LNindex <- as.vector(log(index))
-  LNse <- as.vector(se/index)
+  INP5$LNindex <- log(INP5$index)
+  INP5$LNse <- with(INP5, se/index)
   
+  #system.time({
   # Monte Carlo simulations of species indices
-  MC <- matrix(NA, nobs, nsim)
-  for (s in 1:nsim) { 
-    for (o in 1:nobs) {
-      MC[o,s] <- rnorm(1, LNindex[o,1], LNse[o,1])
-    } 
-  }
+  #MC <- matrix(NA, nobs, nsim)
+  #for (s in 1:nsim) { 
+  #  for (o in 1:nobs) {
+  #    MC[o,s] <- rnorm(1, LNindex[o,1], LNse[o,1])
+  #  } 
+  #}
+  #}) #41 seconds
+  
+  suppressWarnings(MC <- t(mapply(FUN = rnorm, INP5$LNindex, INP5$LNse, MoreArgs = list(n=nsim))))
+  #0.102 seconds
+  
   MC[MC < log(TRUNC)] <- log(TRUNC)
   
   # impute missing values using chain method
@@ -163,7 +194,8 @@ msi_tool <- function(wd = getwd(),
   
   CHAIN[CHAIN > log(truncfac)] <- log(truncfac)
   CHAIN[CHAIN < log(1/truncfac)] <- log(1/truncfac)
-  
+ 
+  year <- rep(uyear, nspecies)
   mnCHAIN <- matrix(NA, nyear, nsim)
   for (s in 1:nsim) {
     mnCHAIN[,s] <- tapply(CHAIN[,s], year, mean, na.rm=TRUE)
@@ -227,12 +259,7 @@ msi_tool <- function(wd = getwd(),
   # Back transform trends to index scale:
   SLOPE_mult <- round(exp(SLOPE), digits=4)
   sdSLOPE_mult <- round(sdSLOPE*SLOPE_mult, digits=4)
-  
-  SLOPE
-  sdSLOPE
-  SLOPE_mult
-  sdSLOPE_mult
-  
+
   # Overall trend classification (see Soldaat et al. 2007 (J. Ornithol. DOI 10.1007/s10336-007-0176-7))
   TrendClass <- "X"
   if (SLOPE_mult - 1.96*sdSLOPE_mult > 1.05) {TrendClass <- "strong increase" } else
@@ -242,8 +269,7 @@ msi_tool <- function(wd = getwd(),
           if ((SLOPE_mult - 1.96*sdSLOPE_mult - 0.95)*(1.05 - SLOPE_mult + 1.96*sdSLOPE_mult) < 0.00) { TrendClass <- "uncertain"} else
             if ((SLOPE_mult + 1.96*sdSLOPE_mult) - (SLOPE_mult - 1.96*sdSLOPE_mult) > 0.10) { TrendClass <- "uncertain" } else
             {TrendClass <- "stable"}
-  TrendClass
-  
+
   # Short term linear trend per simulation
   lrMSI_short <- array(NA, dim=c(2, nsim))
   lyear <- c((maxyear-lastyears+1):maxyear)
@@ -265,12 +291,7 @@ msi_tool <- function(wd = getwd(),
   # Back-transform short-term trends to index scale
   SLOPE_short_mult <- round(exp(SLOPE_short), digits=4)
   sdSLOPE_short_mult <- round(sdSLOPE_short*SLOPE_short_mult, digits=4)
-  
-  SLOPE_short
-  sdSLOPE_short
-  SLOPE_short_mult
-  sdSLOPE_short_mult
-  
+ 
   # Short term trend classification (Soldaat et al. 2007 (J. Ornithol. DOI 10.1007/s10336-007-0176-7))
   TrendClass_short <- "X"
   if (SLOPE_short_mult - 1.96*sdSLOPE_short_mult > 1.05) {TrendClass_short <- "strong increase" } else
@@ -280,7 +301,7 @@ msi_tool <- function(wd = getwd(),
           if ((SLOPE_short_mult - 1.96*sdSLOPE_short_mult - 0.95)*(1.05 - SLOPE_short_mult + 1.96*sdSLOPE_short_mult) < 0.00) { TrendClass_short <- "uncertain"} else
             if ((SLOPE_short_mult + 1.96*sdSLOPE_short_mult) - (SLOPE_short_mult - 1.96*sdSLOPE_short_mult) > 0.10) { TrendClass_short <- "uncertain" } else
             {TrendClass_short <- "stable"}
-  TrendClass_short
+  #TrendClass_short
   
   # linear trend before changepoint per simulation
   lrMSI_before <- array(NA, dim=c(2, nsim))
@@ -305,11 +326,6 @@ msi_tool <- function(wd = getwd(),
   SLOPE_before_mult <- round(exp(SLOPE_before), digits=4)
   sdSLOPE_before_mult <- round(sdSLOPE_before*SLOPE_before_mult, digits=4)
   
-  SLOPE_before
-  sdSLOPE_before
-  SLOPE_before_mult
-  sdSLOPE_before_mult
-  
   # Trend classification before changepoint
   TrendClass_before <- "X"
   if (SLOPE_before_mult - 1.96*sdSLOPE_before_mult > 1.05) {TrendClass_before <- "strong increase" } else
@@ -319,8 +335,7 @@ msi_tool <- function(wd = getwd(),
           if ((SLOPE_before_mult - 1.96*sdSLOPE_before_mult - 0.95)*(1.05 - SLOPE_before_mult + 1.96*sdSLOPE_before_mult) < 0.00) { TrendClass_before <- "uncertain"} else
             if ((SLOPE_before_mult + 1.96*sdSLOPE_before_mult) - (SLOPE_before_mult - 1.96*sdSLOPE_before_mult) > 0.10) { TrendClass_before <- "uncertain" } else
             {TrendClass_before <- "stable"}
-  TrendClass_before
-  
+
   # linear trend after changepoint per simulation
   lrMSI_after <- array(NA, dim=c(2, nsim))
   ayear <- c(changepoint:maxyear)
@@ -343,11 +358,6 @@ msi_tool <- function(wd = getwd(),
   SLOPE_after_mult <- round(exp(SLOPE_after), digits=4)
   sdSLOPE_after_mult <- round(sdSLOPE_after*SLOPE_after_mult, digits=4)
   
-  SLOPE_after
-  sdSLOPE_after
-  SLOPE_after_mult
-  sdSLOPE_after_mult
-  
   # Trend classification after changepoint
   TrendClass_after <- "X"
   if (SLOPE_after_mult - 1.96*sdSLOPE_after_mult > 1.05) {TrendClass_after <- "strong increase" } else
@@ -357,8 +367,7 @@ msi_tool <- function(wd = getwd(),
           if ((SLOPE_after_mult - 1.96*sdSLOPE_after_mult - 0.95)*(1.05 - SLOPE_after_mult + 1.96*sdSLOPE_after_mult) < 0.00) { TrendClass_after <- "uncertain"} else
             if ((SLOPE_after_mult + 1.96*sdSLOPE_after_mult) - (SLOPE_after_mult - 1.96*sdSLOPE_after_mult) > 0.10) { TrendClass_after <- "uncertain" } else
             {TrendClass_after <- "stable"}
-  TrendClass_after
-  
+
   # compare linear trends before and after changepoint
   compare <- array(NA, dim=c(nsim, 1))
   for (s in 1:nsim){
@@ -394,12 +403,8 @@ msi_tool <- function(wd = getwd(),
   }
   pct_CHANGE_long <- round(mean(pct_CHANGE[,1]),digits=3)
   sd_pct_CHANGE_long <- round(sd(pct_CHANGE[,1]), digits=3)
-  pct_CHANGE_long
-  sd_pct_CHANGE_long
   pct_CHANGE_short <- round(mean(pct_CHANGE[,2]),digits=3)
   sd_pct_CHANGE_short <- round(sd(pct_CHANGE[,2]), digits=3)
-  pct_CHANGE_short
-  sd_pct_CHANGE_short
   
   # significance of percentage change
   significance_PCT_long <- NA
@@ -471,38 +476,38 @@ msi_tool <- function(wd = getwd(),
   RES <- as.data.frame(cbind(uyear, simMSImean, simMSIsd, lowCI_MSI, uppCI_MSI, trend_flex, lowCI_trend_flex, uppCI_trend_flex))
   RES$trend_class <- TrendClass_flex
   names(RES) <- c("year", "MSI", "sd_MSI", "lower_CL_MSI", "upper_CL_MSI", "Trend", "lower_CL_trend", "upper_CL_trend", "trend_class")
-  write.csv2(RES, file=jobnameRESULTS, row.names=FALSE, quote=FALSE)
+  #write.csv2(RES, file=jobnameRESULTS, row.names=FALSE, quote=FALSE)
   
   # create output file with all linear trends
   SIMTRENDS <- t(rbind(lrMSI[1,],lrMSI_short[1,]))
-  write.csv2(SIMTRENDS, file=jobnameSIMTRENDS, row.names=FALSE)
+  #write.csv2(SIMTRENDS, file=jobnameSIMTRENDS, row.names=FALSE)
   
   # create output for linear trend estimates and % change
-  rownames <- rbind("overall trend","SE overall trend",
-                    paste("trend last", lastyears, "years"),
-                    paste("SE trend last", lastyears, "years"),
-                    paste("changepoint", paste0('(', changepoint, ')')),
-                    paste("trend before changepoint", paste0('(', changepoint, ')')),
-                    paste("SE trend before changepoint", paste0('(', changepoint, ')')),
-                    paste("trend after changepoint", paste0('(', changepoint, ')')),
-                    paste("SE trend after changepoint", paste0('(', changepoint, ')')),
-                    "% change", "SE % change",
-                    paste("% change last", lastyears, "years"),
-                    paste("SE % change last", lastyears, "years"))
-  output <- cbind(SLOPE_mult, sdSLOPE_mult, SLOPE_short_mult, sdSLOPE_short_mult,
-                  changepoint, SLOPE_before_mult, sdSLOPE_before_mult, SLOPE_after_mult, sdSLOPE_after_mult,
-                  pct_CHANGE_long, sd_pct_CHANGE_long, pct_CHANGE_short, sd_pct_CHANGE_short)
-  TRENDS <- as.data.frame(t(output), row.names=rownames)
-  TRENDS$significance <- ""
-  TRENDS["changepoint", "significance"] <- significance
-  TRENDS[1, "significance"] <- TrendClass
-  TRENDS[3, "significance"] <- TrendClass_short
-  TRENDS[6, "significance"] <- TrendClass_before
-  TRENDS[8, "significance"] <- TrendClass_after
-  TRENDS[10, "significance"] <- significance_PCT_long
-  TRENDS[12, "significance"] <- significance_PCT_short
-  names(TRENDS) <- c("value", "significance")
-  write.csv2(TRENDS, file=jobnameTRENDS)
+  #rownames <- rbind("overall trend","SE overall trend",
+  #                paste("trend last", lastyears, "years"),
+  #                  paste("SE trend last", lastyears, "years"),
+  #                  paste("changepoint", paste0('(', changepoint, ')')),
+  #                  paste("trend before changepoint", paste0('(', changepoint, ')')),
+  #                  paste("SE trend before changepoint", paste0('(', changepoint, ')')),
+  #                  paste("trend after changepoint", paste0('(', changepoint, ')')),
+  #                  paste("SE trend after changepoint", paste0('(', changepoint, ')')),
+  #                  "% change", "SE % change",
+  #                  paste("% change last", lastyears, "years"),
+  #                  paste("SE % change last", lastyears, "years"))
+  #output <- cbind(SLOPE_mult, sdSLOPE_mult, SLOPE_short_mult, sdSLOPE_short_mult,
+  #                changepoint, SLOPE_before_mult, sdSLOPE_before_mult, SLOPE_after_mult, sdSLOPE_after_mult,
+  #                pct_CHANGE_long, sd_pct_CHANGE_long, pct_CHANGE_short, sd_pct_CHANGE_short)
+  #TRENDS <- as.data.frame(t(output), row.names=rownames)
+  #TRENDS$significance <- ""
+  #TRENDS["changepoint", "significance"] <- significance
+  #TRENDS[1, "significance"] <- TrendClass
+  #TRENDS[3, "significance"] <- TrendClass_short
+  #TRENDS[6, "significance"] <- TrendClass_before
+  #TRENDS[8, "significance"] <- TrendClass_after
+  #TRENDS[10, "significance"] <- significance_PCT_long
+  #TRENDS[12, "significance"] <- significance_PCT_short
+  #names(TRENDS) <- c("value", "significance")
+  #write.csv2(TRENDS, file=jobnameTRENDS)
   
   # create output file with plot
   if(plot){
@@ -534,4 +539,23 @@ msi_tool <- function(wd = getwd(),
     arrows(uyear, simMSImean, uyear, (simMSImean-simMSIsd), angle = 90, code = 3, length=0)
     arrows(uyear, simMSImean, uyear, (simMSImean+simMSIsd), angle = 90, code = 3, length=0)
   }
+  
+  #####################
+  sumStats <- data.frame(
+    type = c("wholeSeries", "lastDecade", "beforeCP", "afterCP"),
+    slope = c(SLOPE, SLOPE_short, SLOPE_before, SLOPE_after),
+    sd = c(sdSLOPE, sdSLOPE_short, sdSLOPE_before, sdSLOPE_after),
+    slopeMult = c(SLOPE_mult, SLOPE_short_mult, SLOPE_before_mult, SLOPE_after_mult),
+    slopeMultSD = c(sdSLOPE_mult, sdSLOPE_short_mult, sdSLOPE_before_mult, sdSLOPE_after_mult),
+    pcChange = c(pct_CHANGE_long, pct_CHANGE_short, NA, NA),
+    pcChangeSD = c(sd_pct_CHANGE_long, sd_pct_CHANGE_short, NA, NA),
+    pVal = c(significance_PCT_long, significance_PCT_short),
+    TrendClass = c(TrendClass, TrendClass_short, TrendClass_before, TrendClass_after)
+  )
+  
+  return(list(RES=RES,
+              sumStats = sumStats, 
+              data = INP5,
+              changepoint = changepoint,
+              simTrends = SIMTRENDS))
 }

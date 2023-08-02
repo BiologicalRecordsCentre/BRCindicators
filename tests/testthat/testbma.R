@@ -79,6 +79,7 @@ test_that("degraded data", {
   # Remove a year of data
   data2 <- data2[1:(nrow(data2)-1),]
   
+  set.seed(123)
   sink(temp)
   set.seed(123)
   bma_indicator <- bma(data2,
