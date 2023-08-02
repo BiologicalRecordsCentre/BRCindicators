@@ -11,7 +11,7 @@
 #' 
 #' @param wd The path for input and ouput files
 #' @param inputFile The name of the input file NOW DEPRECATED
-#' @param rData A data frame with columns species, year, index, se
+#' @param data A data frame with columns species, year, index, se
 #' in that order. The index value in the base year (which need not be the first year), should be set to 100
 #' with se of 0
 #' @param jobname Generic name for output files
@@ -52,9 +52,9 @@ msi_tool <- function(wd = getwd(),
                      plot = TRUE,
                      inDataScale = "natural"){
   
-  org_wd <- getwd()
-  on.exit({setwd(org_wd)})
-  setwd(wd)
+  #org_wd <- getwd()
+  #on.exit({setwd(org_wd)})
+  #setwd(wd)
   
   #rdata <- read.csv(inputFile, stringsAsFactors = FALSE)
   
@@ -71,6 +71,10 @@ msi_tool <- function(wd = getwd(),
   if(inDataScale == "loge"){
     rdata$index <- exp(data$index)
     rdata$se <- data$se * rdata$index # Delta method
+  }
+  if(inDataScale == "natural"){
+    rdata$index <- data$index
+    rdata$se <- data$se
   }
   
   # catch changepoint error
