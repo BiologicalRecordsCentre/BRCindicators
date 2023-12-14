@@ -99,7 +99,7 @@ msi_tool <- function(wd = getwd(),
                      year = rdata[,"year"],
                      index = rdata[,"index"],
                      se = rdata[,"se"])[order(rdata[,"species"],
-                                         rdata[,"year"]), ]
+                                              rdata[,"year"]), ]
   
   # Calculate and plot mean CV for indices per species
   CVtemp <- INP2[INP2$index >= 10, ] # select records with index >= 10 for CV calculation
@@ -130,22 +130,23 @@ msi_tool <- function(wd = getwd(),
   INP5$se[INP5$index == TRUNC & !is.na(INP5$index)] <- 0
   
   # reset parameters
-  index <- as.vector(INP5["index"])
-  se <- as.vector(INP5["se"])
+  index <- unlist(INP5["index"], use.names = F)
+  se <- unlist(INP5["se"], use.names = F)
   nobs <- NROW(INP5)
   uspecies <- sort(unique(INP5$species))
   nspecies <- length(uspecies)
   year <- rep(uyear, nspecies)
   
   # Transform indices and standard deviations to log scale (Delta method)
-  LNindex <- as.vector(log(index))
-  LNse <- as.vector(se/index)
+  LNindex <- log(index)
+  LNse <- se/index
   
   # Monte Carlo simulations of species indices
   MC <- matrix(NA, nobs, nsim)
   for (s in 1:nsim) { 
     for (o in 1:nobs) {
-      MC[o,s] <- rnorm(1, LNindex[o,1], LNse[o,1])
+      
+      MC[o,s] <- rnorm(1, LNindex[o], LNse[o])
     } 
   }
   MC[MC < log(TRUNC)] <- log(TRUNC)
