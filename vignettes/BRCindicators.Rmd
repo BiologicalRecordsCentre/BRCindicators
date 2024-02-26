@@ -115,7 +115,6 @@ occ_mod_function <- function(taxa_name){
                         output_dir = '~/Testing_indicator_pipe',
                         seed = 123)  
 } 
-
 # I then run this in parallel
 system.time({
 para_out <- sfClusterApplyLB(unique(myData$taxa), occ_mod_function)
@@ -134,7 +133,8 @@ Installing the package is easy and can be done in a couple of lines
 
 ```{r eval = FALSE}
 library(devtools)
-install_github(repo = 'biologicalrecordscentre/BRCindicators')
+
+install_github('biologicalrecordscentre/BRCindicators')
 ```
 
 # Summarising sparta output for an indicator
@@ -288,7 +288,7 @@ head(bma_indicator)
 We can use the plotting function in BRCindicators to plot the results of this analysis, which in this case are not all that interesting!
 
 ```{r BMAplot}
-plot_indicator(indicator = bma_indicator[,'Index'],
+plot_indicator(indicator = bma_indicator[,'Index.M'],
                CIs = bma_indicator[,c(3,4)])
 ```
 
