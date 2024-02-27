@@ -30,9 +30,10 @@ BugReports: https://github.com/BiologicalRecordsCentre/BRCindicators/issues
 RoxygenNote: 7.1.1
 Encoding: UTF-8
 Suggests: 
-    testthat,
+    testthat (>= 3.0.0),
     covr,
     knitr,
     snowfall,
     rmarkdown,
-    jagsUI,
+    jagsUI
+Config/testthat/edition: 3

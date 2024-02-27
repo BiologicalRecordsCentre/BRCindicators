@@ -65,22 +65,22 @@ CompositeTrend <- function(indata, output_path, trend_choice = "arithmetic_logit
     t_table <- temp_table[,(1:(ncol(temp_table)-2))] # convert shape of the table
     
     # arithmean on the occ scale #
-    logit_temp_table <- t_table
+    logit_temp_table <- subset(t_table, select = -c(spp, iter))
     logit_temp_table <- as.data.frame(car::logit(as.matrix(logit_temp_table)))
     
     # geomean on the occ scale #
-    log_temp_table <- t_table
+    log_temp_table <- subset(t_table, select = -c(spp, iter))
     log_temp_table <- log(log_temp_table)
     
     # geometric mean raw occupancy #
     if(trend_choice == "geometric_raw_occ"){
-      composite_trend_temp <- apply(t_table, 2, geomean)
+      composite_trend_temp <- apply(subset(t_table, select = -c(spp, iter)), 2, geomean)
       composite_trend <- rbind(composite_trend, composite_trend_temp)
     }
     
     # arithmetic mean raw occupancy #
     if(trend_choice == "arithmetic_raw_occ"){
-      composite_trend_temp <- apply(t_table, 2, mean)
+      composite_trend_temp <- apply(subset(t_table, select = -c(spp, iter)), 2, mean)
       composite_trend <- rbind(composite_trend, composite_trend_temp)
     }
     
