@@ -7,3 +7,6 @@ vignettes/BRCindicators_cache/
 vignettes/BRCindicators_files/
 misc/
 tests/testthat/Rplots.pdf
+test_delTestGroup_arithmetic_logit_occ_composite_trend_iterations.csv
+test_delTestGroup_arithmetic_logit_occ_composite_trend_summary.csv
+test_del/TestGroup_arithmetic_logit_occ_composite_trend.png
