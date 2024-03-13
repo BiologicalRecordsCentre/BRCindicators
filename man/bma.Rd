@@ -28,7 +28,7 @@ bma(
 )
 }
 \arguments{
-\item{data}{a data.frame with 3-4 columns in this order: `species`, `year`, `index`, `se` (standard error). The `se` column is optional 
+\item{data}{a data.frame with 3-4 columns: `species`, `year`, `index`, `se` (standard error). The `se` column is optional 
 NB: Index values are assumed to be on the unbounded (logarithmic scale)}
 
 \item{plot}{Logical, should a trace plot be plotted to diagnose the model output?}
