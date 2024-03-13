@@ -16,8 +16,8 @@ test_that("Does function return correct error message when the user provides add
     group_name = "TestGroup",
     save_iterations = "yes",
     TrendScale = 100,
-    plot_output = FALSE, regexp = "Column(s) contains non-numeric fields: character_col_1, character_col_2"
-  ))
+    plot_output = FALSE), regexp = "Column\\(s\\) contains non-numeric fields")
+
 })
 
 test_that("Does the rbind of NULL value with a row work without error", {

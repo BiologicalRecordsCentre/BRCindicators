@@ -22,7 +22,8 @@ Imports:
     car,
     RColorBrewer,
     mgcv,
-    boot
+    boot,
+    mockery
 VignetteBuilder: knitr
 License: GPL-3
 URL: https://github.com/BiologicalRecordsCentre/BRCindicators

@@ -1,21 +1,16 @@
-#' Bootstrapping indicator
-#' 
-#' This function takes in a dataframe of multi-species data that have been scaled
-#' and adds confidence intervals to the indicator value.
-#' 
-#' @param Data A matrix where each named column give the species' values
-#'        for each year in rows.
-#' @param iterations The number of bootstrap iterations to use.
-#' @param CI_limits The confidence limits to return as a vector of two
-#'        numbers. This default to c(0.025, 0.975) the 95 percent conficence intervals.
-#' @param verbose If \code{TRUE} then progress is printed to screen.
-#' @return A matrix. In each row we have the year, the species and the
-#'         scaled value. There is also an additional column, 'geomean' giving
-#'         the geometric mean for each year.
-#' @export
+bootstrap_indicator_fake_data <- matrix(runif(50 * length(letters), max = 100), 
+                     nrow = 50, 
+                     ncol = length(letters))
 
-bootstrap_indicator <-  function(Data, iterations = 10000, CI_limits = c(0.025, 0.975),
+# Assign the same column names
+colnames(bootstrap_indicator_fake_data) <- letters
+
+
+bootstrap_indicator_objects <-  function(Data, iterations = 10000, CI_limits = c(0.025, 0.975),
                                  verbose = TRUE){
+
+    # To capture function objects
+    output = list()
 
   if(!is.matrix(Data)){
     stop("the Data parameter must be a matrix object.")
@@ -45,6 +40,8 @@ bootstrap_indicator <-  function(Data, iterations = 10000, CI_limits = c(0.025, 
     })
 })
 
+output$CIData = CIData
+
   close(pb)
 
   # Extract the 2.5 97.5% CI around the geometric mean (from the bootstrapped resamples)
@@ -53,5 +50,7 @@ bootstrap_indicator <-  function(Data, iterations = 10000, CI_limits = c(0.025, 
   names(CIs) <- c(paste('quant_', gsub('0\\.', '', as.character(CI_limits[1])), sep = ''),
                   paste('quant_', gsub('0\\.', '', as.character(CI_limits[2])), sep = ''))
 
-  return(as.matrix(CIs))
+    output$CI_matrix = as.matrix(CIs)
+
+  return(output)
 }
