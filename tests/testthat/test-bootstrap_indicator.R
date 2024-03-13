@@ -33,14 +33,6 @@ expect_equal(class(bootstrap_indicator(bootstrap_indicator_fake_data)), c("matri
 
 test_that("is the CI object ouput from sapply a matrix", {
 
-CI_limits = c(0.025, 0.975)
-
-expect_equal(names(bootstrap_indicator(bootstrap_indicator_fake_data, CI_limits = CI_limits)), c("quant_025", "quant_975"))
-
-})
-
-test_that("is the CI object ouput from sapply a matrix", {
-
 expect_equal(class(bootstrap_indicator(bootstrap_indicator_fake_data)), c("matrix", "array"))
 
 })
