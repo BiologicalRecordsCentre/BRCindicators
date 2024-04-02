@@ -16,4 +16,18 @@ Useful links:
 }
 
 }
+\author{
+\strong{Maintainer}: Tom August \email{tomaug@ceh.ac.uk} (\href{https://orcid.org/0000-0003-1116-3385}{ORCID})
+
+Authors:
+\itemize{
+  \item Gary Powney (\href{https://orcid.org/0000-0003-3313-7786}{ORCID})
+  \item Charlie Outhwaite (\href{https://orcid.org/0000-0001-9997-6780}{ORCID})
+  \item Jack Hatfield (\href{https://orcid.org/0000-0002-6361-0629}{ORCID})
+  \item Mark Logie (\href{https://orcid.org/0000-0003-0840-9575}{ORCID})
+  \item Stephen Freeman
+  \item Nick Isaac (\href{https://orcid.org/0000-0002-4869-8052}{ORCID})
+}
+
+}
 \keyword{internal}
