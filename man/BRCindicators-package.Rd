@@ -17,10 +17,11 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Tom August \email{tomaug@ceh.ac.uk} (\href{https://orcid.org/0000-0003-1116-3385}{ORCID})
+\strong{Maintainer}: Dylan Carbone \email{dylcar@ceh.ac.uk} (\href{https://orcid.org/0009-0003-5290-786X}{ORCID})
 
 Authors:
 \itemize{
+  \item Tom August \email{tomaug@ceh.ac.uk} (\href{https://orcid.org/0000-0003-1116-3385}{ORCID})
   \item Gary Powney (\href{https://orcid.org/0000-0003-3313-7786}{ORCID})
   \item Charlie Outhwaite (\href{https://orcid.org/0000-0001-9997-6780}{ORCID})
   \item Jack Hatfield (\href{https://orcid.org/0000-0002-6361-0629}{ORCID})
