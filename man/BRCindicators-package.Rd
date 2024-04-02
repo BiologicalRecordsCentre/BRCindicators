@@ -16,18 +16,4 @@ Useful links:
 }
 
 }
-\author{
-\strong{Maintainer}: Tom August \email{tomaug@ceh.ac.uk}
-
-Authors:
-\itemize{
-  \item Gary Powney
-  \item Charlie Outhwaite
-  \item Jack Hatfield
-  \item Mark Logie
-  \item Stephen Freeman
-  \item Nick Isaac
-}
-
-}
 \keyword{internal}
