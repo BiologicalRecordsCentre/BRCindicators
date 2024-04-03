@@ -18,7 +18,7 @@ Authors@R: c(
            comment = c(ORCID = "0000-0003-0840-9575")),
     person("Stephen", "Freeman", role = "aut"),
     person("Nick", "Isaac", role = "aut",
-           comment = c(ORCID = "https://orcid.org/0000-0002-4869-8052"))
+           comment = c(ORCID = "0000-0002-4869-8052"))
   )
 Maintainer: Tom August <tomaug@ceh.ac.uk>
 Description: This package contains a number of functions used to create
