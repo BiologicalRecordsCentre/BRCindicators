@@ -90,6 +90,10 @@ There are a number of model to choose from:
  }
 }
 \examples{
+
+# Only run if there is a JAGS installation
+if(detect_jags()){
+
 # Create some example data in the format required
 data <- data.frame(species = rep(letters, each = 50),
                    year = rep(1:50, length(letters)),
@@ -102,6 +106,8 @@ bma_indicator <- bma(data, model="smooth", m.scale="logit", n.iter=100)
 # Plot the resulting indicator
 plot_indicator(indicator = bma_indicator[,'Index.Mprime'],
                CIs = bma_indicator[,c(3,4)])
+   
+   }
 }
 \references{
 Freeman, S.N., Isaac, N.J.B., Besbeas, P.T., Dennis, E.B. & Morgan, B.J.T. (2020) 
