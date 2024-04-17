@@ -56,7 +56,6 @@
 #' plot_indicator(indicator = bma_indicator[,'Index.Mprime'],
 #'                CIs = bma_indicator[,c(3,4)])
 
-
 bma <- function (data,
               plot = TRUE,
               model = 'smooth',
