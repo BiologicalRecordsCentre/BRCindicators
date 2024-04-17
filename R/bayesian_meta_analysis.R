@@ -43,6 +43,10 @@
 #'             \emph{Journal of Agricultural Biological and Environmental Statistics}, in revision.
 #' @export
 #' @examples 
+#' 
+#' # Only run if there is a JAGS installation
+#' if(detect_jags()){
+#' 
 #' # Create some example data in the format required
 #' data <- data.frame(species = rep(letters, each = 50),
 #'                    year = rep(1:50, length(letters)),
@@ -55,7 +59,8 @@
 #' # Plot the resulting indicator
 #' plot_indicator(indicator = bma_indicator[,'Index.Mprime'],
 #'                CIs = bma_indicator[,c(3,4)])
-
+#'    
+#'    }
 
 bma <- function (data,
               plot = TRUE,
@@ -80,9 +85,15 @@ bma <- function (data,
 
 set.seed(seed = seed)
 
+# Check if JAGS is installed
+if (!detect_jags()) {
+stop("No installation of JAGS has been detected. You can install JAGS from https://sourceforge.net/projects/mcmc-jags/files/JAGS/",
+      call. = FALSE)
+}
+
 # Check if jagsUI is installed
 if (!requireNamespace("jagsUI", quietly = TRUE)) {
-stop("Package 'jagsUI' is needed for the 'bma' function to work. Please install this from CRAN. You will also be required to install JAGS, which you can download from https://sourceforge.net/projects/mcmc-jags/files/JAGS/",
+stop("Package 'jagsUI' is needed for the 'bma' function to work. Please install this from CRAN.",
       call. = FALSE)
 }
 
