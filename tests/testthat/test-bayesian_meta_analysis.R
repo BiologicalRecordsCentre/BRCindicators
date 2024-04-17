@@ -40,7 +40,7 @@ test_that("Does the function output, assuming 'jagsUI' is available, return a da
 test_that("Does the function return a Markov Chain Monte Carlo (MCMC) output object?", {
 
     # skip the test if jagsUI is not installed
-    if ((!requireNamespace("jagsUI", quietly = TRUE))) {
+    if (!requireNamespace("jagsUI", quietly = TRUE)) {
     skip("jagsUI software not available")
   }
 
