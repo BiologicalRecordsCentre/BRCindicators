@@ -1,5 +1,4 @@
 #' @import ggplot2
-#' @export
 plot_growthrates <- function(logLambda, CIs, year = 1:length(logLambda), main=''){
   combo <- as.data.frame(cbind(year, logLambda, CIs))
   
@@ -18,9 +17,7 @@ plot_growthrates <- function(logLambda, CIs, year = 1:length(logLambda), main=''
   return(NULL)
 }
 
-
-#' @export
-
+#' @import ggplot2
 plot_spgrowthrates <- function(logLambda, upper, lower, year = 1:ncol(logLambda), main=''){
   
   logLambda <- melt(logLambda, value.name='logLambda')
@@ -45,9 +42,7 @@ plot_spgrowthrates <- function(logLambda, upper, lower, year = 1:ncol(logLambda)
   return(NULL)
 }
 
-
-#' @export
-
+#' @import ggplot2
 wrap_plot <- function(model, name="", data_in=NULL){
   
   plot_growthrates(logLambda = model$mean$logLambda,

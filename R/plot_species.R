@@ -1,5 +1,4 @@
 #' @import ggplot2
-#' @export
 
 plot_species <- function(spindex, upper, lower, data_in, year = 1:ncol(spindex), main=''){
   
