@@ -37,7 +37,7 @@ expect_error(bma(bayesian_meta_analysis_fake_data, model = "smooth_det"),
 test_that("Does the function output, assuming 'jagsUI' is available, return a dataframe?", {
 
     # skip the test if jagsUI is not installed
-    if (!runjags::testjags(silent = TRUE)$JAGS.available) {
+    if (!detect_jags()) {
     skip("JAGS software not detectable")
   }
 
@@ -48,7 +48,7 @@ test_that("Does the function output, assuming 'jagsUI' is available, return a da
 test_that("Does the function return a Markov Chain Monte Carlo (MCMC) output object?", {
 
     # skip the test if jagsUI is not installed
-    if (!runjags::testjags(silent = TRUE)$JAGS.available) {
+    if (!detect_jags()) {
     skip("JAGS software not detectable")
   }
 
