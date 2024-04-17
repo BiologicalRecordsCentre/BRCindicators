@@ -41,6 +41,7 @@ Imports:
 Suggests: 
     covr,
     jagsUI,
+    runjags,
     knitr,
     rmarkdown,
     snowfall,

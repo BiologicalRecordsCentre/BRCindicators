@@ -1,3 +1,11 @@
+test_that("Does the function stop when there is no jags installation?", {
+
+  # Mock `requireNamespace` to return FALSE
+  mockery::stub(bma, "detect_jags", FALSE)
+
+  expect_error(bma(bayesian_meta_analysis_fake_data), regexp = "No installation of JAGS has been detected")
+})
+
 # Test that function responds correctly when 'jagsUI' is not available
 test_that("Does the function stop when 'jagsUI' is not available?", {
 
@@ -29,8 +37,8 @@ expect_error(bma(bayesian_meta_analysis_fake_data, model = "smooth_det"),
 test_that("Does the function output, assuming 'jagsUI' is available, return a dataframe?", {
 
     # skip the test if jagsUI is not installed
-    if ((!requireNamespace("jagsUI", quietly = TRUE))) {
-    skip("jagsUI software not available")
+    if (!runjags::testjags(silent = TRUE)$JAGS.available) {
+    skip("JAGS software not detectable")
   }
 
   expect_equal(class(suppressWarnings(bma(bayesian_meta_analysis_fake_data, plot = FALSE))), "data.frame")
@@ -40,8 +48,8 @@ test_that("Does the function output, assuming 'jagsUI' is available, return a da
 test_that("Does the function return a Markov Chain Monte Carlo (MCMC) output object?", {
 
     # skip the test if jagsUI is not installed
-    if (!requireNamespace("jagsUI", quietly = TRUE)) {
-    skip("jagsUI software not available")
+    if (!runjags::testjags(silent = TRUE)$JAGS.available) {
+    skip("JAGS software not detectable")
   }
 
   expect_equal(class(suppressWarnings(bma_objects(bayesian_meta_analysis_fake_data, plot = TRUE)$comb.samples)), "mcmc.list")

@@ -79,9 +79,15 @@ bma <- function (data,
 
 set.seed(seed = seed)
 
+# Check if JAGS is installed
+if (!detect_jags()) {
+stop("No installation of JAGS has been detected. You can install JAGS from https://sourceforge.net/projects/mcmc-jags/files/JAGS/",
+      call. = FALSE)
+}
+
 # Check if jagsUI is installed
 if (!requireNamespace("jagsUI", quietly = TRUE)) {
-stop("Package 'jagsUI' is needed for the 'bma' function to work. Please install this from CRAN. You will also be required to install JAGS, which you can download from https://sourceforge.net/projects/mcmc-jags/files/JAGS/",
+stop("Package 'jagsUI' is needed for the 'bma' function to work. Please install this from CRAN.",
       call. = FALSE)
 }
 
