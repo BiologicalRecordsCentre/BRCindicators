@@ -37,11 +37,11 @@ Imports:
     mgcv,
     mockery,
     RColorBrewer,
-    reshape2
+    reshape2,
+    jagsUI,
+    runjags
 Suggests: 
     covr,
-    jagsUI,
-    runjags,
     knitr,
     rmarkdown,
     snowfall,
