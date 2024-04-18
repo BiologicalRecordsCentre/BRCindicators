@@ -2,17 +2,17 @@
 #' 
 #' @description  This function takes in the output from a sparta occupancy model
 #' or a three dimensional array. The first year is set to an index value for all
-#' species and then using the average change for one year to the next, across
-#' species is used to calculate the indicator. A species only contributes to the
+#' species and the average change across years for each species is used to
+#' calculate the indicator. A species only contributes to the
 #' dataset in years where the standard deviation across iterations
 #' meets the sd threshold. Missing years in the middle a a species dataset are
-#' filled in using interpolation. 
+#' filled in using interpolation.
 #' 
 #' @param input Either a string giving the path to occupancy model output files
 #' produced by sparta, or a three dimensional array [species, year, iteration].
 #' @param index The index value for the first year, defaults to 100.
 #' @param threshold_sd The threshold standard deviation for a species-year value
-#' to be included. If the standard deviation is above this value it is removed.  
+#' to be included. If the standard deviation is above this value it is removed.
 #' @param threshold_Rhat The threshold Rhat value for a species-year value
 #' to be included. If the Rhat is above this value it is removed. This rule will
 #' only be used when \code{input} is a path to sparta output.  

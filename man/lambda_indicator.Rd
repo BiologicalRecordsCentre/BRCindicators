@@ -62,8 +62,8 @@ is fixed to the index value.
 \description{
 This function takes in the output from a sparta occupancy model
 or a three dimensional array. The first year is set to an index value for all
-species and then using the average change for one year to the next, across
-species is used to calculate the indicator. A species only contributes to the
+species and the average change across years for each species is used to
+calculate the indicator. A species only contributes to the
 dataset in years where the standard deviation across iterations
 meets the sd threshold. Missing years in the middle a a species dataset are
 filled in using interpolation.

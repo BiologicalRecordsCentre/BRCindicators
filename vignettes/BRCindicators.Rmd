@@ -21,6 +21,9 @@ knitr::opts_chunk$set(echo = TRUE,
 ```
 ```{r libraries}
 require(snowfall)
+
+
+to produce an error
 ```
 
 # Introduction
@@ -39,7 +42,7 @@ If you already have yearly estimates of abundance or occurrence for your species
 
 ```{r set_up, eval=FALSE}
 library(devtools)
-install_github('biologicalrecordscentre/sparta')
+#install_github('biologicalrecordscentre/sparta')
 ```
 
 Let's assume you have some raw data already, we can under take occupancy modelling like this
@@ -115,7 +118,6 @@ occ_mod_function <- function(taxa_name){
                         output_dir = '~/Testing_indicator_pipe',
                         seed = 123)  
 } 
-
 # I then run this in parallel
 system.time({
 para_out <- sfClusterApplyLB(unique(myData$taxa), occ_mod_function)
@@ -134,7 +136,8 @@ Installing the package is easy and can be done in a couple of lines
 
 ```{r eval = FALSE}
 library(devtools)
-install_github(repo = 'biologicalrecordscentre/BRCindicators')
+
+install_github('biologicalrecordscentre/BRCindicators')
 ```
 
 # Summarising sparta output for an indicator
@@ -288,7 +291,7 @@ head(bma_indicator)
 We can use the plotting function in BRCindicators to plot the results of this analysis, which in this case are not all that interesting!
 
 ```{r BMAplot}
-plot_indicator(indicator = bma_indicator[,'Index'],
+plot_indicator(indicator = bma_indicator[,'Index.M'],
                CIs = bma_indicator[,c(3,4)])
 ```
 

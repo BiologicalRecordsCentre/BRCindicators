@@ -5,7 +5,6 @@
 ##############################################################
 
 #' @import reshape2
-#' @export
 
 # tau.spi is the precision in growth rates around the ANNUAL mean
 # that modelled by sigma in this simulation
