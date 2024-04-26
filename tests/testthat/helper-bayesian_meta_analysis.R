@@ -37,12 +37,6 @@ stop("No installation of JAGS has been detected. You can install JAGS from https
       call. = FALSE)
 }
 
-# Check if jagsUI is installed
-if (!requireNamespace("jagsUI", quietly = TRUE)) {
-stop("Package 'jagsUI' is needed for the 'bma' function to work. Please install this from CRAN.",
-      call. = FALSE)
-}
-
 # Check to see that column names are present
 if (!all(c("species", "year", "index") %in% colnames(data))){
 
