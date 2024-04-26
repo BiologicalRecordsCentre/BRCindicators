@@ -1,7 +1,7 @@
 test_that("Does the function stop when there is no jags installation?", {
   # Mock `detect_jags` to return FALSE
   with_mocked_bindings(
-    "BRCindicators:::detect_jags" = function() FALSE,
+    "detect_jags" = function() FALSE,
     {
       expect_error(bma(bayesian_meta_analysis_fake_data), regexp = "No installation of JAGS has been detected")
     }
