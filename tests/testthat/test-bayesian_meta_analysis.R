@@ -1,8 +1,11 @@
 test_that("Does the function stop when there is no jags installation?", {
   # Mock `detect_jags` to return FALSE
-  mockery::stub(bma, "detect_jags", FALSE)
-
-  expect_error(bma(bayesian_meta_analysis_fake_data), regexp = "No installation of JAGS has been detected")
+  with_mocked_bindings(
+    "BRCindicators:::detect_jags" = function() FALSE,
+    {
+      expect_error(bma(bayesian_meta_analysis_fake_data), regexp = "No installation of JAGS has been detected")
+    }
+  )
 })
 
 test_that("Does it correctly detect missing columns in the input data?", {
