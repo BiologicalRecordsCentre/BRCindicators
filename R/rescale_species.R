@@ -32,7 +32,7 @@
 #' # Create a fake dataset
 #' n <- 8000 # Size of dataset
 #' nyr <- 50 # Number of years in data
-# nSamples <- 200 # Set number of dates
+#' nSamples <- 200 # Set number of dates
 #' nSites <- 100 # Set number of sites
 #' set.seed(125) # Set a random seed
 #'
