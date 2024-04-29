@@ -21,85 +21,33 @@
 #' 
 #' @examples
 #' 
-#' # Adapted from the package vignette...
-#'
-#' # Load required packages
-#' library(BRCindicators)
-#'
-#' # sparta, a package developed by the Biological Records Centre, uses occupancy models to predict species trends
-#' library(sparta)
-#'
-#' # Create a fake dataset
-#' n <- 8000 # Size of dataset
-#' nyr <- 50 # Number of years in data
-#' nSamples <- 200 # Set number of dates
-#' nSites <- 100 # Set number of sites
-#' set.seed(125) # Set a random seed
-#'
-#' # Create somes dates
-#' first <- as.Date(strptime("1950/01/01", "%Y/%m/%d")) 
-#' last <- as.Date(strptime(paste(1950+(nyr-1),"/12/31", sep=''), "%Y/%m/%d")) 
-#' dt <- last-first 
-#' rDates <- first + (runif(nSamples)*dt)
-#'
-#' # Taxa are set semi-randomly
-#' taxa_probabilities <- seq(from = 0.1, to = 0.7, length.out = 5)
-#' taxa <- sample(letters[1:5], size = n, TRUE, prob = taxa_probabilities)
-#'
-#' # Sites are visited semi-randomly
-#' site_probabilities <- seq(from = 0.1, to = 0.7, length.out = nSites)
-#' site <- sample(paste('A', 1:nSites, sep=''), size = n, TRUE, prob = site_probabilities)
-#'
-#' # The date of visit is selected semi-randomly from those created earlier
-#' time_probabilities <- seq(from = 0.1, to = 0.7, length.out = nSamples)
-#' time_period <- sample(rDates, size = n, TRUE, prob = time_probabilities)
-#'
-#' myData <- data.frame(taxa, site, time_period)
-#'
-#' # First format our data using sparta tools.
-#' formattedOccData <- formatOccData(taxa = myData$taxa,
-#'                                   site = myData$site,
-#'                                   survey = myData$time_period)
-#'
-#' # I create a function that takes a species name and runs my model
-#' occ_mod_function <- function(taxa_name){
-#'  
-#'   # Note that this will write you results to your computer
-#'   # The location is set to your user folder
-#'   occ_out <- occDetFunc(taxa_name = as.character(taxa_name),
-#'                         n_iterations = 200,
-#'                         burnin = 15, 
-#'                         occDetdata = formattedOccData$occDetdata,
-#'                         spp_vis = formattedOccData$spp_vis,
-#'                         write_results = TRUE,
-#'                         output_dir = '~/Testing_indicator_pipe',
-#'                         seed = 123)  
-#' }
-#'
-#' para_out <- sapply(unique(myData$taxa), occ_mod_function)
-#'
-#' # Read in all the output files from sparta and return a simple summary table that we can use for calculating the indicator.
-#' trends_summary <- summarise_occDet(input_dir = '~/Testing_indicator_pipe')
-#'
-#' # Returned from this function is a summary of the data as a matrix.
-#' # In each row we have the year, specified in the first column, and each subsequent column is a species.
-#' # The values in the table are the mean of the posterior for the predicted proportion of sites occupied, a measure of occurrence.
-#'
+#' # We will create fake data which will mimic a summarised output from a sparta package occupancy detection model. Please see the vignette for more details.
+#' 
+#' # Create a matrix with random data using set.seed for reproducibility
+#' set.seed(123)
+#' data <- matrix(rnorm(50 * 27), nrow = 50, ncol = 27)
+#' 
+#' # Assign column names
+#' col_names <- c("year", letters[1:26])
+#' dimnames(data) <- list(NULL, col_names)
+#' 
+#' # Create the 'trends_summary' object
+#' trends_summary <- data
+#' 
 #' # Re-scale the data so that the value for all species in the first year is the same (all defaults used).
 #' # This function accounts for species that have no data at the beginning of the dataset by entering them at the geometric mean for that year, this stops them dramatically changing the indicator value in the year they join the dataset.
 #' # It also accounts for species that leave the dataset before the end by holding them at their last value.
 #' # Finally it limits the species values that can be given, preventing extremely high or low values biasing the indicator.
 #' rescale_species(Data = trends_summary)
-#'
+#' 
 #' # Now, I have 'messed up' the data a bit by including two species with data missing at the beginning and one species with data missing at the end. We also have one species with some very high values.
 #' trends_summary[1:3, 'a'] <- NA
 #' trends_summary[1:5, 'b'] <- NA
 #' trends_summary[2:4, 'c'] <- 1000
 #' trends_summary[45:50, 'd'] <- NA
-#'
+#' 
 #' # Let's run this data again through our scaling function (all defaults used)
 #' rescale_species(Data = trends_summary)
-
 
 rescale_species <-  function(Data, index = 100, max = 10000,
                              min = 1){
