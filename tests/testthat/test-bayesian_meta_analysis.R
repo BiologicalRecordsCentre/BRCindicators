@@ -1,19 +1,11 @@
 test_that("Does the function stop when there is no jags installation?", {
   # Mock `detect_jags` to return FALSE
-  mockery::stub(bma, "detect_jags", FALSE)
-
-  expect_error(bma(bayesian_meta_analysis_fake_data), regexp = "No installation of JAGS has been detected")
-})
-
-# Test that function responds correctly when 'jagsUI' is not available
-test_that("Does the function stop when 'jagsUI' is not available?", {
-  # Mock `detect_jags` to return TRUE
-  mockery::stub(bma, "detect_jags", TRUE)
-
-  # Mock `requireNamespace` to return FALSE
-  mockery::stub(bma, "requireNamespace", FALSE)
-
-  expect_error(bma(bayesian_meta_analysis_fake_data), regexp = "Package 'jagsUI' is needed")
+  with_mocked_bindings(
+    "detect_jags" = function() FALSE,
+    {
+      expect_error(bma(bayesian_meta_analysis_fake_data), regexp = "No installation of JAGS has been detected")
+    }
+  )
 })
 
 test_that("Does it correctly detect missing columns in the input data?", {

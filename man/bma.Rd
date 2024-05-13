@@ -92,7 +92,7 @@ There are a number of model to choose from:
 \examples{
 
 # Only run if there is a JAGS installation
-if(detect_jags()){
+if(suppressWarnings(runjags::testjags(silent = TRUE)$JAGS.found)){
 
 # Create some example data in the format required
 data <- data.frame(species = rep(letters, each = 50),

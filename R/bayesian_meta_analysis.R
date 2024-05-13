@@ -45,7 +45,7 @@
 #' @examples 
 #' 
 #' # Only run if there is a JAGS installation
-#' if(detect_jags()){
+#' if(suppressWarnings(runjags::testjags(silent = TRUE)$JAGS.found)){
 #' 
 #' # Create some example data in the format required
 #' data <- data.frame(species = rep(letters, each = 50),
@@ -88,12 +88,6 @@ set.seed(seed = seed)
 # Check if JAGS is installed
 if (!detect_jags()) {
 stop("No installation of JAGS has been detected. You can install JAGS from https://sourceforge.net/projects/mcmc-jags/files/JAGS/",
-      call. = FALSE)
-}
-
-# Check if jagsUI is installed
-if (!requireNamespace("jagsUI", quietly = TRUE)) {
-stop("Package 'jagsUI' is needed for the 'bma' function to work. Please install this from CRAN.",
       call. = FALSE)
 }
 

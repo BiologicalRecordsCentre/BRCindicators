@@ -16,7 +16,38 @@
 #' @return A matrix. In each row we have the year, the species and the
 #'         scaled value. There is also an additional column, 'geomean' giving
 #'         the geometric mean for each year.
+#' 
 #' @export
+#' 
+#' @examples
+#' 
+#' # We will create fake data which will mimic a summarised output from a sparta package occupancy detection model. Please see the vignette for more details.
+#' 
+#' # Create a matrix with random data using set.seed for reproducibility
+#' set.seed(123)
+#' data <- matrix(rnorm(50 * 27), nrow = 50, ncol = 27)
+#' 
+#' # Assign column names
+#' col_names <- c("year", letters[1:26])
+#' dimnames(data) <- list(NULL, col_names)
+#' 
+#' # Create the 'trends_summary' object
+#' trends_summary <- data
+#' 
+#' # Re-scale the data so that the value for all species in the first year is the same (all defaults used).
+#' # This function accounts for species that have no data at the beginning of the dataset by entering them at the geometric mean for that year, this stops them dramatically changing the indicator value in the year they join the dataset.
+#' # It also accounts for species that leave the dataset before the end by holding them at their last value.
+#' # Finally it limits the species values that can be given, preventing extremely high or low values biasing the indicator.
+#' rescale_species(Data = trends_summary)
+#' 
+#' # Now, I have 'messed up' the data a bit by including two species with data missing at the beginning and one species with data missing at the end. We also have one species with some very high values.
+#' trends_summary[1:3, 'a'] <- NA
+#' trends_summary[1:5, 'b'] <- NA
+#' trends_summary[2:4, 'c'] <- 1000
+#' trends_summary[45:50, 'd'] <- NA
+#' 
+#' # Let's run this data again through our scaling function (all defaults used)
+#' rescale_species(Data = trends_summary)
 
 rescale_species <-  function(Data, index = 100, max = 10000,
                              min = 1){
