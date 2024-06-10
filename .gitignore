@@ -7,3 +7,8 @@ vignettes/BRCindicators_cache/
 vignettes/BRCindicators_files/
 misc/
 tests/testthat/Rplots.pdf
+error_reproduction_scripts
+
+# To reduce repo size
+vignettes/vignette_files
+vignettes/vignette_cache

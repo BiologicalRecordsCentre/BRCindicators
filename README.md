@@ -12,6 +12,4 @@ Installing the package is easy and can be done in a couple of lines in R
     library(devtools)
     install_github(repo = 'biologicalrecordscentre/BRCindicators')
 
-For more info read the vignette
-
-    vignette('BRCindicators')
+For more info read the vignette [here](https://biologicalrecordscentre.github.io/BRCindicators/articles/vignette.html) 
