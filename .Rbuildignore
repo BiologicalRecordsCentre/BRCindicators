@@ -8,3 +8,6 @@ misc/
 ^packrat/
 ^\.Rprofile$
 ^\.github$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
