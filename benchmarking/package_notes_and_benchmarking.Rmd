@@ -7,9 +7,9 @@ output:
     keep_md: yes
     toc: yes
 ---
-**This shows how us to use the indicator pipeline to create biodiversity indicators such as those for DEFRA Biodiversity Indicators in Your Pocke.**
+*This shows how us to use the indicator pipeline to create biodiversity indicators such as those for DEFRA Biodiversity Indicators in Your Pocke.*
 
-**BRCindicators works with yearly estimates of species abundance or occurrence and aggregate them into an scaled indicator value with bootstrapped confidence intervals.**
+*BRCindicators works with yearly estimates of species abundance or occurrence and aggregate them into an scaled indicator value with bootstrapped confidence intervals.*
 
 First, we create some example data. NOTE, the format is the same as the data created within the sparta vignette.
 ```{r create_some_data}
@@ -69,17 +69,360 @@ para_out <- sapply(unique(myData$taxa), occ_mod_function)
 
 ```
 
-**Now that we have some species trends data to work with, we can use the first function in BRCindicators. This function reads in all the output files from sparta and returns a simple summary table that we can use for calculating the indicator.**
+*Now that we have some species trends data to work with, we can use the first function in BRCindicators. This function reads in all the output files from sparta and returns a simple summary table that we can use for calculating the indicator.*
 
 ```{r set_up_run}
 library(BRCindicators)
 
 # All we have to supply is the directory where out data is saved
 # You will note this is the 'output_dir' passed to sparta above.
-trends_summary <- summarise_occDet(para_out)
+trends_summary <- summarise_occDet(input_dir = '~/Testing_indicator_pipe')
 
 # Lets see the summary
 head(trends_summary[,1:5])
 ```
 
-**Returned from this function is a summary of the data as a matrix. In each row we have the year, specified in the first column, and each subsequent column is a species.**
+*Returned from this function is a summary of the data as a matrix. In each row we have the year, specified in the first column, and each subsequent column is a species.*
+
+We are now in a position to calculate an indictor. There are a number of options available for this
+
+## Geometric mean
+
+*We must first re-scale the data so the value for all species for the first year is the same. Afterwards we calculate the geometric mean across species for each year. This approach accounts for species that have no data at the beginning of the dataset by entering them at the geometric mean for that year, thus stopping them dramatically changing the indicator value in the year they join the dataset. Likweise, it accounts for species that leave the dataset before the end, holding them at their last value. Finally limites to species values can be given, preventing extremely high or low values that could bias the indicator.*
+
+### Rescaling and calculating geometric mean
+
+To show the capability of the rescale_species function, we mess up the data
+
+```{r trends_summary}
+trends_summary[1:3, 'a'] <- NA
+trends_summary[1:5, 'b'] <- NA
+trends_summary[2:4, 'c'] <- 1000
+trends_summary[45:50, 'd'] <- NA
+
+# Let's have a look at these changes
+head(trends_summary[,1:5])
+tail(trends_summary[,1:5])
+```
+
+*We now have two species with data missing at the beginning and one species with data missing at the end. We additionally have a species with some very high values.*
+
+We can now rescale
+
+```{r rescaled_indicator}
+# Let's run this data through our scaling function (all defaults used)
+rescaled_trends <- rescale_species(Data = trends_summary)
+
+# Here's the result
+head(rescaled_trends[,c('year', 'indicator', 'a', 'b', 'c', 'd')])
+tail(rescaled_trends[,c('year', 'indicator', 'a', 'b', 'c', 'd')])
+```
+
+*species 'a' and 'b' enter the dataset at the geometric mean. All present species are indexed at 100 in the first year. 'c' is capped at 10000. 'd' has been held at it's end value.*
+
+### Confidence intervals
+
+*We can get confidence intervals for this indicator by bootstrapping across species.*
+
+```{r create_confidence_intervals}
+# This function takes just the species columns
+scaled_species <- rescaled_trends[,!colnames(rescaled_trends) %in% c('year', 'indicator')]
+indicator_CIs <- bootstrap_indicator(Data = scaled_species)
+
+# Returned are the CIs for our indicator
+head(indicator_CIs)
+```
+
+to create a smoothed indicator value (which is not always necessary), we fit a GAM (general additive model) to the indicator using a spline. The spline is a smoothed curve through the raw values.
+
+```{r smoothing_indicator}
+# The smoothing function takes the indicator values
+smoothed_indicator <- GAM_smoothing(rescaled_trends[,'indicator'])
+
+# In this example there is little support for a non-linear trend and 
+# so the line almost linear
+plot(x = rescaled_trends[,'year'], y = rescaled_trends[,'indicator'])
+lines(x = rescaled_trends[,'year'], y = smoothed_indicator, col = 'red')
+
+# But if our indicator did support a non-linear trend it might look 
+# like this
+eg_indicator <- jitter(sort(rnorm(50)), amount = 0.5)
+eg_smoothed <- GAM_smoothing(eg_indicator)
+plot(x = 1:50, y = eg_indicator)
+lines(x = 1:50, y = eg_smoothed, col = 'red')
+```
+
+### Plotting
+
+*We now have our indicator and the confidence intervals around it. The next step is to plot it. We have included a function that creates a simple plot using ggplot2, or you could create your own.*
+
+```{r plot_indicator}
+# Plot our indicator.
+plot_indicator(indicator = rescaled_trends[,'indicator'],
+               smoothed_line = smoothed_indicator,
+               CIs = indicator_CIs)
+```
+
+You can see in this plot the high upper confidence interval in years 2-4, due to the artificially high values we gave to species 'c'.
+
+## Bayesian Meta-Analysis (BMA)
+
+*The Bayesian Meta-Analysis method, or BMA, is suited to data with standard errors associated with them. We therefore require an additional error for each species-year estimate.*
+
+lets create this
+
+```{r BMAdata}
+# Here is an example dataset for the BMA method
+data <- data.frame(species = rep(letters, each = 50),
+                   year = rep(1:50, length(letters)), 
+                   index = runif(n = 50 * length(letters), min = 0, max = 1), 
+                   se = runif(n = 50 * length(letters), min = 0.01, max = .1))
+head(data)
+```
+
+*Your data must be in the same format and your columns must have the same names*
+
+First run bma with the default settings
+
+```{r runBMA}
+bma_indicator <- bma(data)
+```
+
+*function returns a plot to your screen which is a diagnostic of the model. When Converged the lines on the plots on the left will sit on top of one another and the plots on the right will have a nice bell shape. You can turn off this plot by setting `plot` to `FALSE`. By default the method runs the chains in series. Running them in parallel makes the models run faster. You can change this with the `parallel` parameter. The number of iterations defaults to 10000. If possible you should run it for more. `m.scale` gives the scale your data is on, and it is important this is correct. Choose from 'loge' (natural log, sometimes simply called 'log'), 'log10' (log to the base 10), or 'logit' (output from models of proportions or probabilities).*
+
+We can implement these changes
+```{r runBMAparameters}
+bma_indicator2 <- bma(data,
+                     parallel = TRUE,
+                     n.iter = 500,
+                     m.scale = 'log10')
+```
+
+*The model nolonger has a good convergence and the graphs on the right are no longer a smooth bell shape because we have reduced the number of interations.*
+
+*The object returned from `bma` is a data.frame with years as rows and columns giving the year value, index value and confidence intervals. You can write this to a csv using the function `write.csv`.*
+
+```{r BMAresults}
+head(bma_indicator)
+```
+
+*use the plotting function in BRCindicators to plot the results of this analysis*
+
+```{r BMAplot}
+plot_indicator(indicator = bma_indicator[,'Index.M'],
+               CIs = bma_indicator[,c(3,4)])
+```
+
+## Multi-species Indicator
+
+*The multi-species indicator method was developed by Statistics Netherlands. Here is an example of how this method runs in `BRCindicators`.*
+
+First lets create some mock data of species population decreasing over the years. As part of this method we must set all species values to 100 in the first year with a standard error of 0. That is first done below
+```{r msi1, fig.height=4}
+# Create some example data in the format required
+nyr = 20
+species = rep(letters, each = nyr)
+year = rev(rep(1:nyr, length(letters)))
+
+# Create an index value that increases with time
+index = rep(seq(50, 100, length.out = nyr), length(letters))
+# Add randomness to species
+index = index * runif(n = length(index), 0.7, 1.3)
+# Add correlated randomness across species, to years
+index = index * rep(runif(0.8, 1.2, n = nyr), length(letters))
+
+se = runif(n = nyr * length(letters), min = 10, max = 20)
+
+data <- data.frame(species, year, index, se)
+
+# Our species are decreasing
+plot(data$year, data$index)
+
+# Species index values need to be 100 in the base year. Here I use
+# the first year as my base year and rescale to 100. The standard error
+# in the base year should be 0.
+min_year <- min(data$year)
+
+for(sp in unique(data$species)){
+
+  subset_data <- data[data$species == sp, ]
+  multi_factor <- 100 / subset_data$index[subset_data$year == min_year]
+  data$index[data$species == sp] <- data$index[data$species == sp] * multi_factor
+  data$se[data$species == sp] <- data$se[data$species == sp] * multi_factor
+  data$se[data$species == sp][1] <- 0
+
+}
+
+# Our first year is now indexed at 100
+plot(data$year, data$index)
+```
+
+Now we run the `msi` function.
+```{r}
+# Run the MSI function
+msi_out <- msi(data)
+
+head(msi_out$CV)
+```
+
+*code returns two plots to the console. The first shows the coefficient of variation (CV) for each of the species. Species with high CV may adversly effect the relaibility of the trend estimation. Use this graph to identify the CV values of the species and use the `maxCV` parameter to set a threshold above which species will be excluded. The CV values are hard to assign to species from this plot as the species are coded to numbers. To see the raw values look at the CV component of msi_out (i.e. `msi_out$CV`). The second plot shows the smoothed trend and the MSI values.*
+
+Let's create a second example and set some more parameters. The parameters for `msi` get passed to `msi_tool`. 
+
+```{r msi2, fig.height=4}
+msi_out <- msi(data,
+               nsim = 500, # The number of Mote Carlo simulations
+               SEbaseyear = 10, # The year to index on
+               plotbaseyear = 15, # The year to set as 100 in plots
+               index_smoot = 'INDEX', # plotbaseyear uses MSI not trend
+               span = 0.7, # 'wigglyness' of line, between 0 and 1
+               lastyears = 5, # last X years of time series for short-term trends
+               maxCV = 10, # maximum allowed Coefficient of Variation 
+               changepoint = 10, # compare trends before and after this year
+               truncfac = 8, # max year-to-year index ratio
+               TRUNC = 5, #set all indices below TRUNC to this
+               plot = TRUE # should the plots be returned?)
+               )
+```
+
+*These parameters are unrealistic but shows the options available. Note, in the second graph the year 10 point now has a se = 0, year 15 MSI is set to 100, and the short term trend is reported for the last 5 years.*
+
+*The first of the two elements (`results`) returned the data*
+
+```{r msi3}
+# The returned object has 2 elements
+head(msi_out$results)
+```
+
+*The second element (`trends`) give a summary of various trend assessments*
+
+```{r msi4}
+# The returned object has 2 elements
+msi_out$trends
+```
+
+*We have means of exploring the effect of changing the span value in the analysis*
+
+```{r msi_span, fig.height=4}
+for(i in c(0.3, 0.5, 0.7)){ # use a range of values for span
+  
+  msi_out <- msi(data, span = i, # span is set to i
+                 nsim = 200, plot = FALSE)
+  print( # print makes the plot visible in the for loop
+    plot(msi_out, title = paste('MSI - span =', i)) # plot
+  )
+  
+}
+```
+
+## Lambda Indicator
+
+*The lambda indicator calculates an indicator using growth rates from one year to the next. Formulating the indicator in terms of growth rates has two distinct advantages: First, the categorisation of species as ‘increasing’ or ‘decreasing’ can be made from the same set of data (the growth rates) as the construction of the indicator. Second, it provides an elegant solution to the problem of species that join the indicator after the first year (i.e. where the first year is unreliable). Other indicators adopt a rescaling approach to ensure species entering the indicator after the first year do not bias the assessment. It thirdly creates a robust, although untestable, assumption about species that drop out of the indicator prior to the final year: It assumes that their fluctuations are the same, in aggregate, as those of the species that remain in the indicator.*
+
+*Input data is on the occupancy scale and ranges between 0 and 1.*
+
+```{r lambda_1}
+# number of species
+nsp = 50
+
+# number of years
+nyr = 40
+
+#number of iterations
+iter = 500
+
+# Build a random set of data
+myArray <- array(data = rnorm(n = nsp*nyr*iter,
+                               mean = 0.5,
+                               sd = 0.1),
+                  dim = c(nsp, nyr, iter),
+                  dimnames = list(paste0('SP',1:nsp),
+                                  1:nyr,
+                                  1:iter))
+
+# Ensure values are bounded by 0 and 1
+myArray[myArray > 1] <- 1
+myArray[myArray < 0] <- 0
+
+str(myArray)
+```
+
+*`lambda_indicator` takes in an array of data in a three-dimensional matrix. The dimensions of this array represent species, years, and iterations. Each row represents a species and each column a year. The third dimension of the array contains the iterations. Essentially each slice contains occupancy estimates for each species year combination for a single iteration and the overall array contains as many slices as there are iterations.*
+
+```{r lambda_2}
+# Run the lambda_interpolation method on this data
+myIndicator <- lambda_indicator(myArray)
+
+# Plot the indicator
+plot_indicator(myIndicator$summary[,'indicator'],
+               myIndicator$summary[,c('lower' ,'upper')])
+
+```
+
+*There are a number of options available in the `lambda_indicator` function*
+
+```{r lambda_3}
+myIndicator <- lambda_indicator(myArray,
+                                index = 1, # Set the index value to 1 not 100
+                                year_range = c(30,40), # Set year range
+                                threshold_yrs = 5) # set a threshold
+plot_indicator(myIndicator$summary[,'indicator'],
+               myIndicator$summary[,c('lower' ,'upper')])
+```
+
+*Note that there are a range of threshold functions. There are options to remove species year estimates based on their standard deviation, Rhat value and based on the number of years a species is present. Note the Rhat threshold can only be used if you are using a directory path as you input rather than an array.*
+
+# Creating a custom pipeline function
+
+*in a 'pipeline' we want data to flow through seamlessly. Here is an example of how you can create your own pipeline function. Our function will wrap around the functions described above.*
+
+```{r,cache=TRUE}
+
+library(sparta)
+library(BRCindicators)
+
+# create a pipeline function
+run_pipeline <- function(input_dir){
+  
+  # Create the trends summary
+  trends_summary <- summarise_occDet(input_dir = input_dir)
+
+  # Rescale the values and get the indicator values
+  # Here I set the index to 1 and change the value limits
+  rescaled_trends <- rescale_species(Data = trends_summary,
+                                     index = 1,
+                                     max = 100,
+                                     min = 0.001)
+  
+  # Bootstrap the indicator to get CIs
+  scaled_species <- rescaled_trends[,!colnames(rescaled_trends) %in% c('year', 'indicator')]
+  # This time I set the iterations to twice the default and 
+  # use custom confidence intervals
+  indicator_CIs <- bootstrap_indicator(Data = scaled_species,
+                                       CI_limits = c(0.25, 0.75),
+                                       iterations = 20000)
+  
+  # Get the smoothed indicator line
+  smoothed_indicator <- GAM_smoothing(rescaled_trends[,'indicator'])
+  
+  # This time I specify the years and index value
+  plot_indicator(indicator = rescaled_trends[,'indicator'],
+                 year = rescaled_trends[,'year'],
+                 index = 1,
+                 CIs = indicator_CIs,
+                 smoothed_line = smoothed_indicator)
+  
+  ## I'll return all my data  
+  return(cbind(smoothed_indicator, indicator_CIs, as.data.frame(trends_summary)))
+ }
+```
+
+Once we have created this function we can run this pipeline on a directory in one line
+
+```{r, in_one}
+# Now we can run the pipeline in one line, like a boss
+indicator_data <- run_pipeline(input_dir = '~/Testing_indicator_pipe')
+
+head(indicator_data)
+```
+

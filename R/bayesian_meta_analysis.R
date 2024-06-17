@@ -43,11 +43,9 @@
 #'             A generic method for estimating and smoothing multispecies biodiversity indices, robust to intermittent data. 
 #'             \emph{Journal of Agricultural Biological and Environmental Statistics}, in revision.
 #' @export
+#' 
 #' @examples 
-#' 
-#' # Only run if there is a JAGS installation
-#' if(suppressWarnings(runjags::testjags(silent = TRUE)$JAGS.found)){
-#' 
+#' \dontrun{
 #' # Create some example data in the format required
 #' data <- data.frame(species = rep(letters, each = 50),
 #'                    year = rep(1:50, length(letters)),
@@ -60,8 +58,7 @@
 #' # Plot the resulting indicator
 #' plot_indicator(indicator = bma_indicator[,'Index.Mprime'],
 #'                CIs = bma_indicator[,c(3,4)])
-#'    
-#'    }
+#' }
 
 bma <- function (data,
               plot = TRUE,
