@@ -6,11 +6,6 @@ output:
   html_document:
     keep_md: yes
     toc: yes
-vignette: >
-  %\VignetteIndexEntry{BRCindicators}
-  %\usepackage[utf8]{inputenc}
-  %\VignetteEncoding{UTF-8}
-  %\VignetteEngine{knitr::rmarkdown}
 ---
 
 ```{r knitr_setup, echo=FALSE}

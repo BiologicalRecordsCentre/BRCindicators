@@ -25,6 +25,7 @@
 #' @param save.sppars Logical. Should the species-specific parameters be monitored? Defaults to TRUE 
 #' @param CI defines the credible intervals of the posterior distribution to report. Defaults the 95th percentile
 #' @param seed Option to set a custom seed to initialize JAGS chains, for reproducibility. Should be an integer. This argument will be deprecated in the next version, but you can always set the outside the function yourself.
+#' @param jags_path The full path to the JAGS executable. The default value is null. If null, will search the default installation path of the operating system. If specified, the path will be set to the JAGS_HOME system variable.
 #' @details There are a number of model to choose from:
 #' \itemize{
 #'  \item{\code{"smooth"}}{ The default option. Indicator defined by Growth rates, with Ruppert smoother, allowing for species to join late. Error on the first year of each species' time-series is assumed to be zero. The indicator is the expected value of the geometric mean across species (with missing species imputed). 
@@ -81,14 +82,21 @@ bma <- function (data,
               save.sppars = TRUE,
               incl.2deriv = FALSE,
               CI = 95,
-              seed = NULL){
+              seed = NULL,
+              jags_path = NULL){
 
 set.seed(seed = seed)
 
 # Check if JAGS is installed
-if (!detect_jags()) {
-stop("No installation of JAGS has been detected. You can install JAGS from https://sourceforge.net/projects/mcmc-jags/files/JAGS/",
-      call. = FALSE)
+if (!detect_jags(jags_path)) {
+    stop(
+      "JAGS could not be found\n",
+      "If you have not installed JAGS, please install it from: https://sourceforge.net/projects/mcmc-jags/\n",
+      "If JAGS has been installed to the default location, restart the console, and this error should not re-occur. If it does, specify the full path to the JAGS executable",
+      "To quickly recover the path of the jags executable you can run the following:\n",
+      "library(rjags)\n",
+      "runjags::findjags()"
+    )
 }
 
 # Check to see that column names are present
