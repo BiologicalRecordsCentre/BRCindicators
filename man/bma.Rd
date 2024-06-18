@@ -24,7 +24,8 @@ bma(
   save.sppars = TRUE,
   incl.2deriv = FALSE,
   CI = 95,
-  seed = NULL
+  seed = NULL,
+  jags_path = NULL
 )
 }
 \arguments{
@@ -71,6 +72,8 @@ Here you specify which log scale the data is on ('loge', 'log10', or 'logit'). D
 \item{CI}{defines the credible intervals of the posterior distribution to report. Defaults the 95th percentile}
 
 \item{seed}{Option to set a custom seed to initialize JAGS chains, for reproducibility. Should be an integer. This argument will be deprecated in the next version, but you can always set the outside the function yourself.}
+
+\item{jags_path}{The full path to the JAGS executable. The default value is null. If null, will search the default installation path of the operating system. If specified, the path will be set to the JAGS_HOME system variable.}
 }
 \value{
 Returns a dataframe with 7 columns: Year, Index.Mprime, lowerCI.Mprime, upperCI.Mprime, Index.M, lowerCI.M and, upperCI.M. 
@@ -90,10 +93,7 @@ There are a number of model to choose from:
  }
 }
 \examples{
-
-# Only run if there is a JAGS installation
-if(suppressWarnings(runjags::testjags(silent = TRUE)$JAGS.found)){
-
+\dontrun{
 # Create some example data in the format required
 data <- data.frame(species = rep(letters, each = 50),
                    year = rep(1:50, length(letters)),
@@ -106,8 +106,7 @@ bma_indicator <- bma(data, model="smooth", m.scale="logit", n.iter=100)
 # Plot the resulting indicator
 plot_indicator(indicator = bma_indicator[,'Index.Mprime'],
                CIs = bma_indicator[,c(3,4)])
-   
-   }
+}
 }
 \references{
 Freeman, S.N., Isaac, N.J.B., Besbeas, P.T., Dennis, E.B. & Morgan, B.J.T. (2020) 

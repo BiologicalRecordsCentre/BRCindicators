@@ -12,3 +12,4 @@ error_reproduction_scripts
 # To reduce repo size
 vignettes/vignette_files
 vignettes/vignette_cache
+inst/doc/BRCindicators_files

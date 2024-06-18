@@ -24,7 +24,8 @@ bma_objects <- function (data,
               save.sppars = TRUE,
               incl.2deriv = FALSE,
               CI = 95,
-              seed = NULL){
+              seed = NULL,
+              jags_path = NULL){
 
 # To capture objects
 output = list()
@@ -32,9 +33,15 @@ output = list()
 set.seed(seed = seed)
 
 # Check if JAGS is installed
-if (!detect_jags()) {
-stop("No installation of JAGS has been detected. You can install JAGS from https://sourceforge.net/projects/mcmc-jags/files/JAGS/",
-      call. = FALSE)
+if (!detect_jags(jags_path)) {
+    stop(
+      "JAGS could not be found\n",
+      "If you have not installed JAGS, please install it from: https://sourceforge.net/projects/mcmc-jags/\n",
+      "If JAGS has been installed to the default location, restart the console, and this error should not re-occur. If it does, specify the full path to the JAGS executable",
+      "To quickly recover the path of the jags executable you can run the following:\n",
+      "library(rjags)\n",
+      "runjags::findjags()"
+    )
 }
 
 # Check to see that column names are present

@@ -39,14 +39,15 @@ Imports:
     RColorBrewer,
     reshape2,
     jagsUI,
-    runjags
+    rjags
 Suggests: 
     covr,
     knitr,
     rmarkdown,
     snowfall,
     sparta,
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    runjags
 VignetteBuilder: 
     knitr
 Config/testthat/edition: 3
